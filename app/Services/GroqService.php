@@ -53,7 +53,7 @@ class GroqService
 
         $response = Http::withToken($this->apiKey)
             ->post($this->baseUrl, [
-                'model' => 'llama-3.3-70b-versatile',
+                'model' => 'openai/gpt-oss-120b',
                 'messages' => [
                     ['role' => 'system', 'content' => $systemPrompt],
                     ['role' => 'user', 'content' => $prompt],
@@ -73,5 +73,48 @@ class GroqService
         }
 
         return $data ?? [];
+    }
+
+    public function getMaterialProperties(string $name): array
+    {
+        if (!$this->apiKey) {
+            throw new \Exception('GROQ_API_KEY is not set in .env.');
+        }
+
+        $systemPrompt = "You are a color and material expert. Given a material name (usually a car wrap or paint), return its visual properties in JSON.
+
+        Properties:
+        - hex_code: A valid 7-character hex color code (e.g., #FF0000). ALWAYS include the #.
+        - roughness: 0 to 1 (0 is mirror-like, 1 is matte). Glossy wraps are ~0.1-0.2, Matte are ~0.8-0.9, Satin are ~0.4-0.5.
+        - metalness: 0 to 1 (0 is non-metallic, 1 is pure metal). Chrome wraps are 1.0, Metallic paints are ~0.4-0.6, Standard vinyl wraps are 0.
+
+        Return ONLY RAW JSON like:
+        {\"hex_code\": \"#aabbcc\", \"roughness\": 0.2, \"metalness\": 0.0}";
+
+        $response = Http::withToken($this->apiKey)
+            ->post($this->baseUrl, [
+                'model' => 'openai/gpt-oss-120b',
+                'messages' => [
+                    ['role' => 'system', 'content' => $systemPrompt],
+                    ['role' => 'user', 'content' => $name],
+                ],
+                'temperature' => 0.1,
+            ]);
+
+        if ($response->failed()) {
+            throw new \Exception('AI Error: ' . ($response->json('error.message') ?? 'Unknown error'));
+        }
+
+        $content = $response->json('choices.0.message.content');
+        if (preg_match('/(\[.*\]|\{.*\})/s', $content, $matches)) {
+            $content = $matches[0];
+        }
+
+        $data = json_decode($content, true);
+        if (!is_array($data)) {
+            throw new \Exception('Dështoi interpretimi i përgjigjes së AI.');
+        }
+
+        return $data;
     }
 }

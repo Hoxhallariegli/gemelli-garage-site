@@ -34,10 +34,10 @@ class JoinController extends Controller
             ],
             'confirmPassword' => 'required|same:newPassword',
         ], [
-            'newPassword.required' => 'New password is required',
-            'newPassword.uncompromised' => 'The given new password has appeared in a data leak by https://haveibeenpwned.com please choose a different new password. ',
-            'confirmPassword.required' => 'Confirm password is required',
-            'confirmPassword.same' => 'Confirm password and new password must match',
+            'newPassword.required' => __('auth.new_password_required'),
+            'newPassword.uncompromised' => __('auth.new_password_uncompromised'),
+            'confirmPassword.required' => __('auth.confirm_password_required'),
+            'confirmPassword.same' => __('auth.confirm_password_match'),
         ]);
 
         $user->name = $request->input('name');

@@ -1,0 +1,27 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'VehicleBrand' => 'Markë',
+  'VehicleBrands' => 'Markat',
+  'Action' => 'Veprim',
+  'Reset' => 'Reset',
+  'Filters' => 'Filtrat',
+  'Search' => 'Kërko',
+  'List of' => 'Lista e',
+  'Save' => 'Ruaj',
+  'Update' => 'Përditëso',
+  'Add VehicleBrand' => 'Shto Markë',
+  'Edit VehicleBrand' => 'Edito Markën',
+  'New record' => 'Regjistrim i ri',
+  'Update info' => 'Përditëso info',
+  'No records found.' => 'Nuk u gjet asnjë regjistrim.',
+  'created' => 'Marka u krijua.',
+  'updated' => 'Marka u përditësua.',
+  'deleted' => 'Marka u fshi.',
+  'not_found' => 'Regjistrimi nuk u gjet.',
+  'delete_error_referenced' => 'Regjistrimi është i lidhur me artikuj të tjerë dhe nuk mund të fshihet.',
+  'delete_error' => 'Regjistrimi nuk mund të fshihej.',
+  'Name' => 'Emri',
+  'Logo' => 'Logo',
+];

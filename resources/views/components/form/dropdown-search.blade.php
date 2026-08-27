@@ -15,7 +15,7 @@
     }
 @endphp
 
-<div class="relative w-full"
+<div {{ $attributes->merge(['class' => 'relative w-full space-y-1 mb-6']) }}
      data-list="{{ json_encode($list) }}"
      x-data="{
          search: '',
@@ -58,13 +58,11 @@
      }"
      @click.away="isOpen = false; search = selectedLabel">
 
-    @if($label)
-        <label class="block text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-widest mb-1.5 ml-1">
-            {{ $label }} @if($required)<span class="text-red-500">*</span>@endif
-        </label>
+    @if($label != 'none' && $label != '')
+        <x-form.label :$label :$required :name="$modelName" />
     @endif
 
-    <div class="relative">
+    <div class="relative" wire:ignore>
         <input type="text"
                x-model="search"
                @focus="if (!{{ $disabled ? 'true' : 'false' }}) { isOpen = true; search = ''; }"

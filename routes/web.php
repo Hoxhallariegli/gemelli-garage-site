@@ -20,7 +20,9 @@ Livewire::setUpdateRoute(function ($handle) {
     return Route::post('livewire/update', $handle);
 });
 
-Route::get('/', WelcomeController::class);
+Route::get('/', \App\Livewire\Public\LandingPage::class);
+Route::get('view-job/{token}', [App\Http\Controllers\Admin\JobPrintController::class, 'publicShow'])->name('public.job.view');
+Route::get('view-job/{token}/preview.jpg', [App\Http\Controllers\Admin\JobPrintController::class, 'previewImage'])->name('public.job.preview-image');
 Route::get('language/{locale}', function ($locale) {
     session()->put('locale', $locale);
     return redirect()->back();

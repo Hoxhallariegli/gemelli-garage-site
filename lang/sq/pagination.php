@@ -1,6 +1,8 @@
 <?php
 
+declare(strict_types=1);
+
 return [
-  'previous' => '&laquo; E mëparshme',
-  'next' => 'Tjetra &raquo;',
+    'previous' => '&laquo; Para',
+    'next' => 'Pas &raquo;',
 ];

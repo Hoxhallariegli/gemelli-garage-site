@@ -5,7 +5,7 @@
 ])
 
 @php
-    $isActive = request()->routeIs($route);
+    $isActive = request()->routeIs($route) || (str_ends_with($route, '.index') && request()->routeIs(str_replace('.index', '.*', $route)));
 @endphp
 
 <a @if($navEnabled) wire:navigate @endif

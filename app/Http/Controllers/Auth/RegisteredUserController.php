@@ -54,7 +54,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        flash('Please check your email for a verification link.')->info();
+        flash(__('auth.verification_link_sent'))->info();
 
         return redirect()->back();
     }

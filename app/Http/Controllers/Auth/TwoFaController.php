@@ -41,7 +41,7 @@ class TwoFaController extends Controller
         $valid = $twoFactorAuth->verifyCode($request->user()->two_fa_secret_key ?? '', $validated['code']);
 
         if ($valid === false) {
-            return back()->withErrors('Code is invalid please try again.');
+            return back()->withErrors(__('auth.code_invalid'));
         }
 
         session()->forget('2fa-login');
@@ -65,7 +65,7 @@ class TwoFaController extends Controller
                             'type' => '2FA Setup',
                         ]);
 
-                        $fail('Code is invalid please scan the barcode again and enter the code.');
+                        $fail(__('auth.code_invalid_scan'));
                     }
                 },
             ],

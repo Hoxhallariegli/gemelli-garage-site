@@ -1,22 +1,66 @@
 @section('title', __('Register'))
 
 <x-layouts.guest>
-    <x-auth-card>
+    <section class="jarallax">
+        <img src="{{ asset('assets/front/gemelli-garage/images/background/4.webp') }}" class="jarallax-img" alt="">
+        <div class="sw-overlay"></div>
+        <div class="container relative z-3">
+            <div class="spacer-double"></div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-5">
+                    <div class="p-40 bg-dark-2 rounded-1 relative overflow-hidden text-light shadow-2xl">
+                        <div class="text-center mb-4">
+                            <h3 class="text-2xl font-bold text-white uppercase tracking-tight">Register</h3>
+                            <p class="text-gray-400">Create your account.</p>
+                        </div>
 
-        @include('errors.messages')
+                        <form method="POST" action="{{ route('register') }}" class="form-border">
+                            @csrf
 
-        <x-form action="{{ route('register') }}">
-            <x-form.input type="text" :label="__('Name')" name="name">{{ old('name') }}</x-form.input>
-            <x-form.input type="email" :label="__('Email')" name="email">{{ old('email') }}</x-form.input>
-            <x-form.input type="password" :label="__('Password')" name='password'></x-form.input>
-            <x-form.input type="password" :label="__('Confirm Password')" name='confirmPassword'></x-form.input>
+                            @include('errors.messages')
 
-            <div class="flex items-center justify-end mt-4">
-                <p><a href="{{ route('login') }}" class="pt-2 mr-5 underline">{{ __('Already registered?') }}</a></p>
-                <x-button>{{ __('Register') }}</x-button>
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">Name</label>
+                                <input type="text" name="name" value="{{ old('name') }}" class="form-control" placeholder="Name" required autofocus>
+                                @error('name')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">Email</label>
+                                <input type="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="Email" required>
+                                @error('email')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                                @error('password')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">Confirm Password</label>
+                                <input type="password" name="password_confirmation" class="form-control" placeholder="Confirm Password" required>
+                                @error('password_confirmation')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="btn-main w-100 py-3">Register</button>
+
+                            <div class="text-center mt-3">
+                                <a href="{{ route('login') }}" class="text-gray-400 text-xs hover:text-white transition">Already registered?</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-
-        </x-form>
-
-    </x-auth-card>
+            <div class="spacer-double"></div>
+        </div>
+    </section>
 </x-layouts.guest>

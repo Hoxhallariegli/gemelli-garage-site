@@ -28,4 +28,7 @@ return [
   'Delete' => 'Delete',
   'Cancel' => 'Cancel',
   'View Current File' => 'View Current File',
+  'invalid_upload' => 'Invalid upload',
+  'no_file_uploaded' => 'No file uploaded',
+  'Click to replace current file' => 'Click to replace current file',
 ];

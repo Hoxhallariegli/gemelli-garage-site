@@ -4,7 +4,8 @@
     'name' => '',
     'label' => '',
     'value' => '',
-    'class' => ''
+    'class' => '',
+    'wrapperClass' => 'mb-6'
 ])
 
 @if ($label === 'none')
@@ -18,7 +19,7 @@
     @endphp
 @endif
 
-<div class="space-y-1 mb-6">
+<div class="space-y-1 {{ $wrapperClass }}">
     @if ($label !='none')
         <x-form.label :$label :$required :$name />
     @endif

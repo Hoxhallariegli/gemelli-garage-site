@@ -7,6 +7,7 @@
     <title>@yield('title') {{ $title ?? null }} - {{ config('app.name', 'Laravel') }}</title>
     @stack('scripts')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <script>
         // Theme Loader

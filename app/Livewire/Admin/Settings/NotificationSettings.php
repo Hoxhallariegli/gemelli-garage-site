@@ -43,6 +43,7 @@ class NotificationSettings extends Component
 
     public function render()
     {
+        abort_if_cannot('view_notifications');
         return view('livewire.admin.settings.notification-settings')->layout('components.layouts.app');
     }
 }

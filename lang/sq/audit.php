@@ -1,15 +1,15 @@
 <?php
 
 return [
-  'Audit Trails' => 'Gjurmët e Auditimit',
+  'Audit Trails' => 'Gjurmët e Auditit',
   'User' => 'Përdoruesi',
-  'Action' => 'Veprimi',
+  'Action' => 'Veprim',
   'Section' => 'Seksioni',
-  'Type' => 'Lloji',
+  'Type' => 'Tipi',
   'View' => 'Shiko',
   'Created At' => 'Krijuar më',
   'Search Actions' => 'Kërko Veprimet',
   'Advanced Search' => 'Kërkim i Avancuar',
-  'Reset form' => 'Rivendos formën',
-  'Created Date Range' => 'Gama e Datave të Krijimit',
+  'Reset form' => 'Reset',
+  'Created Date Range' => 'Periudha e Kohës',
 ];

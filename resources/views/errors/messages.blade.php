@@ -1,13 +1,15 @@
+@include('errors.errors')
+
 @foreach (session('flash_notification', collect())->toArray() as $message)
-    <x-alert variant="{{ $message['level'] }}">{{ $message['message'] }}</x-alert>
+    <div class="{{ $message['level'] == 'danger' ? 'red' : 'green' }} mb-3">{{ $message['message'] }}</div>
 @endforeach
 
 {{ session()->forget('flash_notification') }}
 
 @if (session('message'))
-    <x-alert>{{ session('message') }}</x-alert>
+    <div class="green mb-3">{{ session('message') }}</div>
 @endif
 
 @if (session('status'))
-    <x-alert>{{ session('status') }}</x-alert>
+    <div class="green mb-3">{{ session('status') }}</div>
 @endif

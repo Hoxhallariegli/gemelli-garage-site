@@ -1,0 +1,7 @@
+- `[x]` Improve Materials View
+    - `[x]` Update `index.blade.php` (columns, padding)
+    - `[x]` Update `row.blade.php` (padding, margin, stock badge)
+- `[x]` Improve Parts View
+    - `[x]` Update `index.blade.php` (columns, padding)
+    - `[x]` Update `row.blade.php` (padding, margin, stock badge)
+- `[x]` Verification

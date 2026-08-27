@@ -3,36 +3,45 @@
 @source "../views";
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
-  --color-primary: #3c8dbc;
+  --color-primary: #0f172a;
   --color-secondary: #F6F6F7;
 }
 
 h1 {
-    @apply text-4xl text-gray-900 dark:text-gray-300;
+    @apply text-xl sm:text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase italic;
 }
 
 h2 {
-    @apply py-2 text-3xl text-gray-900 dark:text-gray-300;
+    @apply py-2 text-xl font-black text-gray-900 dark:text-gray-300 uppercase tracking-tight;
 }
 
 h3 {
-    @apply py-2 text-2xl text-gray-900 dark:text-gray-300;
-}
-
-h4 {
-    @apply py-2 text-xl text-gray-900 dark:text-gray-300;
+    @apply py-2 text-lg font-black text-gray-900 dark:text-gray-300 uppercase tracking-tight;
 }
 
 p {
-    @apply py-2 text-gray-600 dark:text-gray-300;
+    @apply text-sm text-gray-500 dark:text-gray-400 font-medium mt-1;
 }
 
 p a {
-    @apply text-sky-600 dark:text-sky-300;
+    @apply text-slate-900 dark:text-white font-bold hover:underline;
 }
 
 hr {
-    @apply border-t border-gray-300;
+    @apply border-t border-gray-100 dark:border-gray-800 my-6;
+}
+
+/** UI Utilities */
+.ui-label {
+    @apply text-[10px] font-black uppercase text-gray-400 dark:text-gray-400 tracking-[0.2em] mb-2 block ml-1;
+}
+
+.ui-value-large {
+    @apply text-4xl font-black text-gray-900 dark:text-white mt-0.5 italic tracking-tighter;
+}
+
+.ui-section-header {
+    @apply text-[9px] md:text-[10px] font-black uppercase tracking-widest md:tracking-[0.2em] mb-5 ml-1;
 }
 
 /** Tables */

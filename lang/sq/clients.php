@@ -1,0 +1,28 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'Client' => 'Klient',
+  'Clients' => 'Klientët',
+  'Action' => 'Veprim',
+  'Reset' => 'Reset',
+  'Filters' => 'Filtrat',
+  'Search' => 'Kërko',
+  'List of' => 'Lista e',
+  'Save' => 'Ruaj',
+  'Update' => 'Përditëso',
+  'Add Client' => 'Shto Klient',
+  'Edit Client' => 'Edito Klientin',
+  'New record' => 'Regjistrim i ri',
+  'Update info' => 'Përditëso info',
+  'No records found.' => 'Nuk u gjet asnjë regjistrim.',
+  'created' => 'Klienti u krijua.',
+  'updated' => 'Klienti u përditësua.',
+  'deleted' => 'Klienti u fshi.',
+  'not_found' => 'Regjistrimi nuk u gjet.',
+  'delete_error_referenced' => 'Regjistrimi është i lidhur me artikuj të tjerë dhe nuk mund të fshihet.',
+  'delete_error' => 'Regjistrimi nuk mund të fshihej.',
+  'Name' => 'Emri',
+  'Phone' => 'Nr. Tel',
+  'Email' => 'Email',
+];

@@ -1,0 +1,27 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'VehicleBrand' => 'VehicleBrand',
+  'VehicleBrands' => 'VehicleBrands',
+  'Action' => 'Action',
+  'Reset' => 'Reset',
+  'Filters' => 'Filters',
+  'Search' => 'Search',
+  'List of' => 'List of',
+  'Save' => 'Save',
+  'Update' => 'Update',
+  'Add VehicleBrand' => 'Add VehicleBrand',
+  'Edit VehicleBrand' => 'Edit VehicleBrand',
+  'New record' => 'New record',
+  'Update info' => 'Update info',
+  'No records found.' => 'No records found.',
+  'created' => 'VehicleBrand created.',
+  'updated' => 'VehicleBrand updated.',
+  'deleted' => 'VehicleBrand deleted.',
+  'not_found' => 'Record not found.',
+  'delete_error_referenced' => 'Record is referenced by other items and cannot be deleted.',
+  'delete_error' => 'Could not delete record.',
+  'Name' => 'Name',
+  'Logo' => 'Logo',
+];

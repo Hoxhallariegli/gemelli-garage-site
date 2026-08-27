@@ -102,6 +102,7 @@ class AiAssistant extends Component
 
     public function render()
     {
+        abort_if_cannot('view_ai_assistant');
         return view('livewire.admin.ai-assistant')->layout('components.layouts.app');
     }
 }

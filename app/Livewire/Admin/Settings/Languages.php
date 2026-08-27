@@ -170,6 +170,7 @@ class Languages extends Component
 
     public function render()
     {
+        abort_if_cannot('view_languages');
         return view('livewire.admin.settings.languages')->layout('components.layouts.app');
     }
 }

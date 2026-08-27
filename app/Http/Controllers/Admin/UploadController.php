@@ -28,7 +28,7 @@ class UploadController extends Controller
             $file = $request->file('upload');
 
             if (! $file instanceof UploadedFile) {
-                return response()->json(['error' => 'Invalid upload'], 400);
+                return response()->json(['error' => __('admin.invalid_upload')], 400);
             }
 
             /** @var UploadedFile $file */
@@ -39,6 +39,6 @@ class UploadController extends Controller
             ]);
         }
 
-        return response()->json(['error' => 'No file uploaded'], 422);
+        return response()->json(['error' => __('admin.no_file_uploaded')], 422);
     }
 }
