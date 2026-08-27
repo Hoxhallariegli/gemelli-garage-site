@@ -24,14 +24,11 @@ class Create extends Component
     public function render() { abort_if_cannot('add_materials'); return view('livewire.admin.materials.create', [
         ])->layout('components.layouts.app'); }
 
-    public function store(CreateMaterialAction $action)
+    public function store(CreateMaterialAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $imgPath = null;
-        if ($this->image) {
-            $imgPath = $this->image->store('materials', 'public_uploads');
-        }
+        $imgPath = $uploadService->upload($this->image, 'materials');
 
         $dto = MaterialDTO::fromArray([
             'name' => $this->name,
@@ -49,7 +46,7 @@ class Create extends Component
     protected function rules(): array
     {
         $rules = Material::rules();
-        $rules['image'] = ['nullable', 'image', 'max:2048'];
+        $rules['image'] = ['nullable', 'image', 'max:15360'];
         return $rules;
     }
 }

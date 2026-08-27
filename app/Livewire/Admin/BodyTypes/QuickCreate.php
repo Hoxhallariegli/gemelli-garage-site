@@ -23,14 +23,11 @@ class QuickCreate extends Component
 
     public function render() { return view('livewire.admin.body-types.quick-create'); }
 
-    public function store(CreateBodyTypeAction $action)
+    public function store(CreateBodyTypeAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $path = null;
-        if ($this->image) {
-            $path = $this->image->store('body_types', 'public_uploads');
-        }
+        $path = $uploadService->upload($this->image, 'body_types');
 
         $dto = BodyTypeDTO::fromArray([
             'name' => $this->name,

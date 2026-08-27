@@ -31,13 +31,14 @@ class Edit extends Component
         return view('livewire.admin.vehicle-brands.edit')->layout('components.layouts.app');
     }
 
-    public function update(UpdateVehicleBrandAction $action)
+    public function update(UpdateVehicleBrandAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
         $logoPath = $this->item->logo;
         if ($this->logo && !is_string($this->logo)) {
-            $logoPath = $this->logo->store('brands', 'public_uploads');
+            $uploadService->delete($logoPath);
+            $logoPath = $uploadService->upload($this->logo, 'brands');
         }
 
         $dto = VehicleBrandDTO::fromArray([
@@ -54,7 +55,7 @@ class Edit extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'logo' => ['nullable', 'image', 'max:2048'],
+            'logo' => ['nullable', 'image', 'max:15360'],
         ];
     }
 }

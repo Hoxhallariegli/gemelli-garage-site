@@ -24,14 +24,11 @@ class QuickCreate extends Component
         return view('livewire.admin.vehicle-brands.quick-create');
     }
 
-    public function store(CreateVehicleBrandAction $action)
+    public function store(CreateVehicleBrandAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $logoPath = null;
-        if ($this->logo) {
-            $logoPath = $this->logo->store('brands', 'public_uploads');
-        }
+        $logoPath = $uploadService->upload($this->logo, 'brands');
 
         $dto = VehicleBrandDTO::fromArray([
             'name' => $this->name,

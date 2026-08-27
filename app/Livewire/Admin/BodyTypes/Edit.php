@@ -35,30 +35,14 @@ class Edit extends Component
         return view('livewire.admin.body-types.edit')->layout('components.layouts.app');
     }
 
-    public function update(UpdateBodyTypeAction $action)
+    public function update(UpdateBodyTypeAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
         $path = $this->item->image;
         if ($this->image && !is_string($this->image)) {
-            // 1. Ensure public directory
-            $targetDir = public_path('vehicle_assets');
-            if (!File::exists($targetDir)) {
-                File::makeDirectory($targetDir, 0755, true);
-            }
-
-            // 2. Generate name
-            $extension = $this->image->getClientOriginalExtension();
-            $cleanName = Str::slug($this->name) . '-' . time() . '.' . $extension;
-            $targetPath = $targetDir . '/' . $cleanName;
-
-            // 3. Copy manually to public
-            if ($path && File::exists(public_path($path))) {
-                File::delete(public_path($path));
-            }
-
-            File::copy($this->image->getRealPath(), $targetPath);
-            $path = 'vehicle_assets/' . $cleanName;
+            $uploadService->delete($path);
+            $path = $uploadService->upload($this->image, 'vehicle_assets');
         }
 
         $dto = BodyTypeDTO::fromArray([

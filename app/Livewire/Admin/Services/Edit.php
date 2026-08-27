@@ -25,13 +25,14 @@ class Edit extends Component
     public function render() { abort_if_cannot('edit_services'); return view('livewire.admin.services.edit', [
         ])->layout('components.layouts.app'); }
 
-    public function update(UpdateServiceAction $action)
+    public function update(UpdateServiceAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
         $imgPath = $this->item->image;
         if ($this->image && !is_string($this->image)) {
-            $imgPath = $this->image->store('services', 'public_uploads');
+            $uploadService->delete($imgPath);
+            $imgPath = $uploadService->upload($this->image, 'services');
         }
 
         $dto = ServiceDTO::fromArray([
@@ -45,5 +46,5 @@ class Edit extends Component
         session()->flash('success', __('services.updated'));
         return to_route('admin.services.index');
     }
-    protected function rules(): array { return array_merge(Service::rules($this->item->id), ['image' => 'nullable|image|max:1024']); }
+    protected function rules(): array { return array_merge(Service::rules($this->item->id), ['image' => 'nullable|image|max:15360']); }
 }

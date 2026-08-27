@@ -1,2 +1,2 @@
-*
-!.gitignore
+# Do not ignore anything in public by default
+# unless specified in the root .gitignore

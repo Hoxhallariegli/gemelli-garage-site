@@ -23,14 +23,11 @@ class Create extends Component
     public function render() { abort_if_cannot('add_services'); return view('livewire.admin.services.create', [
         ])->layout('components.layouts.app'); }
 
-    public function store(CreateServiceAction $action)
+    public function store(CreateServiceAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $imgPath = null;
-        if ($this->image) {
-            $imgPath = $this->image->store('services', 'public_uploads');
-        }
+        $imgPath = $uploadService->upload($this->image, 'services');
 
         $dto = ServiceDTO::fromArray([
             'name' => $this->name,
@@ -43,5 +40,5 @@ class Create extends Component
         session()->flash('success', __('services.created'));
         return to_route('admin.services.index');
     }
-    protected function rules(): array { return array_merge(Service::rules(), ['image' => 'nullable|image|max:1024']); }
+    protected function rules(): array { return array_merge(Service::rules(), ['image' => 'nullable|image|max:15360']); }
 }

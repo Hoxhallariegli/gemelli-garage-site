@@ -23,14 +23,11 @@ class Create extends Component
         return view('livewire.admin.vehicle-brands.create')->layout('components.layouts.app');
     }
 
-    public function store(CreateVehicleBrandAction $action)
+    public function store(CreateVehicleBrandAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $logoPath = null;
-        if ($this->logo) {
-            $logoPath = $this->logo->store('brands', 'public_uploads');
-        }
+        $logoPath = $uploadService->upload($this->logo, 'brands');
 
         $dto = VehicleBrandDTO::fromArray([
             'name' => $this->name,
@@ -46,7 +43,7 @@ class Create extends Component
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'logo' => ['nullable', 'image', 'max:2048'],
+            'logo' => ['nullable', 'image', 'max:15360'],
         ];
     }
 }

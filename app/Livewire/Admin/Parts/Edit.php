@@ -25,13 +25,14 @@ class Edit extends Component
     public function render() { abort_if_cannot('edit_parts'); return view('livewire.admin.parts.edit', [
         ])->layout('components.layouts.app'); }
 
-    public function update(UpdatePartAction $action)
+    public function update(UpdatePartAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
         $imgPath = $this->item->image;
         if ($this->image && !is_string($this->image)) {
-            $imgPath = $this->image->store('parts', 'public_uploads');
+            $uploadService->delete($imgPath);
+            $imgPath = $uploadService->upload($this->image, 'parts');
         }
 
         $dto = PartDTO::fromArray([
@@ -45,5 +46,5 @@ class Edit extends Component
         session()->flash('success', __('parts.updated'));
         return to_route('admin.parts.index');
     }
-    protected function rules(): array { return array_merge(Part::rules($this->item->id), ['image' => 'nullable|image|max:1024']); }
+    protected function rules(): array { return array_merge(Part::rules($this->item->id), ['image' => 'nullable|image|max:15360']); }
 }

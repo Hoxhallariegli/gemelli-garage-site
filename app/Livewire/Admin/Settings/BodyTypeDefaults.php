@@ -16,7 +16,7 @@ class BodyTypeDefaults extends Component
 
     public $uploads2d = [];
 
-    public function save($id)
+    public function save($id, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate([
             'uploads2d.' . $id => 'required|image|max:10240', // 10MB limit
@@ -25,32 +25,20 @@ class BodyTypeDefaults extends Component
         $item = BodyTypeDefault::findOrFail($id);
         $file = $this->uploads2d[$id];
 
-        // 1. Create target directory if not exists
-        $targetDir = public_path('vehicle_assets');
-        if (!File::exists($targetDir)) {
-            File::makeDirectory($targetDir, 0755, true);
-        }
-
-        // 2. Generate clean name
-        $extension = $file->getClientOriginalExtension();
-        $cleanName = Str::slug($item->body_type) . '-' . time() . '.' . $extension;
-        $targetPath = $targetDir . '/' . $cleanName;
-
-        // 3. Move file manually to public folder
         try {
-            // Remove old file if exists in public
-            if ($item->image_2d_path && File::exists(public_path($item->image_2d_path))) {
-                File::delete(public_path($item->image_2d_path));
+            // Remove old file
+            if ($item->image_2d_path) {
+                $uploadService->delete($item->image_2d_path);
             }
 
-            File::copy($file->getRealPath(), $targetPath);
-            $path = 'vehicle_assets/' . $cleanName;
+            // Upload and compress
+            $path = $uploadService->upload($file, 'vehicle_assets');
 
             $item->update([
                 'image_2d_path' => $path
             ]);
 
-            $this->dispatch('toast', message: "Imazhi u ruajt direkt në public!", type: 'success');
+            $this->dispatch('toast', message: "Imazhi u kompresua dhe u ruajt!", type: 'success');
             $this->reset('uploads2d');
         } catch (\Exception $e) {
             $this->dispatch('toast', message: "Gabim: " . $e->getMessage(), type: 'error');

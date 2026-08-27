@@ -26,27 +26,11 @@ class Create extends Component
         return view('livewire.admin.body-types.create')->layout('components.layouts.app');
     }
 
-    public function store(CreateBodyTypeAction $action)
+    public function store(CreateBodyTypeAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $path = null;
-        if ($this->image) {
-            // 1. Ensure public directory
-            $targetDir = public_path('vehicle_assets');
-            if (!File::exists($targetDir)) {
-                File::makeDirectory($targetDir, 0755, true);
-            }
-
-            // 2. Generate name
-            $extension = $this->image->getClientOriginalExtension();
-            $cleanName = Str::slug($this->name) . '-' . time() . '.' . $extension;
-            $targetPath = $targetDir . '/' . $cleanName;
-
-            // 3. Copy manually to public
-            File::copy($this->image->getRealPath(), $targetPath);
-            $path = 'vehicle_assets/' . $cleanName;
-        }
+        $path = $uploadService->upload($this->image, 'vehicle_assets');
 
         $dto = BodyTypeDTO::fromArray([
             'name' => $this->name,

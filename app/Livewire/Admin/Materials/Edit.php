@@ -26,13 +26,14 @@ class Edit extends Component
     public function render() { abort_if_cannot('edit_materials'); return view('livewire.admin.materials.edit', [
         ])->layout('components.layouts.app'); }
 
-    public function update(UpdateMaterialAction $action)
+    public function update(UpdateMaterialAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
         $imgPath = $this->item->image;
         if ($this->image && !is_string($this->image)) {
-            $imgPath = $this->image->store('materials', 'public_uploads');
+            $uploadService->delete($imgPath);
+            $imgPath = $uploadService->upload($this->image, 'materials');
         }
 
         $dto = MaterialDTO::fromArray([
@@ -55,7 +56,7 @@ class Edit extends Component
         // Nëse kemi një upload të ri, e validojmë si imazh.
         // Përndryshe e lëmë si string (path-i ekzistues).
         if ($this->image && !is_string($this->image)) {
-            $rules['image'] = ['nullable', 'image', 'max:2048'];
+            $rules['image'] = ['nullable', 'image', 'max:15360'];
         } else {
             $rules['image'] = ['nullable', 'string'];
         }

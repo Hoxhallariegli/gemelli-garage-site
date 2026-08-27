@@ -23,14 +23,11 @@ class Create extends Component
     public function render() { abort_if_cannot('add_parts'); return view('livewire.admin.parts.create', [
         ])->layout('components.layouts.app'); }
 
-    public function store(CreatePartAction $action)
+    public function store(CreatePartAction $action, \App\Services\ImageUploadService $uploadService)
     {
         $this->validate();
 
-        $imgPath = null;
-        if ($this->image) {
-            $imgPath = $this->image->store('parts', 'public_uploads');
-        }
+        $imgPath = $uploadService->upload($this->image, 'parts');
 
         $dto = PartDTO::fromArray([
             'name' => $this->name,
@@ -43,5 +40,5 @@ class Create extends Component
         session()->flash('success', __('parts.created'));
         return to_route('admin.parts.index');
     }
-    protected function rules(): array { return array_merge(Part::rules(), ['image' => 'nullable|image|max:1024']); }
+    protected function rules(): array { return array_merge(Part::rules(), ['image' => 'nullable|image|max:15360']); }
 }
