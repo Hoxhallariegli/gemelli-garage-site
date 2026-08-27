@@ -147,7 +147,7 @@
                                 <div class="flex items-center gap-3">
                                     @if($s->service?->image)
                                         <div class="size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
-                                            <img src="{{ asset('storage/'.$s->service->image) }}" class="w-full h-full object-cover">
+                                            <img src="{{ asset($s->service->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @else
                                         <div class="size-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
@@ -172,7 +172,7 @@
                                 <div class="flex items-center gap-3">
                                     @if($m->material?->image)
                                         <div class="size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
-                                            <img src="{{ asset('storage/'.$m->material->image) }}" class="w-full h-full object-cover">
+                                            <img src="{{ asset($m->material->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @elseif($m->material?->hex_code)
                                         <div class="size-10 rounded-lg shrink-0 border border-gray-100 shadow-inner" style="background-color: {{ $m->material->hex_code }}"></div>
@@ -199,7 +199,7 @@
                                 <div class="flex items-center gap-3">
                                     @if($p->part?->image)
                                         <div class="size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
-                                            <img src="{{ asset('storage/'.$p->part->image) }}" class="w-full h-full object-cover">
+                                            <img src="{{ asset($p->part->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @else
                                         <div class="size-10 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">

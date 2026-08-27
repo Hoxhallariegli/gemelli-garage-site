@@ -32,7 +32,7 @@ class Edit extends Component
 
         $imgPath = $this->item->image;
         if ($this->image && !is_string($this->image)) {
-            $imgPath = $this->image->store('materials', 'public');
+            $imgPath = $this->image->store('materials', 'public_uploads');
         }
 
         $dto = MaterialDTO::fromArray([

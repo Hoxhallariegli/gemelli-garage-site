@@ -1,6 +1,17 @@
 <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition-none border-b border-gray-50 dark:border-gray-700/50 last:border-none">
     <td class="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{{ $item->id }}</td>
-    <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->name }}</td>
+    <td class="px-6 py-5">
+        <div class="flex items-center gap-3">
+            <div class="size-10 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700">
+                @if($item->image)
+                    <img src="{{ asset($item->image) }}" class="w-full h-full object-cover">
+                @else
+                    <x-heroicon-o-wrench-screwdriver class="size-5 text-gray-300" />
+                @endif
+            </div>
+            <span class="text-gray-900 dark:text-white font-bold">{{ $item->name }}</span>
+        </div>
+    </td>
 <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->description }}</td>
 <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->base_price }}</td>
 <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->active }}</td>

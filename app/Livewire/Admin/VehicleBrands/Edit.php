@@ -37,7 +37,7 @@ class Edit extends Component
 
         $logoPath = $this->item->logo;
         if ($this->logo && !is_string($this->logo)) {
-            $logoPath = $this->logo->store('brands', 'public');
+            $logoPath = $this->logo->store('brands', 'public_uploads');
         }
 
         $dto = VehicleBrandDTO::fromArray([

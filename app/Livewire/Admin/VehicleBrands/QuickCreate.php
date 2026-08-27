@@ -30,7 +30,7 @@ class QuickCreate extends Component
 
         $logoPath = null;
         if ($this->logo) {
-            $logoPath = $this->logo->store('brands', 'public');
+            $logoPath = $this->logo->store('brands', 'public_uploads');
         }
 
         $dto = VehicleBrandDTO::fromArray([

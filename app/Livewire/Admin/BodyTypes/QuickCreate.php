@@ -29,7 +29,7 @@ class QuickCreate extends Component
 
         $path = null;
         if ($this->image) {
-            $path = $this->image->store('body_types', 'public');
+            $path = $this->image->store('body_types', 'public_uploads');
         }
 
         $dto = BodyTypeDTO::fromArray([

@@ -37,7 +37,7 @@
                 }
                 // 2. Kontrollojmë nëse kemi një URL ekzistuese (në edit mode)
                 elseif ($preview) {
-                    $previewUrl = asset('storage/' . $preview);
+                    $previewUrl = str_starts_with($preview, 'http') ? $preview : asset($preview);
                     $hasPreview = true;
                 }
             @endphp

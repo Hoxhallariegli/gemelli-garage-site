@@ -29,7 +29,7 @@ class Create extends Component
 
         $imgPath = null;
         if ($this->image) {
-            $imgPath = $this->image->store('services', 'public');
+            $imgPath = $this->image->store('services', 'public_uploads');
         }
 
         $dto = ServiceDTO::fromArray([

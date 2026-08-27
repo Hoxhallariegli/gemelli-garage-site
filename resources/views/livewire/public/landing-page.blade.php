@@ -211,7 +211,7 @@
                     <div class="col-sm-6 col-md-4" wire:key="service-card-{{ $service->id }}">
                         <div class="hover rounded-1 overflow-hidden relative text-light text-center wow fadeInRight" data-wow-delay=".{{ $index * 2 }}s">
                             @if($service->image)
-                                <img src="{{ asset('storage/'.$service->image) }}" class="hover-scale-1-1 w-100 object-cover h-64" alt="{{ $service->name }}">
+                                <img src="{{ asset($service->image) }}" class="hover-scale-1-1 w-100 object-cover h-64" alt="{{ $service->name }}">
                             @else
                                 <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-64 object-cover" alt="">
                             @endif

@@ -30,7 +30,7 @@ class Create extends Component
 
         $imgPath = null;
         if ($this->image) {
-            $imgPath = $this->image->store('materials', 'public');
+            $imgPath = $this->image->store('materials', 'public_uploads');
         }
 
         $dto = MaterialDTO::fromArray([

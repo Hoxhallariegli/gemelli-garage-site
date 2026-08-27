@@ -31,7 +31,7 @@ class Edit extends Component
 
         $imgPath = $this->item->image;
         if ($this->image && !is_string($this->image)) {
-            $imgPath = $this->image->store('services', 'public');
+            $imgPath = $this->image->store('services', 'public_uploads');
         }
 
         $dto = ServiceDTO::fromArray([

@@ -10,7 +10,7 @@
             </div>
         @elseif ($item->logo)
             <div class="mt-4 flex justify-center">
-                <img src="{{ asset('storage/' . $item->logo) }}" class="size-24 object-contain rounded-xl border border-gray-100 dark:border-gray-700 p-2 bg-white dark:bg-gray-800 shadow-sm">
+                <img src="{{ asset($item->logo) }}" class="size-24 object-contain rounded-xl border border-gray-100 dark:border-gray-700 p-2 bg-white dark:bg-gray-800 shadow-sm">
             </div>
         @endif
     </x-form.file-upload>

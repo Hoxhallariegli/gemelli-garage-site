@@ -2,7 +2,7 @@
     <td class="px-4 py-3">
         <div class="size-10 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700">
             @if($item->image)
-                <img src="{{ asset('storage/'.$item->image) }}" class="w-full h-full object-cover">
+                <img src="{{ asset($item->image) }}" class="w-full h-full object-cover">
             @else
                 <x-heroicon-o-square-3-stack-3d class="size-5 text-gray-300" />
             @endif

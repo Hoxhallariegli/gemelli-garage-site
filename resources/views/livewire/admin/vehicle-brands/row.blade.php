@@ -3,7 +3,7 @@
     <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->name }}</td>
     <td class="px-6 py-5">
         @if($item->logo)
-            <img src="{{ asset('storage/' . $item->logo) }}" class="size-8 object-contain rounded-lg bg-white dark:bg-gray-800 p-1 border border-gray-100 dark:border-gray-700 shadow-sm">
+            <img src="{{ asset($item->logo) }}" class="size-8 object-contain rounded-lg bg-white dark:bg-gray-800 p-1 border border-gray-100 dark:border-gray-700 shadow-sm">
         @else
             <span class="text-[10px] text-gray-400 italic font-bold uppercase tracking-widest">No Logo</span>
         @endif

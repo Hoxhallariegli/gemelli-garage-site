@@ -18,7 +18,7 @@
 
                     @if($item->image_2d_path)
                         <div class="relative group aspect-video bg-gray-50 dark:bg-gray-900 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700">
-                            <img src="{{ asset('storage/' . $item->image_2d_path) }}" class="w-full h-full object-contain">
+                            <img src="{{ asset($item->image_2d_path) }}" class="w-full h-full object-contain">
                             <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                 <button wire:click="delete({{ $item->id }}, '2d')" class="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-lg">
                                     <x-heroicon-o-trash class="w-5 h-5" />

@@ -42,7 +42,7 @@
                             class="group flex flex-col items-center p-1.5 bg-gray-50 dark:bg-gray-900/50 border border-transparent {{ $isOutOfStock ? 'opacity-50 cursor-not-allowed grayscale-[0.5]' : 'hover:border-blue-500/30 hover:bg-white dark:hover:bg-gray-800' }} rounded-xl transition-all relative overflow-hidden">
                             <div class="w-full aspect-square rounded-lg bg-white dark:bg-gray-800 shadow-sm overflow-hidden flex items-center justify-center border border-gray-100 dark:border-gray-700 shrink-0 {{ !$isOutOfStock ? 'group-hover:scale-105' : '' }} transition-transform text-gray-400">
                                 @if($pItem['image'])
-                                    <img src="{{ asset('storage/'.$pItem['image']) }}" class="w-full h-full object-cover">
+                                    <img src="{{ asset($pItem['image']) }}" class="w-full h-full object-cover">
                                 @else
                                     @if($pItem['type_label'] == 'Service') <x-heroicon-o-wrench-screwdriver class="size-5 text-emerald-500/30" />
                                     @elseif($pItem['type_label'] == 'Material') <x-heroicon-o-square-3-stack-3d class="size-5 text-blue-500/30" />
