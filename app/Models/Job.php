@@ -124,7 +124,8 @@ class Job extends Model
 
         $url = route('public.job.view', [
             'token' => $this->public_token,
-            'lang' => app()->getLocale()
+            'lang' => app()->getLocale(),
+            'v' => time()
         ]);
 
         $docType = $this->status === 'pending' ? __('jobs.quote') : __('jobs.invoice');

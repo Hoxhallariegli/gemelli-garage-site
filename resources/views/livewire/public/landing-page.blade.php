@@ -302,7 +302,6 @@
                             @foreach($materials as $mat)
                             <div class="col-6">
                                 <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-3 {{ $material_id == $mat->id ? 'active' : '' }}">
-                                    @if($mat->hex_code) <div class="material-swatch" style="background-color: {{ $mat->hex_code }}"></div> @endif
                                     <h4 class="fs-10 mb-1">{{ $mat->name }}</h4>
                                     <span class="text-[#28a745] font-black fs-10">+€{{ number_format($mat->sell_price, 0) }}/m</span>
                                 </div>

@@ -19,7 +19,6 @@ class Vehicle3dConfigurator extends Component
                 ->value('id');
 
         $this->selectedMaterialId = Material::query()
-            ->whereNotNull('hex_code')
             ->value('id');
     }
 
@@ -30,9 +29,7 @@ class Vehicle3dConfigurator extends Component
 
     public function getMaterialsProperty()
     {
-        return Material::query()
-            ->whereNotNull('hex_code')
-            ->get();
+        return Material::all();
     }
 
     public function getSelectedTypeProperty()
@@ -52,9 +49,7 @@ class Vehicle3dConfigurator extends Component
 
     public function selectMaterial($id): void
     {
-        $material = Material::query()
-            ->whereNotNull('hex_code')
-            ->find($id);
+        $material = Material::find($id);
 
         if (!$material) {
             return;

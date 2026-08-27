@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sq">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -178,8 +178,6 @@
                                         <div class="size-8 sm:size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
                                             <img src="{{ asset($m->material->image) }}" class="w-full h-full object-cover">
                                         </div>
-                                    @elseif($m->material?->hex_code)
-                                        <div class="size-8 sm:size-10 rounded-lg shrink-0 border border-gray-100 shadow-inner" style="background-color: {{ $m->material->hex_code }}"></div>
                                     @else
                                         <div class="size-8 sm:size-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
                                             <x-heroicon-o-square-3-stack-3d class="size-4 sm:size-5 text-blue-500" />

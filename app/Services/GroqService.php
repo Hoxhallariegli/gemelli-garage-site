@@ -81,15 +81,13 @@ class GroqService
             throw new \Exception('GROQ_API_KEY is not set in .env.');
         }
 
-        $systemPrompt = "You are a color and material expert. Given a material name (usually a car wrap or paint), return its visual properties in JSON.
+        $systemPrompt = "You are a material expert. Given a material name (usually a car wrap or paint), return its description and metadata in JSON.
 
         Properties:
-        - hex_code: A valid 7-character hex color code (e.g., #FF0000). ALWAYS include the #.
-        - roughness: 0 to 1 (0 is mirror-like, 1 is matte). Glossy wraps are ~0.1-0.2, Matte are ~0.8-0.9, Satin are ~0.4-0.5.
-        - metalness: 0 to 1 (0 is non-metallic, 1 is pure metal). Chrome wraps are 1.0, Metallic paints are ~0.4-0.6, Standard vinyl wraps are 0.
+        - description: A brief, professional description of the finish.
 
         Return ONLY RAW JSON like:
-        {\"hex_code\": \"#aabbcc\", \"roughness\": 0.2, \"metalness\": 0.0}";
+        {\"description\": \"High-gloss metallic finish with deep reflections.\"}";
 
         $response = Http::withToken($this->apiKey)
             ->post($this->baseUrl, [

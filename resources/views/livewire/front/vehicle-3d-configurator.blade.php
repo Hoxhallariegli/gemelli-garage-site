@@ -20,8 +20,7 @@
                 <!-- COLOR OVERLAY (The Magic Layer) -->
                 @if($selectedMaterial)
                     <div class="absolute inset-0 m-auto w-full h-auto max-h-[450px] transition-all duration-700"
-                         style="background-color: {{ $selectedMaterial->hex_code }};
-                                mix-blend-mode: multiply;
+                         style="mix-blend-mode: multiply;
                                 -webkit-mask-image: url('{{ $imgPath }}');
                                 mask-image: url('{{ $imgPath }}');
                                 -webkit-mask-size: contain; mask-size: contain;
@@ -48,7 +47,6 @@
         <!-- Material Label (Apple Style) -->
         @if($selectedMaterial)
             <div class="absolute bottom-10 left-10 flex items-center gap-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-2xl px-6 py-3.5 rounded-[2rem] border border-gray-100 dark:border-gray-700 shadow-2xl z-50 animate-in fade-in slide-in-from-bottom-5">
-                <div class="w-5 h-5 rounded-full shadow-inner border-2 border-white" style="background-color: {{ $selectedMaterial->hex_code }}"></div>
                 <div class="flex flex-col">
                     <span class="text-[11px] font-black uppercase tracking-widest dark:text-white">{{ $selectedMaterial->name }}</span>
                     <span class="text-[8px] font-bold text-blue-600 uppercase tracking-tighter">Premium Wrap Vinyl</span>
@@ -89,7 +87,13 @@
                     <button wire:click="selectMaterial({{ $material->id }})"
                             title="{{ $material->name }}"
                             class="group relative aspect-square w-full rounded-full border-2 p-1.5 transition-all duration-500 hover:scale-115 {{ $selectedMaterialId == $material->id ? 'border-blue-600 ring-8 ring-blue-500/5' : 'border-transparent' }}">
-                        <div class="w-full h-full rounded-full shadow-xl transition-transform" style="background-color: {{ $material->hex_code }}"></div>
+                        <div class="w-full h-full rounded-full shadow-xl transition-transform bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
+                            @if($material->image)
+                                <img src="{{ asset($material->image) }}" class="w-full h-full object-cover">
+                            @else
+                                <span class="text-[8px] font-black text-gray-400">{{ substr($material->name, 0, 1) }}</span>
+                            @endif
+                        </div>
                         @if($selectedMaterialId == $material->id)
                              <div class="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-1 shadow-lg border-2 border-white">
                                 <x-heroicon-s-check class="w-2.5 h-2.5" />
