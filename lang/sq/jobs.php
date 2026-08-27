@@ -38,6 +38,7 @@ return [
   'Client & Vehicle' => 'Automjeti & Klienti',
   'Edit Description' => 'Menaxhimi dhe monitorimi i të gjitha punëve të kryera.',
   'New Job Card' => 'Job Card e Re',
+  'Job Card' => 'Job Card',
   'Job Card #' => 'Job Card #',
   'Detailed Description' => 'Regjistrim i detajuar i shërbimit dhe materialeve të përdorura.',
   'Update Description' => 'Menaxhimi i detajuar i shërbimeve, materialeve dhe kostove.',
@@ -96,4 +97,6 @@ return [
   'Please find your :doc for vehicle :brand :model with plate :plate.' => 'Ju lutem gjeni :doc tuaj për mjetin :brand :model me targë :plate.',
   'Click the button below to view the full document and all service details.' => 'Ju lutem klikoni butonin e mëposhtëm për të parë dokumentin e plotë dhe të gjitha detajet e shërbimit.',
   'Click the link below to view the :doc and your vehicle details:' => 'Kliko linkun më poshtë për të parë :doc dhe detajet e mjetit tuaj:',
+  'preview_title' => 'GEMELLI GARAGE - :doc #00:id',
+  'preview_description' => 'Detajet për mjetin :brand :model (:plate). Klikoni për ta hapur dokumentin.',
 ];

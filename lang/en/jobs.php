@@ -38,6 +38,7 @@ return [
   'Client & Vehicle' => 'Client & Vehicle',
   'Edit Description' => 'Management and monitoring of all completed jobs.',
   'New Job Card' => 'New Job Card',
+  'Job Card' => 'Job Card',
   'Job Card #' => 'Job Card #',
   'Detailed Description' => 'Detailed registration of service and materials used.',
   'Update Description' => 'Detailed management of services, materials and costs.',
@@ -96,4 +97,6 @@ return [
   'Please find your :doc for vehicle :brand :model with plate :plate.' => 'Please find your :doc for vehicle :brand :model with plate :plate.',
   'Click the button below to view the full document and all service details.' => 'Click the button below to view the full document and all service details.',
   'Click the link below to view the :doc and your vehicle details:' => 'Click the link below to view the :doc and your vehicle details:',
+  'preview_title' => 'GEMELLI GARAGE - :doc #00:id',
+  'preview_description' => 'Details for vehicle :brand :model (:plate). Click to open the document.',
 ];

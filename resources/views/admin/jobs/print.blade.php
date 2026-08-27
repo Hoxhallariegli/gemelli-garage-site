@@ -7,8 +7,12 @@
 
     <!-- WhatsApp & Social Media Preview -->
     <meta property="og:site_name" content="Gemelli Garage">
-    <meta property="og:title" content="GEMELLI GARAGE - {{ $job->status == 'pending' ? 'Preventivo' : 'Job Card' }} #00{{ $job->id }}">
-    <meta property="og:description" content="Detajet për mjetin {{ $job->car?->brand?->name }} {{ $job->car?->model?->name }} ({{ $job->car?->license_plate }}). Klikoni për ta hapur faturën/preventivin.">
+    <meta property="og:title" content="{{ __('jobs.preview_title', ['doc' => $job->status == 'pending' ? __('jobs.quote') : __('jobs.Job Card'), 'id' => $job->id]) }}">
+    <meta property="og:description" content="{{ __('jobs.preview_description', [
+        'brand' => $job->car?->brand?->name,
+        'model' => $job->car?->model?->name,
+        'plate' => $job->car?->license_plate
+    ]) }}">
     <meta property="og:image" content="{{ route('public.job.preview-image', $job->public_token) }}">
     <meta property="og:image:secure_url" content="{{ route('public.job.preview-image', $job->public_token) }}">
     <meta property="og:image:type" content="image/jpeg">
