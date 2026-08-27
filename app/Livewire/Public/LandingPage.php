@@ -103,7 +103,7 @@ class LandingPage extends Component
             'service_id' => $serviceIds,
             'material_id' => $this->material_id,
             'estimated_price' => $this->estimatedPrice,
-            'message' => "Servizi Scelti: " . implode(', ', Service::whereIn('id', $this->selected_services)->pluck('name')->toArray()) . "\n\n" . $this->message,
+            'message' => __('front.chosen_services') . ": " . implode(', ', Service::whereIn('id', $this->selected_services)->pluck('name')->toArray()) . "\n\n" . $this->message,
             'status' => 'pending',
         ]);
 

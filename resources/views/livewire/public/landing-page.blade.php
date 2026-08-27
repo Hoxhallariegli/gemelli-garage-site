@@ -179,10 +179,10 @@
                 <div class="spacer-double"></div>
                 <div class="row g-4 justify-content-center">
                     <div class="col-lg-8 text-center">
-                        <h1 class="fs-72 fs-xs-10vw text-uppercase wow fadeInUp">Where Every Detail Truly Matters</h1>
-                        <p class="mb-0 col-lg-6 offset-lg-3 wow fadeInUp" data-wow-delay=".2s">Gemelli Garage offers efficient, reliable detailing that restores shine and preserves your vehicle.</p>
+                        <h1 class="fs-72 fs-xs-10vw text-uppercase wow fadeInUp">{{ __('front.subtitle') }}</h1>
+                        <p class="mb-0 col-lg-6 offset-lg-3 wow fadeInUp" data-wow-delay=".2s">{{ __('front.description') }}</p>
                         <div class="spacer-single"></div>
-                        <a class="btn-main fx-slide" href="#configurator"><span>Configura Ora</span></a>
+                        <a class="btn-main fx-slide" href="#configurator"><span>{{ __('front.configure_now') }}</span></a>
                     </div>
 
                     <div class="spacer-single"></div>
@@ -199,9 +199,9 @@
                 <div class="row g-4 justify-content-center mb-2">
                     <div class="col-lg-6">
                         <div class="text-center">
-                            <div class="subtitle">I Nostri Servizi</div>
-                            <h2>Premium Detailing & Wrapping</h2>
-                            <p>Scegli tra i nostri trattamenti professionali per esaltare la bellezza della tua auto.</p>
+                            <div class="subtitle">{{ __('front.our_services') }}</div>
+                            <h2>{{ __('front.premium_detailing') }}</h2>
+                            <p>{{ __('front.choose_treatment') }}</p>
                         </div>
                     </div>
                 </div>
@@ -216,14 +216,14 @@
                                 <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-64 object-cover" alt="">
                             @endif
                             <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
-                                <button type="button" class="btn-main fx-slide" wire:click="toggleService({{ $service->id }}); goToStep(2);"><span>Aggiungi al Preventivo</span></button>
+                                <button type="button" class="btn-main fx-slide" wire:click="toggleService({{ $service->id }}); goToStep(2);"><span>{{ __('front.add_to_quote') }}</span></button>
                             </div>
                             <h3 class="abs fs-32 lh-1 p-4 top-0 start-0 z-2">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</h3>
                             <div class="abs bg-blur z-2 top-0 w-100 h-100 hover-op-1"></div>
                             <div class="sw-overlay op-8"></div>
                             <div class="abs z-2 abs-middle mt-2 w-100 text-center hover-op-0">
                                 <h4 class="mb-1">{{ $service->name }}</h4>
-                                <p class="text-xs text-gray-300">Da €{{ number_format($service->base_price, 0) }}</p>
+                                <p class="text-xs text-gray-300">{{ __('front.from') }} €{{ number_format($service->base_price, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -237,9 +237,9 @@
         <div class="container">
             <div class="row g-4 justify-content-center mb-5">
                 <div class="col-lg-8 text-center">
-                    <div class="subtitle">Personalizza</div>
-                    <h2>Configura il tuo Servizio</h2>
-                    <p class="text-gray-400">Pochi semplici passi per scoprire il costo e prenotare il trattamento ideale per la tua auto.</p>
+                    <div class="subtitle">{{ __('front.personalize') }}</div>
+                    <h2>{{ __('front.configure_your_service') }}</h2>
+                    <p class="text-gray-400">{{ __('front.steps_description') }}</p>
                 </div>
             </div>
 
@@ -247,9 +247,9 @@
                 <div class="row justify-content-center">
                     <div class="col-lg-6 text-center py-10 bg-dark-2 rounded-1">
                         <i class="fa fa-check id-color fa-3x mb-4"></i>
-                        <h3 class="text-2xl font-bold text-white mb-2">Richiesta Inviata!</h3>
-                        <p class="text-gray-400">Ti contatteremo a breve per confermare tutti i dettagli.</p>
-                        <button wire:click="$set('success', false)" class="mt-6 btn-main btn-line"><span>Configura un'altra auto</span></button>
+                        <h3 class="text-2xl font-bold text-white mb-2">{{ __('front.request_sent') }}</h3>
+                        <p class="text-gray-400">{{ __('front.contact_soon') }}</p>
+                        <button wire:click="$set('success', false)" class="mt-6 btn-main btn-line"><span>{{ __('front.configure_another') }}</span></button>
                     </div>
                 </div>
             @else
@@ -257,7 +257,7 @@
                 @if($step == 1)
                 <div class="row g-4 animate-fadeIn">
                     <div class="col-12 text-center mb-5">
-                        <h4 class="text-white text-uppercase tracking-widest fs-14">Hapi 1: Zgjidh Kategorinë e Mjetit</h4>
+                        <h4 class="text-white text-uppercase tracking-widest fs-14">{{ __('front.step_1_title') }}</h4>
                     </div>
                     @foreach($bodyTypes as $bt)
                     <div class="col-lg-2 col-md-3 col-6">
@@ -274,13 +274,13 @@
                 @if($step == 2)
                 <div class="row g-5 animate-fadeIn">
                     <div class="col-12 text-center mb-4">
-                        <button wire:click="goToStep(1)" class="btn-back mb-3"><i class="fa fa-arrow-left"></i> Kthehu te Mjeti ({{ $bodyTypes->find($body_type_id)->name }})</button>
-                        <h2>Mbush Shportën</h2>
-                        <p class="text-gray-400">Zgjidh shërbimet dhe letrën që dëshiron. Çmimi llogaritet në kohë reale.</p>
+                        <button wire:click="goToStep(1)" class="btn-back mb-3"><i class="fa fa-arrow-left"></i> {{ __('front.back_to_vehicle') }} ({{ $bodyTypes->find($body_type_id)->name }})</button>
+                        <h2>{{ __('front.fill_basket') }}</h2>
+                        <p class="text-gray-400">{{ __('front.basket_description') }}</p>
                     </div>
 
                     <div class="col-lg-7">
-                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">1. Shërbimet Detailing</h5>
+                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.detailing_services') }}</h5>
                         <div class="row g-3">
                             @foreach($services as $s)
                             <div class="col-md-6">
@@ -297,7 +297,7 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">2. Zgjidh Letrën (Wrapping)</h5>
+                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.choose_wrap') }}</h5>
                         <div class="row g-2">
                             @foreach($materials as $mat)
                             <div class="col-6">
@@ -313,10 +313,10 @@
                     <div class="col-12 mt-10">
                         <div class="price-estimate-container border border-white/5 rounded-1">
                             <div>
-                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">Totale Stimato</span>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">{{ __('front.estimated_total') }}</span>
                                 <div class="text-4xl font-black text-white">€{{ number_format($this->estimatedPrice, 0) }}</div>
                             </div>
-                            <button wire:click="goToStep(3)" class="btn-main fx-slide px-10 py-3 {{ empty($selected_services) && !$material_id ? 'opacity-50 pointer-events-none' : '' }}"><span>Vazhdo te Kontaktet <i class="fa fa-arrow-right ms-2"></i></span></button>
+                            <button wire:click="goToStep(3)" class="btn-main fx-slide px-10 py-3 {{ empty($selected_services) && !$material_id ? 'opacity-50 pointer-events-none' : '' }}"><span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span></button>
                         </div>
                     </div>
                 </div>
@@ -327,17 +327,17 @@
                 <div class="row justify-content-center animate-fadeIn">
                     <div class="col-lg-8">
                         <div class="p-40 bg-dark-2 rounded-1">
-                            <button wire:click="goToStep(2)" class="btn-back mb-4"><i class="fa fa-arrow-left"></i> Ndrysho Shërbimet</button>
-                            <h2 class="mb-4">Të dhënat tuaja</h2>
+                            <button wire:click="goToStep(2)" class="btn-back mb-4"><i class="fa fa-arrow-left"></i> {{ __('front.change_services') }}</button>
+                            <h2 class="mb-4">{{ __('front.your_data') }}</h2>
                             <form wire:submit.prevent="submitAppointment" class="form-border">
                                 <div class="row g-3">
-                                    <div class="col-md-6"><input type="text" wire:model="brand" class="form-control" placeholder="Marca (es. BMW)" required></div>
-                                    <div class="col-md-6"><input type="text" wire:model="model" class="form-control" placeholder="Modello (es. X5)" required></div>
-                                    <div class="col-md-12"><input type="text" wire:model="name" class="form-control" placeholder="Nome Completo" required></div>
-                                    <div class="col-md-12"><input type="text" wire:model="phone" class="form-control" placeholder="Telefono" required></div>
-                                    <div class="col-md-12"><input type="email" wire:model="email" class="form-control" placeholder="Email"></div>
-                                    <div class="col-md-12"><textarea wire:model="message" class="form-control" placeholder="Note" rows="3"></textarea></div>
-                                    <div class="col-md-12 mt-4"><button type="submit" class="btn-main fx-slide w-100 py-3"><span>Dërgo Kërkesën <i class="fa fa-paper-plane ms-2"></i></span></button></div>
+                                    <div class="col-md-6"><input type="text" wire:model="brand" class="form-control" placeholder="{{ __('front.brand_placeholder') }}" required></div>
+                                    <div class="col-md-6"><input type="text" wire:model="model" class="form-control" placeholder="{{ __('front.model_placeholder') }}" required></div>
+                                    <div class="col-md-12"><input type="text" wire:model="name" class="form-control" placeholder="{{ __('front.name_placeholder') }}" required></div>
+                                    <div class="col-md-12"><input type="text" wire:model="phone" class="form-control" placeholder="{{ __('front.phone_placeholder') }}" required></div>
+                                    <div class="col-md-12"><input type="email" wire:model="email" class="form-control" placeholder="{{ __('front.email_placeholder') }}"></div>
+                                    <div class="col-md-12"><textarea wire:model="message" class="form-control" placeholder="{{ __('front.notes_placeholder') }}" rows="3"></textarea></div>
+                                    <div class="col-md-12 mt-4"><button type="submit" class="btn-main fx-slide w-100 py-3"><span>{{ __('front.send_request') }} <i class="fa fa-paper-plane ms-2"></i></span></button></div>
                                 </div>
                             </form>
                         </div>
