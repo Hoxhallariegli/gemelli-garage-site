@@ -127,11 +127,11 @@ class Job extends Model
             'lang' => app()->getLocale()
         ]);
 
-        $docType = $this->status === 'pending' ? 'PREVENTIVIN' : 'FATURËN';
+        $docType = $this->status === 'pending' ? __('jobs.quote') : __('jobs.invoice');
 
         $message = "--- GEMELLI GARAGE ---\n\n" .
-                  "Përshëndetje *" . ($client->name ?? 'Klient') . "*,\n\n" .
-                  "Kliko linkun më poshtë për të parë " . $docType . " dhe detajet e mjetit tuaj:\n\n" .
+                  __('jobs.whatsapp_greeting') . " *" . ($client->name ?? __('workdesk.Client')) . "*,\n\n" .
+                  __('jobs.Click the link below to view the :doc and your vehicle details:', ['doc' => $docType]) . "\n\n" .
                   $url;
 
         return 'https://wa.me/' . $phone . '?' . http_build_query(['text' => $message], '', '&', PHP_QUERY_RFC3986);

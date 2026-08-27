@@ -14,7 +14,7 @@
     'plate' => $job->car->license_plate
 ]) }}
 
-Ju lutem klikoni butonin e mëposhtëm për të parë dokumentin e plotë dhe të gjitha detajet e shërbimit.
+{{ __('jobs.Click the button below to view the full document and all service details.') }}
 
 @component('mail::button', ['url' => $url, 'color' => 'success'])
 {{ __('jobs.View Full Document') }}

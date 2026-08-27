@@ -94,4 +94,6 @@ return [
   'View Full Document' => 'Shiko Dokumentin e Plotë',
   'Thanks for choosing us' => 'Faleminderit që zgjodhët Gemelli Garage!',
   'Please find your :doc for vehicle :brand :model with plate :plate.' => 'Ju lutem gjeni :doc tuaj për mjetin :brand :model me targë :plate.',
+  'Click the button below to view the full document and all service details.' => 'Ju lutem klikoni butonin e mëposhtëm për të parë dokumentin e plotë dhe të gjitha detajet e shërbimit.',
+  'Click the link below to view the :doc and your vehicle details:' => 'Kliko linkun më poshtë për të parë :doc dhe detajet e mjetit tuaj:',
 ];

@@ -94,4 +94,6 @@ return [
   'View Full Document' => 'View Full Document',
   'Thanks for choosing us' => 'Thanks for choosing Gemelli Garage!',
   'Please find your :doc for vehicle :brand :model with plate :plate.' => 'Please find your :doc for vehicle :brand :model with plate :plate.',
+  'Click the button below to view the full document and all service details.' => 'Click the button below to view the full document and all service details.',
+  'Click the link below to view the :doc and your vehicle details:' => 'Click the link below to view the :doc and your vehicle details:',
 ];

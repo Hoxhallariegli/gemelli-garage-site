@@ -46,43 +46,43 @@
 </head>
 <body class="bg-gray-100 text-gray-900 p-0 md:p-4 pb-32 md:pb-4">
 
-    <div class="print-container max-w-4xl mx-auto bg-white p-8 shadow-2xl relative overflow-hidden mb-24 md:mb-4">
+    <div class="print-container max-w-4xl mx-auto bg-white p-6 sm:p-8 shadow-2xl relative overflow-hidden mb-24 md:mb-4">
         {{-- Background Design Elements --}}
         <div class="absolute top-0 right-0 w-[300px] h-[300px] bg-[#28a745]/[0.02] rounded-full -mr-32 -mt-32"></div>
 
         {{-- Header --}}
-        <div class="flex justify-between items-start relative z-10">
-            <div>
-                <div class="flex items-center gap-6">
-                    <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" class="h-32 w-auto grayscale-0 shadow-none print:h-36">
-                    <div class="h-24 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
+        <div class="relative z-10">
+            <div class="flex justify-between items-start gap-4">
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" class="h-16 sm:h-32 w-auto grayscale-0 shadow-none print:h-36">
+                    <div class="h-16 sm:h-24 w-px bg-gray-200 hidden sm:block"></div>
                     <div class="hidden sm:block">
                         <p class="text-xs font-black uppercase tracking-[0.4em] text-[#28a745]/60 leading-none">Detailing & Wrap Studio</p>
                     </div>
                 </div>
 
-                <div class="mt-8 space-y-1.5 border-l-4 border-[#28a745]/20 pl-4">
-                    <p class="text-sm font-black text-gray-800 italic leading-tight uppercase tracking-tight">Viale della repubblica 30, Melegnano 20077</p>
-                    <div class="flex gap-6">
-                        <p class="text-xs font-black text-gray-900 tracking-tighter flex items-center gap-1.5">
-                            <span class="text-[#28a745] font-black">TEL.</span> +39 324 801 9211
-                        </p>
-                        <p class="text-xs font-black text-gray-900 tracking-tighter flex items-center gap-1.5">
-                            <span class="text-[#28a745] font-black">MAIL.</span> gemellicargarage@gmail.com
-                        </p>
+                <div class="text-right shrink-0">
+                    <div class="border-2 border-[#28a745]/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl inline-block text-right mb-2">
+                        <h2 class="text-sm sm:text-lg font-black uppercase tracking-tighter italic text-[#28a745]">
+                            {{ $job->status == 'pending' ? 'Preventivo' : 'Job Card' }}
+                        </h2>
+                    </div>
+                    <div class="space-y-0">
+                        <p class="text-[10px] sm:text-xs font-black text-gray-900">N°. <span class="text-[#28a745]">#00{{ $job->id }}</span></p>
+                        <p class="text-[9px] sm:text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">{{ $job->job_date?->format('d/m/Y') }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="text-right">
-                <div class="border-2 border-[#28a745]/20 px-4 py-2 rounded-xl inline-block text-right mb-2">
-                    <h2 class="text-lg font-black uppercase tracking-tighter italic text-[#28a745]">
-                        {{ $job->status == 'pending' ? 'Preventivo' : 'Job Card' }}
-                    </h2>
-                </div>
-                <div class="space-y-0">
-                    <p class="text-xs font-black text-gray-900">N°. <span class="text-[#28a745]">#00{{ $job->id }}</span></p>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">{{ $job->job_date?->format('d/m/Y') }}</p>
+            <div class="mt-6 sm:mt-8 space-y-2 border-l-4 border-[#28a745]/20 pl-4 max-w-md">
+                <p class="text-xs sm:text-sm font-black text-gray-800 italic leading-tight uppercase tracking-tight">Viale della repubblica 30, Melegnano 20077</p>
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-6">
+                    <p class="text-[10px] sm:text-xs font-black text-gray-900 tracking-tighter flex items-center gap-1.5 whitespace-nowrap">
+                        <span class="text-[#28a745] font-black">TEL.</span> +39 324 801 9211
+                    </p>
+                    <p class="text-[10px] sm:text-xs font-black text-gray-900 tracking-tighter flex items-center gap-1.5">
+                        <span class="text-[#28a745] font-black">MAIL.</span> gemellicargarage@gmail.com
+                    </p>
                 </div>
             </div>
         </div>
@@ -130,91 +130,91 @@
         </div>
 
         {{-- Table Section --}}
-        <div class="mt-8 relative z-10">
-            <table class="w-full text-left border-collapse">
+        <div class="mt-8 relative z-10 overflow-hidden">
+            <table class="w-full text-left border-collapse table-fixed sm:table-auto">
                 <thead>
                     <tr class="text-gray-400 border-b border-gray-100">
-                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em]">{{ __('jobs.Description') }}</th>
-                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] text-center w-20">{{ __('jobs.Quantity') }}</th>
-                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] text-right w-24">{{ __('jobs.Price') }}</th>
-                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] text-right w-24">{{ __('jobs.Total') }}</th>
+                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] w-1/2 sm:w-auto">{{ __('jobs.Description') }}</th>
+                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] text-center w-12 sm:w-20">{{ __('jobs.Quantity') }}</th>
+                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] text-right w-16 sm:w-24">{{ __('jobs.Price') }}</th>
+                        <th class="pb-3 text-[9px] font-black uppercase tracking-[0.2em] text-right w-16 sm:w-24">{{ __('jobs.Total') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     @foreach($job->services as $s)
                         <tr class="group">
-                            <td class="py-4">
-                                <div class="flex items-center gap-3">
+                            <td class="py-4 pr-2">
+                                <div class="flex items-center gap-2 sm:gap-3">
                                     @if($s->service?->image)
-                                        <div class="size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
+                                        <div class="size-8 sm:size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
                                             <img src="{{ asset($s->service->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @else
-                                        <div class="size-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
-                                            <x-heroicon-o-wrench-screwdriver class="size-5 text-emerald-500" />
+                                        <div class="size-8 sm:size-10 rounded-lg bg-emerald-50 flex items-center justify-center shrink-0">
+                                            <x-heroicon-o-wrench-screwdriver class="size-4 sm:size-5 text-emerald-500" />
                                         </div>
                                     @endif
-                                    <div>
-                                        <span class="block text-xs font-black text-gray-900 uppercase tracking-tight italic">{{ $s->service?->name }}</span>
+                                    <div class="min-w-0">
+                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic truncate sm:whitespace-normal">{{ $s->service?->name }}</span>
                                         <span class="text-[7px] font-black text-emerald-500 uppercase tracking-widest">{{ __('workdesk.Service') }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-4 text-center text-[11px] font-black">1</td>
-                            <td class="py-4 text-right text-[11px] font-bold text-gray-500">€{{ number_format($s->price, 0) }}</td>
-                            <td class="py-4 text-right text-xs font-black italic text-gray-900">€{{ number_format($s->price, 0) }}</td>
+                            <td class="py-4 text-center text-[10px] sm:text-[11px] font-black italic">1</td>
+                            <td class="py-4 text-right text-[10px] sm:text-[11px] font-bold text-gray-500">€{{ number_format($s->price, 0) }}</td>
+                            <td class="py-4 text-right text-[10px] sm:text-xs font-black italic text-gray-900">€{{ number_format($s->price, 0) }}</td>
                         </tr>
                     @endforeach
 
                     @foreach($job->materials as $m)
                         <tr class="group">
-                            <td class="py-4">
-                                <div class="flex items-center gap-3">
+                            <td class="py-4 pr-2">
+                                <div class="flex items-center gap-2 sm:gap-3">
                                     @if($m->material?->image)
-                                        <div class="size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
+                                        <div class="size-8 sm:size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
                                             <img src="{{ asset($m->material->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @elseif($m->material?->hex_code)
-                                        <div class="size-10 rounded-lg shrink-0 border border-gray-100 shadow-inner" style="background-color: {{ $m->material->hex_code }}"></div>
+                                        <div class="size-8 sm:size-10 rounded-lg shrink-0 border border-gray-100 shadow-inner" style="background-color: {{ $m->material->hex_code }}"></div>
                                     @else
-                                        <div class="size-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                                            <x-heroicon-o-square-3-stack-3d class="size-5 text-blue-500" />
+                                        <div class="size-8 sm:size-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                                            <x-heroicon-o-square-3-stack-3d class="size-4 sm:size-5 text-blue-500" />
                                         </div>
                                     @endif
-                                    <div>
-                                        <span class="block text-xs font-black text-gray-900 uppercase tracking-tight italic">{{ $m->material?->name }}</span>
+                                    <div class="min-w-0">
+                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic truncate sm:whitespace-normal">{{ $m->material?->name }}</span>
                                         <span class="text-[7px] font-black text-blue-500 uppercase tracking-widest">{{ __('workdesk.Material') }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-4 text-center text-[11px] font-black">{{ number_format($m->quantity, 1) }}m</td>
-                            <td class="py-4 text-right text-[11px] font-bold text-gray-500">€{{ number_format($m->sell_price, 0) }}</td>
-                            <td class="py-4 text-right text-xs font-black italic text-gray-900">€{{ number_format($m->quantity * $m->sell_price, 0) }}</td>
+                            <td class="py-4 text-center text-[10px] sm:text-[11px] font-black italic">{{ number_format($m->quantity, 1) }}m</td>
+                            <td class="py-4 text-right text-[10px] sm:text-[11px] font-bold text-gray-500">€{{ number_format($m->sell_price, 0) }}</td>
+                            <td class="py-4 text-right text-[10px] sm:text-xs font-black italic text-gray-900">€{{ number_format($m->quantity * $m->sell_price, 0) }}</td>
                         </tr>
                     @endforeach
 
                     @foreach($job->parts as $p)
                         <tr class="group">
-                            <td class="py-4">
-                                <div class="flex items-center gap-3">
+                            <td class="py-4 pr-2">
+                                <div class="flex items-center gap-2 sm:gap-3">
                                     @if($p->part?->image)
-                                        <div class="size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
+                                        <div class="size-8 sm:size-10 rounded-lg bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
                                             <img src="{{ asset($p->part->image) }}" class="w-full h-full object-cover">
                                         </div>
                                     @else
-                                        <div class="size-10 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
-                                            <x-heroicon-o-cog-6-tooth class="size-5 text-orange-500" />
+                                        <div class="size-8 sm:size-10 rounded-lg bg-orange-50 flex items-center justify-center shrink-0">
+                                            <x-heroicon-o-cog-6-tooth class="size-4 sm:size-5 text-orange-500" />
                                         </div>
                                     @endif
-                                    <div>
-                                        <span class="block text-xs font-black text-gray-900 uppercase tracking-tight italic">{{ $p->part?->name }}</span>
+                                    <div class="min-w-0">
+                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic truncate sm:whitespace-normal">{{ $p->part?->name }}</span>
                                         <span class="text-[7px] font-black text-orange-500 uppercase tracking-widest">{{ __('workdesk.Part') }}</span>
                                     </div>
                                 </div>
                             </td>
-                            <td class="py-4 text-center text-[11px] font-black">{{ number_format($p->quantity, 0) }}</td>
-                            <td class="py-4 text-right text-[11px] font-bold text-gray-500">€{{ number_format($p->sell_price, 0) }}</td>
-                            <td class="py-4 text-right text-xs font-black italic text-gray-900">€{{ number_format($p->quantity * $p->sell_price, 0) }}</td>
+                            <td class="py-4 text-center text-[10px] sm:text-[11px] font-black italic">{{ number_format($p->quantity, 0) }}</td>
+                            <td class="py-4 text-right text-[10px] sm:text-[11px] font-bold text-gray-500">€{{ number_format($p->sell_price, 0) }}</td>
+                            <td class="py-4 text-right text-[10px] sm:text-xs font-black italic text-gray-900">€{{ number_format($p->quantity * $p->sell_price, 0) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -223,7 +223,7 @@
 
         {{-- Financial Summary --}}
         <div class="mt-8 flex justify-end relative z-10">
-            <div class="w-64">
+            <div class="w-full sm:w-72">
                 <div class="space-y-3 p-6 bg-emerald-50/30 rounded-[1.5rem] border border-emerald-100 shadow-sm">
                     <div class="flex justify-between items-center text-gray-400">
                         <span class="font-black uppercase tracking-[0.2em] text-[7px]">{{ __('jobs.Subtotal') }}</span>
@@ -256,7 +256,7 @@
         {{-- Footer --}}
         <div class="mt-12 pt-8 text-center relative z-10">
             <p class="text-[8px] font-black text-gray-300 uppercase tracking-[0.5em] mb-4 italic">{{ __('jobs.Thanks for choosing us') }}</p>
-            <div class="flex justify-center gap-8 text-[9px] font-black text-gray-900 italic">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8 text-[9px] font-black text-gray-900 italic">
                 <span>@gemelligarage</span>
                 <span>www.gemelligarage.com</span>
             </div>
