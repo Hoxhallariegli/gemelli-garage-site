@@ -44,6 +44,10 @@
     <x-nav.link route="admin.materials.index" icon="square-3-stack-3d">{{ __('materials.Materials') }}</x-nav.link>
 @endcan
 
+@can('view_material_brands')
+    <x-nav.link route="admin.material-brands.index" icon="archive-box">{{ __('material-brands.MaterialBrands') }}</x-nav.link>
+@endcan
+
 @can('view_parts')
     <x-nav.link route="admin.parts.index" icon="cog-6-tooth">{{ __('parts.Parts') }}</x-nav.link>
 @endcan

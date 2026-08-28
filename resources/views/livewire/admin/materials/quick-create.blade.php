@@ -12,7 +12,7 @@
     @else
         <div class="space-y-6">
             <x-form.input name="name" type="text" wire:model="name" :label="__('materials.Name')" class="dark:bg-gray-900" />
-            <x-form.input name="brand" type="text" wire:model="brand" :label="__('materials.Brand')" class="dark:bg-gray-900" />
+            <x-form.dropdown-search name="material_brand_id" wire:model.live="material_brand_id" :label="__('materials.Brand')" :data="$brands" />
             <x-form.input name="sell_price" type="text" wire:model="sell_price" :label="__('materials.Sell Price')" class="dark:bg-gray-900" />
         </div>
         <div class="mt-8 flex justify-end"><x-button wire:click="store" variant="blue" class="!rounded-xl px-10">{{ __('materials.Save') }}</x-button></div>

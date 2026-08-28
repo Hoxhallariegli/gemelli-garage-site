@@ -15,13 +15,17 @@ class Create extends Component
     use WithFileUploads;
 
     public $name = '';
-    public $brand = '';
+    public $material_brand_id = '';
     public $purchase_price = 0;
     public $sell_price = '';
     public $stock_meters = 0;
     public $image;
 
+    #[On('material-brand-created')]
+    public function refreshBrands($id) { $this->material_brand_id = $id; }
+
     public function render() { abort_if_cannot('add_materials'); return view('livewire.admin.materials.create', [
+            'brands' => \App\Models\MaterialBrand::pluck('name', 'id')->toArray(),
         ])->layout('components.layouts.app'); }
 
     public function store(CreateMaterialAction $action, \App\Services\ImageUploadService $uploadService)
@@ -32,7 +36,7 @@ class Create extends Component
 
         $dto = MaterialDTO::fromArray([
             'name' => $this->name,
-            'brand' => $this->brand,
+            'material_brand_id' => $this->material_brand_id,
             'purchase_price' => $this->purchase_price,
             'sell_price' => $this->sell_price,
             'stock_meters' => $this->stock_meters,

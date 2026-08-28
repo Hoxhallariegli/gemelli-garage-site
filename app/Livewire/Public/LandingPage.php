@@ -178,6 +178,7 @@ class LandingPage extends Component
             'services' => Service::where('active', true)->get(),
             'materials' => Material::all(),
             'bodyTypes' => \App\Models\BodyType::all(),
+            'materialBrands' => \App\Models\MaterialBrand::all(),
         ])->layout('components.layouts.guest');
     }
 }

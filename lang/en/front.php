@@ -48,6 +48,26 @@ return [
     'send_request' => 'Send Request',
     'chosen_services' => 'Chosen Services',
 
+    // Why Wrap?
+    'why_wrap_title' => 'Why choose Car Wrap?',
+    'benefit_1_title' => 'Maximum Protection',
+    'benefit_1_desc' => 'The wrap protects the original paint from scratches and UV rays.',
+    'benefit_2_title' => 'Unlimited Style',
+    'benefit_2_desc' => 'Change the color and look of your vehicle whenever you want.',
+    'benefit_3_title' => 'Resale Value',
+    'benefit_3_desc' => 'The wrap can be easily removed, leaving the car like new underneath.',
+
+    // FAQ
+    'faq_title' => 'Frequently Asked Questions',
+    'faq_1_q' => 'How long does the wrapping process take?',
+    'faq_1_a' => 'Depending on the vehicle, it usually takes between 3 to 5 business days.',
+    'faq_2_q' => 'Is there a warranty for our work?',
+    'faq_2_a' => 'Yes, we offer a full warranty on both installation and material quality.',
+    'faq_3_q' => 'How should a wrapped car be maintained?',
+    'faq_3_a' => 'Hand washing and non-abrasive products are highly recommended.',
+
+    'brands_title' => 'Brands we trust',
+
     // Header & Footer
     'meta_title' => 'Gemelli Car Garage - Car Detailing & Repair',
     'meta_description' => 'Gemelli Car Garage - Professional Car Detailing and Wrapping',

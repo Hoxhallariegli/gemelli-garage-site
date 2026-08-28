@@ -295,6 +295,11 @@
             pointer-events: auto;
             opacity: 1;
         }
+
+        /* FAQ Override */
+        .accordion-section-content.show-active {
+            display: block !important;
+        }
     </style>
 
     <div wire:ignore wire:key="landing-static-part">
@@ -363,6 +368,67 @@
                 </div>
             </div>
         </section>
+
+        {{-- BENEFITS SECTION --}}
+        <section class="no-top">
+            <div class="container">
+                <div class="row g-4 text-center">
+                    <div class="col-lg-12">
+                        <div class="subtitle">{{ __('front.personalize') }}</div>
+                        <h2>{{ __('front.why_wrap_title') }}</h2>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box f-boxed style-3">
+                            <i class="bg-color i-circle fa fa-shield-halved"></i>
+                            <div class="text">
+                                <h4>{{ __('front.benefit_1_title') }}</h4>
+                                {{ __('front.benefit_1_desc') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box f-boxed style-3">
+                            <i class="bg-color i-circle fa fa-palette"></i>
+                            <div class="text">
+                                <h4>{{ __('front.benefit_2_title') }}</h4>
+                                {{ __('front.benefit_2_desc') }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-box f-boxed style-3">
+                            <i class="bg-color i-circle fa fa-clock-rotate-left"></i>
+                            <div class="text">
+                                <h4>{{ __('front.benefit_3_title') }}</h4>
+                                {{ __('front.benefit_3_desc') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- BRANDS SECTION --}}
+        @if($materialBrands->count() > 0)
+        <section class="no-top">
+            <div class="container">
+                <div class="row align-items-center g-4 text-center">
+                    <div class="col-lg-12">
+                        <span class="text-xs uppercase tracking-widest text-gray-500">{{ __('front.brands_title') }}</span>
+                    </div>
+                    @foreach($materialBrands as $brand)
+                    <div class="col-md-2 col-6">
+                        @if($brand->image)
+                            <img src="{{ asset($brand->image) }}" class="img-fluid op-5 hover-op-1 transition-all" alt="{{ $brand->name }}" style="max-height: 40px; filter: grayscale(1);">
+                        @else
+                            <h4 class="mb-0 text-white op-3 hover-op-1 transition-all fs-14">{{ $brand->name }}</h4>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+        @endif
     </div>
 
     <section id="configurator" class="pb-100">
@@ -548,6 +614,48 @@
             </button>
         </div>
         @endif
+    </section>
+
+    {{-- FAQ SECTION --}}
+    <section class="no-top">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div class="subtitle">{{ __('front.personalize') }}</div>
+                    <h2>{{ __('front.faq_title') }}</h2>
+                    <div class="spacer-single"></div>
+
+                    <div class="accordion s2" x-data="{ active: 1 }">
+                        <div class="accordion-section">
+                            <div class="accordion-section-title" :class="{ 'active': active === 1 }" @click.stop="active = (active === 1 ? null : 1)">
+                                {{ __('front.faq_1_q') }}
+                            </div>
+                            <div class="accordion-section-content" :class="{ 'show-active': active === 1 }">
+                                <p>{{ __('front.faq_1_a') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-section">
+                            <div class="accordion-section-title" :class="{ 'active': active === 2 }" @click.stop="active = (active === 2 ? null : 2)">
+                                {{ __('front.faq_2_q') }}
+                            </div>
+                            <div class="accordion-section-content" :class="{ 'show-active': active === 2 }">
+                                <p>{{ __('front.faq_2_a') }}</p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-section">
+                            <div class="accordion-section-title" :class="{ 'active': active === 3 }" @click.stop="active = (active === 3 ? null : 3)">
+                                {{ __('front.faq_3_q') }}
+                            </div>
+                            <div class="accordion-section-content" :class="{ 'show-active': active === 3 }">
+                                <p>{{ __('front.faq_3_a') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <script>

@@ -15,7 +15,7 @@ class QuickCreate extends Component
 {
         use WithPagination;
      public $name = '';
-    public $brand = '';
+    public $material_brand_id = '';
     public $purchase_price = 0;
     public $sell_price = '';
     public $stock_meters = 0;
@@ -25,6 +25,7 @@ class QuickCreate extends Component
     public string $createdLabel = '';
 
     public function render() { return view('livewire.admin.materials.quick-create', [
+            'brands' => \App\Models\MaterialBrand::pluck('name', 'id')->toArray(),
         ]); }
 
     public function store(CreateMaterialAction $action)
@@ -32,7 +33,7 @@ class QuickCreate extends Component
         $this->validate();
         $dto = MaterialDTO::fromArray([
             'name' => $this->name,
-            'brand' => $this->brand,
+            'material_brand_id' => $this->material_brand_id,
             'purchase_price' => $this->purchase_price,
             'sell_price' => $this->sell_price,
             'stock_meters' => $this->stock_meters,
@@ -44,7 +45,7 @@ class QuickCreate extends Component
         $this->created = true;
         $this->createdId = $item->id;
         $this->createdLabel = (string) ($item->name ?? $item->id);
-        $this->reset(['name', 'brand', 'purchase_price', 'sell_price', 'stock_meters']);
+        $this->reset(['name', 'material_brand_id', 'purchase_price', 'sell_price', 'stock_meters']);
     }
 
     public function addAnother()

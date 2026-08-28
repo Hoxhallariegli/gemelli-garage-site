@@ -48,6 +48,26 @@ return [
     'send_request' => 'Dërgo Kërkesën',
     'chosen_services' => 'Shërbimet e Zgjedhura',
 
+    // Why Wrap?
+    'why_wrap_title' => 'Pse të zgjidhni Car Wrap?',
+    'benefit_1_title' => 'Mbrojtje maksimale',
+    'benefit_1_desc' => 'Letra mbron bojën origjinale të makinës nga gërvishtjet dhe rrezet UV.',
+    'benefit_2_title' => 'Stil i pakufizuar',
+    'benefit_2_desc' => 'Ndryshoni ngjyrën dhe pamjen e mjetit tuaj sa herë që dëshironi.',
+    'benefit_3_title' => 'Vlera e mjetit',
+    'benefit_3_desc' => 'Letra mund të hiqet lehtësisht duke lënë makinën si të re poshtë saj.',
+
+    // FAQ
+    'faq_title' => 'Pyetjet e Shpeshta',
+    'faq_1_q' => 'Sa zgjat procesi i wrapping?',
+    'faq_1_a' => 'Në varësi të mjetit, zakonisht zgjat nga 3 deri në 5 ditë pune.',
+    'faq_2_q' => 'A ka garanci për punën tonë?',
+    'faq_2_a' => 'Po, ofrojmë garanci të plotë për instalimin dhe cilësinë e materialit.',
+    'faq_3_q' => 'Si duhet të mirëmbahet makina e veshur?',
+    'faq_3_a' => 'Rekomandohet larja me dorë dhe përdorimi i produkteve jo-abrazive.',
+
+    'brands_title' => 'Brendet që ne u besojmë',
+
     // Header & Footer
     'meta_title' => 'Gemelli Car Garage - Detailing & Riparime',
     'meta_description' => 'Gemelli Car Garage - Detailing Profesional dhe Wrapping',

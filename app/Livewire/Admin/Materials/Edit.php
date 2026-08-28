@@ -16,7 +16,7 @@ class Edit extends Component
 
     public Material $item;
     public $name = '';
-    public $brand = '';
+    public $material_brand_id = '';
     public $purchase_price = '';
     public $sell_price = '';
     public $stock_meters = '';
@@ -24,6 +24,7 @@ class Edit extends Component
 
     public function mount(Material $material) { $this->item = $material; $this->fill($material->toArray()); $this->image = null; }
     public function render() { abort_if_cannot('edit_materials'); return view('livewire.admin.materials.edit', [
+            'brands' => \App\Models\MaterialBrand::pluck('name', 'id')->toArray(),
         ])->layout('components.layouts.app'); }
 
     public function update(UpdateMaterialAction $action, \App\Services\ImageUploadService $uploadService)
@@ -38,7 +39,7 @@ class Edit extends Component
 
         $dto = MaterialDTO::fromArray([
             'name' => $this->name,
-            'brand' => $this->brand,
+            'material_brand_id' => $this->material_brand_id,
             'purchase_price' => $this->purchase_price,
             'sell_price' => $this->sell_price,
             'stock_meters' => $this->stock_meters,

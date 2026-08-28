@@ -1,0 +1,27 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'MaterialBrand' => 'MaterialBrand',
+  'MaterialBrands' => 'MaterialBrands',
+  'Action' => 'Action',
+  'Reset' => 'Reset',
+  'Filters' => 'Filters',
+  'Search' => 'Search',
+  'List of' => 'List of',
+  'Save' => 'Save',
+  'Update' => 'Update',
+  'Add MaterialBrand' => 'Add MaterialBrand',
+  'Edit MaterialBrand' => 'Edit MaterialBrand',
+  'New record' => 'New record',
+  'Update info' => 'Update info',
+  'No records found.' => 'No records found.',
+  'created' => 'MaterialBrand created.',
+  'updated' => 'MaterialBrand updated.',
+  'deleted' => 'MaterialBrand deleted.',
+  'not_found' => 'Record not found.',
+  'delete_error_referenced' => 'Record is referenced by other items and cannot be deleted.',
+  'delete_error' => 'Could not delete record.',
+  'Name' => 'Name',
+  'Image' => 'Image',
+];

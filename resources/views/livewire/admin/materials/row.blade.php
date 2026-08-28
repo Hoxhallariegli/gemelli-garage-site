@@ -9,7 +9,7 @@
         </div>
     </td>
     <td class="px-4 py-3 font-bold text-gray-900 dark:text-white">{{ $item->name }}</td>
-    <td class="px-4 py-3 text-gray-600 dark:text-gray-300 text-xs">{{ $item->brand ?? '-' }}</td>
+    <td class="px-4 py-3 text-gray-600 dark:text-gray-300 text-xs">{{ $item->materialBrand?->name ?? '-' }}</td>
     <td class="px-4 py-3 text-gray-600 dark:text-gray-300 font-medium">€{{ number_format($item->purchase_price, 2) }}</td>
     <td class="px-4 py-3 text-gray-900 dark:text-white font-bold">€{{ number_format($item->sell_price, 2) }}</td>
     <td class="px-4 py-3">

@@ -56,7 +56,7 @@ class Create extends Component
                 'cost_price' => 0,
             ];
         } elseif ($type === 'Material') {
-            $material = Material::find($id);
+            $material = Material::with('materialBrand')->find($id);
             if (!$material) return;
 
             if ($material->stock_meters <= 0) {
@@ -76,7 +76,7 @@ class Create extends Component
                 'type' => 'Material',
                 'id' => $material->id,
                 'name' => $material->name,
-                'brand' => $material->brand,
+                'brand' => $material->materialBrand?->name ?? '-',
                 'quantity' => $qty,
                 'sell_price' => (float)$material->sell_price,
                 'cost_price' => (float)$material->purchase_price,
@@ -192,7 +192,7 @@ class Create extends Component
 
         if ($this->posCategory === 'All') {
             $services = Service::query()->where('active', true)->where('name', 'like', '%' . $this->posSearch . '%')->orderBy('name')->take($limit)->get()->map(fn($i) => ['id' => $i->id, 'name' => $i->name, 'image' => $i->image, 'sell_price' => $i->base_price, 'type_label' => 'Service', 'stock' => null]);
-            $materials = Material::query()->where('name', 'like', '%' . $this->posSearch . '%')->orderBy('name')->take($limit)->get()->map(fn($i) => ['id' => $i->id, 'name' => $i->name, 'image' => $i->image, 'sell_price' => $i->sell_price, 'type_label' => 'Material', 'stock' => $i->stock_meters]);
+            $materials = Material::query()->with('materialBrand')->where('name', 'like', '%' . $this->posSearch . '%')->orderBy('name')->take($limit)->get()->map(fn($i) => ['id' => $i->id, 'name' => $i->name, 'image' => $i->image, 'sell_price' => $i->sell_price, 'type_label' => 'Material', 'stock' => $i->stock_meters]);
             $parts = Part::query()->where('name', 'like', '%' . $this->posSearch . '%')->orderBy('name')->take($limit)->get()->map(fn($i) => ['id' => $i->id, 'name' => $i->name, 'image' => $i->image, 'sell_price' => $i->sell_price, 'type_label' => 'Part', 'stock' => $i->stock_quantity]);
 
             return collect($services)->merge($materials)->merge($parts)->sortBy('name')->take($limit);
@@ -200,7 +200,7 @@ class Create extends Component
 
         $query = match($this->posCategory) {
             'Service' => Service::query()->where('active', true),
-            'Material' => Material::query(),
+            'Material' => Material::query()->with('materialBrand'),
             'Part' => Part::query(),
         };
 
