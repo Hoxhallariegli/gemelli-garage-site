@@ -300,6 +300,18 @@
         .accordion-section-content.show-active {
             display: block !important;
         }
+
+        /* Brand Slider Fix */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .brand-card-wrapper {
+            flex: 0 0 auto;
+        }
     </style>
 
     <div wire:ignore wire:key="landing-static-part">
@@ -412,20 +424,25 @@
         @if($materialBrands->count() > 0)
         <section class="no-top pb-40">
             <div class="container">
-                <div class="row g-4 text-center justify-content-center">
+                <div class="row text-center">
                     <div class="col-lg-12">
                         <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
-                    </div>
-                    @foreach($materialBrands as $brand)
-                    <div class="col-lg-2 col-md-3 col-6">
-                        <div class="brand-item p-3 rounded-1 border border-white/5 bg-white/05 hover-bg-white/10 transition-all">
-                            @if($brand->image)
-                                <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 50px; object-fit: contain;">
-                            @endif
-                            <h4 class="mb-0 text-white fs-12 tracking-wider uppercase">{{ $brand->name }}</h4>
+
+                        <div class="brand-slider-container">
+                            <div class="d-flex flex-row flex-nowrap overflow-x-auto gap-3 pb-2 justify-content-lg-center no-scrollbar">
+                                @foreach($materialBrands as $brand)
+                                <div class="brand-card-wrapper">
+                                    <div class="wizard-card" style="padding: 15px; min-width: 140px; height: 100px;">
+                                        @if($brand->image)
+                                            <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain;">
+                                        @endif
+                                        <h4 class="mb-0 text-white fs-10 tracking-wider uppercase">{{ $brand->name }}</h4>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
-                    @endforeach
                 </div>
             </div>
         </section>
