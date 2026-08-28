@@ -67,7 +67,7 @@ return [
         'disk' => 'public_uploads',
         'rules' => ['required', 'file', 'max:102400'],
         'directory' => 'livewire-tmp',
-        'middleware' => null,
+        'middleware' => ['web'], // Shto 'web' këtu në vend të null
         'preview_mimes' => [
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',
