@@ -4,6 +4,7 @@ return [
     'Dashboard' => 'Dashboard',
     'Description' => 'Përmbledhje e punëve dhe klientëve në kohë reale.',
     'Add New Job' => 'Shto Punë të Re',
+    'View Site' => 'Shiko Faqen',
     'Clients' => 'Klientë',
     'Vehicles' => 'Automjete',
     'Total Jobs' => 'Punë Totale',

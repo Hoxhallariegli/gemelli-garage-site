@@ -4,6 +4,7 @@ return [
     'Dashboard' => 'Dashboard',
     'Description' => 'Real-time overview of jobs and clients.',
     'Add New Job' => 'Add New Job',
+    'View Site' => 'View Site',
     'Clients' => 'Clients',
     'Vehicles' => 'Vehicles',
     'Total Jobs' => 'Total Jobs',

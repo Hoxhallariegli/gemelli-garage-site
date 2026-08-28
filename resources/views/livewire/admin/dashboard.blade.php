@@ -5,6 +5,10 @@
             <x-short-description>{{ __('dashboard.Description') }}</x-short-description>
         </div>
         <div class="flex items-center gap-3">
+             <a href="/" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gray-600 rounded-2xl shadow-sm hover:bg-gray-700 transition-all">
+                <x-heroicon-o-globe-alt class="size-5" />
+                {{ __('dashboard.View Site') }}
+             </a>
              <x-btn :href="route('admin.jobs.create')" icon="plus" variant="blue">{{ __('dashboard.Add New Job') }}</x-btn>
         </div>
     </div>

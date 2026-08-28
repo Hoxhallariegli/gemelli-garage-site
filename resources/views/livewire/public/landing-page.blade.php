@@ -86,13 +86,10 @@
             height: auto;
             max-width: 150px;
             margin-bottom: 15px;
-            filter: grayscale(1) brightness(0.8);
             transition: all 0.5s ease;
         }
 
-        .wizard-card:hover img,
         .wizard-card.active img {
-            filter: grayscale(0) brightness(1);
             transform: scale(1.05);
         }
 
@@ -283,17 +280,27 @@
             text-decoration: underline;
             opacity: 0.8;
         }
-        /* Service Card Hover Fix */
-        .hover-op-0, .hover-op-1 {
-            transition: all 0.3s ease;
+        /* Service Card Fix - No Hover Reveal */
+        .hover .abs-centered {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            transform: none !important;
+            top: 50% !important;
         }
-        .abs-centered {
-            pointer-events: none;
-            opacity: 0;
+        .hover .hover-op-0 {
+            opacity: 1 !important;
         }
-        .hover:hover .abs-centered {
-            pointer-events: auto;
-            opacity: 1;
+        .hover .bg-blur {
+            display: none !important;
+        }
+        .sw-overlay.op-8 {
+            opacity: 0.3 !important; /* Lighter overlay to see colors */
+        }
+        .hover-scale-1-1:hover {
+            transform: none !important;
+        }
+        .abs-middle {
+            top: 80% !important; /* Move title down to not overlap button */
         }
 
         /* FAQ Override */
@@ -361,16 +368,15 @@
                             @else
                                 <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-64 object-cover" alt="">
                             @endif
-                            <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
+                            <div class="abs w-100 px-4 z-4 abs-centered">
                                 <button type="button" class="btn-main fx-slide"
                                     wire:click="addServiceAndScroll({{ $service->id }})">
                                     <span>{{ __('front.add_to_quote') }}</span>
                                 </button>
                             </div>
                             <h3 class="abs fs-32 lh-1 p-4 top-0 start-0 z-2">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</h3>
-                            <div class="abs bg-blur z-2 top-0 w-100 h-100 hover-op-1"></div>
                             <div class="sw-overlay op-8"></div>
-                            <div class="abs z-2 abs-middle mt-2 w-100 text-center hover-op-0">
+                            <div class="abs z-2 abs-middle mt-2 w-100 text-center">
                                 <h4 class="mb-1">{{ $service->name }}</h4>
                                 <p class="text-xs text-gray-300">{{ __('front.from') }} €{{ number_format($service->base_price, 0) }}</p>
                             </div>
@@ -419,35 +425,35 @@
                 </div>
             </div>
         </section>
+    </div>
 
-        {{-- BRANDS SECTION --}}
-        @if($materialBrands->count() > 0)
-        <section class="no-top pb-40">
-            <div class="container">
-                <div class="row text-center">
-                    <div class="col-lg-12">
-                        <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
+    {{-- BRANDS SECTION (Moved outside wire:ignore) --}}
+    @if($materialBrands->count() > 0)
+    <section class="no-top pb-40">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-lg-12">
+                    <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
 
-                        <div class="brand-slider-container">
-                            <div class="d-flex flex-row flex-nowrap overflow-x-auto gap-3 pb-2 justify-content-lg-center no-scrollbar">
-                                @foreach($materialBrands as $brand)
-                                <div class="brand-card-wrapper">
-                                    <div class="wizard-card" style="padding: 15px; min-width: 140px; height: 100px;">
-                                        @if($brand->image)
-                                            <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain;">
-                                        @endif
-                                        <h4 class="mb-0 text-white fs-10 tracking-wider uppercase">{{ $brand->name }}</h4>
-                                    </div>
+                    <div class="brand-slider-container">
+                        <div class="d-flex flex-row flex-nowrap overflow-x-auto gap-3 pb-2 justify-content-lg-center no-scrollbar">
+                            @foreach($materialBrands as $brand)
+                            <div class="brand-card-wrapper">
+                                <div class="wizard-card" style="padding: 15px; min-width: 140px; height: 100px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
+                                    @if($brand->image)
+                                        <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain; filter: none !important; opacity: 1 !important;">
+                                    @endif
+                                    <h4 class="mb-0 text-white fs-10 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
                                 </div>
-                                @endforeach
                             </div>
+                            @endforeach
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-        @endif
-    </div>
+        </div>
+    </section>
+    @endif
 
     <section id="configurator" class="pb-100">
         <div class="container">
