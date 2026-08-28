@@ -67,18 +67,22 @@ class AppServiceProvider extends ServiceProvider
         Model::shouldBeStrict(! Application::getInstance()->isProduction());
     }
 
-    private function configureHttp(): void
-    {
-        Http::globalOptions([
-            'headers' => [
-                'User-Agent' => config('app.user_agent'),
-            ],
-        ]);
 
-        if (app()->environment('production')) {
-            URL::forceScheme('https');
-        }
+private function configureHttp(): void
+{
+    \Illuminate\Support\Facades\Http::globalOptions([
+        'headers' => [
+            'User-Agent' => config('app.user_agent'),
+        ],
+    ]);
+
+    if (app()->environment('production') || str_starts_with(config('app.url'), 'https://')) {
+        URL::forceScheme('https');
+
+        // KJO ËSHTË ZGJIDHJA KRITIKE PËR GABIMIN 401
+        URL::forceRootUrl(config('app.url'));
     }
+}
 
     private function configurePasswordValidation(): void
     {
