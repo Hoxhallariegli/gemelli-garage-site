@@ -22,7 +22,7 @@ class Edit extends Component
     public $stock_meters = '';
     public $image;
 
-    public function mount(Material $material) { $this->item = $material; $this->fill($material->toArray());  }
+    public function mount(Material $material) { $this->item = $material; $this->fill($material->toArray()); $this->image = null; }
     public function render() { abort_if_cannot('edit_materials'); return view('livewire.admin.materials.edit', [
         ])->layout('components.layouts.app'); }
 

@@ -21,7 +21,7 @@ class Edit extends Component
     public $stock_quantity = '';
     public $image;
 
-    public function mount(Part $part) { $this->item = $part; $this->fill($part->toArray());  }
+    public function mount(Part $part) { $this->item = $part; $this->fill($part->toArray()); $this->image = null; }
     public function render() { abort_if_cannot('edit_parts'); return view('livewire.admin.parts.edit', [
         ])->layout('components.layouts.app'); }
 

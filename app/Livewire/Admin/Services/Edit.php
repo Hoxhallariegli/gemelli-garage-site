@@ -21,7 +21,7 @@ class Edit extends Component
     public $active = '';
     public $image;
 
-    public function mount(Service $service) { $this->item = $service; $this->fill($service->toArray());  }
+    public function mount(Service $service) { $this->item = $service; $this->fill($service->toArray()); $this->image = null; }
     public function render() { abort_if_cannot('edit_services'); return view('livewire.admin.services.edit', [
         ])->layout('components.layouts.app'); }
 
