@@ -319,6 +319,10 @@
         .brand-card-wrapper {
             flex: 0 0 auto;
         }
+        .brand-card-wrapper .wizard-card img {
+            filter: none !important;
+            opacity: 1 !important;
+        }
     </style>
 
     <div wire:ignore wire:key="landing-static-part">
@@ -388,12 +392,12 @@
         </section>
 
         {{-- BENEFITS SECTION --}}
-        <section class="no-top">
+        <section class="no-top pb-20">
             <div class="container">
                 <div class="row g-4 text-center">
                     <div class="col-lg-12">
                         <div class="subtitle">{{ __('front.personalize') }}</div>
-                        <h2>{{ __('front.why_wrap_title') }}</h2>
+                        <h2 class="fs-32">{{ __('front.why_wrap_title') }}</h2>
                     </div>
                     <div class="col-md-4">
                         <div class="feature-box f-boxed style-3">
@@ -429,25 +433,23 @@
 
     {{-- BRANDS SECTION (Moved outside wire:ignore) --}}
     @if($materialBrands->count() > 0)
-    <section class="no-top pb-40">
+    <section class="no-top pb-20">
         <div class="container">
             <div class="row text-center">
                 <div class="col-lg-12">
                     <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
 
-                    <div class="brand-slider-container">
-                        <div class="d-flex flex-row flex-nowrap overflow-x-auto gap-3 pb-2 justify-content-lg-center no-scrollbar">
-                            @foreach($materialBrands as $brand)
-                            <div class="brand-card-wrapper">
-                                <div class="wizard-card" style="padding: 15px; min-width: 140px; height: 100px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
-                                    @if($brand->image)
-                                        <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain; filter: none !important; opacity: 1 !important;">
-                                    @endif
-                                    <h4 class="mb-0 text-white fs-10 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
-                                </div>
+                    <div class="row g-3 justify-content-center">
+                        @foreach($materialBrands as $brand)
+                        <div class="col-lg-2 col-md-3 col-6">
+                            <div class="wizard-card" style="padding: 15px; height: 100px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
+                                @if($brand->image)
+                                    <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain; filter: none !important; opacity: 1 !important;">
+                                @endif
+                                <h4 class="mb-0 text-white fs-10 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
                             </div>
-                            @endforeach
                         </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
