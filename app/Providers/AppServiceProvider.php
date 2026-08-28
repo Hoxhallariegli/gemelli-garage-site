@@ -75,7 +75,7 @@ class AppServiceProvider extends ServiceProvider
             ],
         ]);
 
-        if (Config::string('app.env') !== 'local') {
+        if (Config::string('app.env') !== 'local' || str_contains(request()->getHost(), 'gemelli')) {
             URL::forceScheme('https');
         }
     }
