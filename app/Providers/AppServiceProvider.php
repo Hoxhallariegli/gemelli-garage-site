@@ -77,7 +77,14 @@ class AppServiceProvider extends ServiceProvider
 
         if (app()->environment('production') || str_contains(request()->getHost(), 'gemelli')) {
             URL::forceScheme('https');
+
+            // Forcojmë HTTPS për të gjitha gjenerimet e URL-ve
             $this->app['request']->server->set('HTTPS', 'on');
+
+            // Fix për Proxy/Cloudflare
+            if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+                $_SERVER['HTTPS'] = 'on';
+            }
         }
     }
 
