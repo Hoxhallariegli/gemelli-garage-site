@@ -32,7 +32,7 @@ class LandingPage extends Component
         $this->body_type_id = $id;
         if ($this->step == 1) {
             $this->step = 2;
-            $this->dispatch('scroll-to-section', id: 'step-2-anchor');
+            $this->dispatch('scroll-to-configurator');
         }
     }
 
@@ -47,8 +47,6 @@ class LandingPage extends Component
         // Auto-select first body type if none selected
         if (!$this->body_type_id) {
             $this->body_type_id = \App\Models\BodyType::first()?->id;
-            $this->step = 2;
-            $this->dispatch('scroll-to-section', id: 'step-2-anchor');
         }
     }
 
@@ -66,16 +64,8 @@ class LandingPage extends Component
         if ($step == 2 && !$this->body_type_id) {
             $this->body_type_id = \App\Models\BodyType::first()?->id;
         }
-
         $this->step = $step;
-
-        if ($step == 2) {
-            $this->dispatch('scroll-to-section', id: 'step-2-anchor');
-        } elseif ($step == 1) {
-            $this->dispatch('scroll-to-section', id: 'configurator');
-        } else {
-             $this->dispatch('scroll-to-section', id: 'configurator');
-        }
+        $this->dispatch('scroll-to-configurator');
     }
 
     public function getEstimatedPriceProperty()

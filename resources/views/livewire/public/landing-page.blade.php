@@ -274,7 +274,6 @@
 
                 {{-- STEP 2: SERVICES & MATERIALS (Shfaqet vetëm nëse është bërë përzgjedhja) --}}
                 @if($step >= 2)
-                <div id="step-2-anchor"></div>
                 <div class="row g-5 animate-fadeIn mt-5 pt-5 border-t border-white/5">
                     <div class="col-12 text-center mb-4">
                         <h2>{{ __('front.fill_basket') }}</h2>
@@ -351,8 +350,8 @@
 
     <script>
         document.addEventListener('livewire:init', () => {
-           Livewire.on('scroll-to-section', (event) => {
-               const element = document.getElementById(event.id);
+           Livewire.on('scroll-to-configurator', () => {
+               const element = document.getElementById('configurator');
                if (element) {
                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                }
