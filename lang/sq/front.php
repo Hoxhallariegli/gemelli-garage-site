@@ -14,6 +14,8 @@ return [
     'configure_your_service' => 'Konfiguro Shërbimin tënd',
     'steps_description' => 'Pak hapa të thjeshtë për të zbuluar koston dhe për të rezervuar trajtimin ideal për makinën tuaj.',
     'your_selection' => 'Zgjedhja Juaj',
+    'select_at_least_one' => 'Ju lutem zgjidhni të paktën një shërbim.',
+    'material_required' => 'Ju lutem zgjidhni materialin për Wrapping.',
     'vehicle_required' => 'Mjeti i Detyrueshëm',
     'change_vehicle_short' => 'Ndrysho',
     'request_sent' => 'Kërkesa u Dërgua!',

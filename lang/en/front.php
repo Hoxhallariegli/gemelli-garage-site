@@ -14,6 +14,8 @@ return [
     'configure_your_service' => 'Configure your Service',
     'steps_description' => 'A few simple steps to discover the cost and book the ideal treatment for your car.',
     'your_selection' => 'Your Selection',
+    'select_at_least_one' => 'Please select at least one service.',
+    'material_required' => 'Please select a material for Wrapping.',
     'vehicle_required' => 'Vehicle Required',
     'change_vehicle_short' => 'Change',
     'request_sent' => 'Request Sent!',

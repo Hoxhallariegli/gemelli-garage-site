@@ -69,6 +69,11 @@ class LandingPage extends Component
                 $this->dispatch('notify', ['type' => 'error', 'message' => __('front.select_at_least_one')]);
                 return;
             }
+
+            if ($this->isWrapSelected && !$this->material_id) {
+                $this->dispatch('notify', ['type' => 'error', 'message' => __('front.material_required') ?? 'Ju lutem zgjidhni materialin për Wrapping.']);
+                return;
+            }
         }
 
         if ($step == 2 && !$this->body_type_id) {
@@ -116,6 +121,15 @@ class LandingPage extends Component
     public function getSelectedBodyTypeDataProperty()
     {
         return $this->body_type_id ? \App\Models\BodyType::find($this->body_type_id) : null;
+    }
+
+    public function getIsWrapSelectedProperty()
+    {
+        $wrapServices = Service::whereIn('id', $this->selected_services)
+            ->where('name', 'LIKE', '%Wrap%')
+            ->count();
+
+        return $wrapServices > 0;
     }
 
     public function submitAppointment(CreateJobRequestAction $action)

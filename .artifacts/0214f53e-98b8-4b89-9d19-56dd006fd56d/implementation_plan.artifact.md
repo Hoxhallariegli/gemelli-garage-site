@@ -1,39 +1,19 @@
-# Mobile-First UX Optimization for Landing Page
+# Move Admin Login Button to Side Menu
 
-Optimizing `landing-page.blade.php` to reduce scrolling, simplify the flow, and guide users ("dumb users" as per request) effectively towards the form submission, especially on mobile devices.
+The user wants to relocate the "Admin Login" button from the main header to the bottom of the off-canvas side menu (overlay).
 
 ## Proposed Changes
 
-### 1. Style Enhancements (Mobile-Specific)
-- **Hero Section**: Reduce `min-height` on mobile from `100vh` to something like `70vh` or `80vh` to bring content higher.
-- **Section Spacing**: Reduce vertical padding (`py-10`, `spacer-double`) on mobile screens.
-- **Wizard Cards**: Optimize `wizard-card` padding and image sizes for mobile to fit more items on the screen.
-- **Sticky CTA Bar**: Add a fixed-bottom bar for mobile that shows the "Estimated Total" and a "Continue/Submit" button, ensuring the call-to-action is always visible.
+### [MODIFY] [guest.blade.php](file:///C:/laragon/www/gemelligaragesite/resources/views/components/layouts/guest.blade.php)
 
-### 2. Layout Logic Improvements
-- **Step Progress Bar**: Add a visual indicator of the 3 steps to show users how close they are to the end.
-- **Service Selection**: Make service cards in the configurator more compact on mobile (list-like instead of big cards).
-- **Navigation**: Ensure "Back" and "Next" buttons are prominent and easy to hit.
-
-### 3. Form Optimization
-- Ensure form fields have `inputmode` and `type` attributes for better mobile keyboard handling.
-- Add visual focus states and clear validation hints.
-
-## Files to Modify
-
-#### [MODIFY] [landing-page.blade.php](file:///C:/laragon/www/gemelligaragesite/resources/views/livewire/public/landing-page.blade.php)
-- Update `<style>` block with mobile media queries.
-- Add Sticky Footer component for mobile.
-- Refactor Step indicators and card layouts.
+- Remove the "Admin Login" button from the `menu_side_area` in the header.
+- Add the "Admin Login" button to the end of the `#extra-content` div in the `extra-wrap` overlay.
+- Style it slightly to ensure it fits well within the side menu context (adding a spacer if necessary).
 
 ## Verification Plan
 
 ### Manual Verification
-- Test on Mobile View (Chrome DevTools):
-    - Verify Hero section height.
-    - Check if Sticky Footer appears and works.
-    - Verify step transitions and auto-scroll.
-    - Ensure the price updates correctly in the sticky bar.
-- Desktop Verification:
-    - Ensure the sticky bar is hidden (or integrated differently).
-    - Check overall layout consistency.
+- Open the website and verify the "Admin Login" button is no longer in the header.
+- Click the burger menu icon (or "btn-extra") to open the side menu.
+- Verify the "Admin Login" button appears at the bottom of the side menu.
+- Click the button to ensure it still redirects to the login page correctly.

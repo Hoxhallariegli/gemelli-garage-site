@@ -394,6 +394,16 @@
                     </div>
                 </div>
             @else
+                <div x-data="{ showNotify: false, message: '', type: '' }"
+                     x-on:notify.window="showNotify = true; message = $event.detail[0].message; type = $event.detail[0].type; setTimeout(() => showNotify = false, 3000)"
+                     x-show="showNotify"
+                     x-transition
+                     class="fixed top-20 right-5 z-[9999] px-4 py-2 rounded shadow-lg text-white"
+                     :class="type === 'error' ? 'bg-red-600' : 'bg-green-600'"
+                     style="display: none;">
+                    <span x-text="message"></span>
+                </div>
+
                 {{-- SELECTION SUMMARY WIDGET (Visible in Step 2 & 3) --}}
                 @if($step > 1)
                 <div class="row justify-content-center animate-fadeIn">
@@ -457,11 +467,11 @@
                 {{-- STEP 2: SERVICES & MATERIALS --}}
                 @if($step == 2)
                 <div class="row g-4 animate-fadeIn mt-0">
-                    <div class="col-lg-7">
+                    <div class="{{ $this->isWrapSelected ? 'col-lg-7' : 'col-lg-12' }}">
                         <h5 class="text-white text-uppercase tracking-widest fs-10 mb-3 border-l-2 border-[#28a745] pl-3">{{ __('front.detailing_services') }}</h5>
                         <div class="row g-2">
                             @foreach($services as $s)
-                            <div class="col-md-6">
+                            <div class="{{ $this->isWrapSelected ? 'col-md-6' : 'col-md-4' }}">
                                 <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row justify-content-between p-2 {{ in_array($s->id, $selected_services) ? 'active' : '' }}" style="min-height: 50px;">
                                     <div class="text-start">
                                         <h4 class="mb-0 text-white fs-11">{{ $s->name }}</h4>
@@ -474,7 +484,8 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-5">
+                    @if($this->isWrapSelected)
+                    <div class="col-lg-5 animate-fadeIn">
                         <h5 class="text-white text-uppercase tracking-widest fs-10 mb-3 border-l-2 border-[#28a745] pl-3">{{ __('front.choose_wrap') }}</h5>
                         <div class="row g-2">
                             @foreach($materials as $mat)
@@ -487,6 +498,7 @@
                             @endforeach
                         </div>
                     </div>
+                    @endif
 
                     <div class="col-12 mt-4">
                         <div class="price-estimate-container border border-white/5 rounded-1 p-3 m-0">

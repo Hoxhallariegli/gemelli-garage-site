@@ -80,7 +80,6 @@
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area">
-                                    <a href="{{ route('login') }}" class="btn-main fx-slide hover-white me-2"><span>{{ __('front.admin_login') }}</span></a>
                                     <a href="#vehicle-selection" class="btn-main fx-slide hover-white"><span>{{ __('front.make_appointment') }}</span></a>
                                     <span id="menu-btn"></span>
                                 </div>
@@ -221,6 +220,8 @@
             <div class="social-icons mt-4">
                 <a href="https://instagram.com/gemellicargarage"><i class="fa-brands fa-instagram"></i></a>
             </div>
+            <div class="spacer-30-line"></div>
+            <a href="{{ route('login') }}" class="btn-main fx-slide hover-white w-100 text-center"><span>{{ __('front.admin_login') }}</span></a>
         </div>
     </div>
 

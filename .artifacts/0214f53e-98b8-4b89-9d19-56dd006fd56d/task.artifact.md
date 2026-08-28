@@ -1,0 +1,1 @@
+- `[x]` Move "Admin Login" button from header to side menu overlay.
