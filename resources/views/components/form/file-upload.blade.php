@@ -32,7 +32,11 @@
                 // 1. Kontrollojmë nëse kemi një TemporaryUploadedFile (sapo është zgjedhur fotoja)
                 if ($tempFile && !is_string($tempFile) && !is_array($tempFile) && method_exists($tempFile, 'temporaryUrl')) {
                     try {
+                        // Forcojmë përdorimin e HTTPS për URL-të e përkohshme në server
                         $previewUrl = $tempFile->temporaryUrl();
+                        if (app()->environment('production') || str_contains(config('app.url'), 'https')) {
+                             $previewUrl = str_replace('http://', 'https://', $previewUrl);
+                        }
                         $hasPreview = true;
                     } catch (\Exception $e) {}
                 }
