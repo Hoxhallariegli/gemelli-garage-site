@@ -1,7 +1,15 @@
 <tr class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition-none border-b border-gray-50 dark:border-gray-700/50 last:border-none">
     <td class="px-6 py-5 font-bold text-blue-600 dark:text-blue-400">{{ $item->id }}</td>
     <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->name }}</td>
-<td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->image }}</td>
+    <td class="px-6 py-5">
+        <div class="size-12 rounded-xl bg-gray-50 dark:bg-gray-900 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-gray-700">
+            @if($item->image)
+                <img src="{{ asset($item->image) }}" class="w-full h-full object-cover">
+            @else
+                <x-heroicon-o-photo class="size-6 text-gray-300" />
+            @endif
+        </div>
+    </td>
     <td class="px-6 py-5 text-right !transition-none">
         <div class="flex justify-end gap-3 !transition-none">
             @can('edit_material_brands')
