@@ -216,7 +216,7 @@
                                 <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-64 object-cover" alt="">
                             @endif
                             <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
-                                <button type="button" class="btn-main fx-slide" wire:click="toggleService({{ $service->id }}); goToStep(2);"><span>{{ __('front.add_to_quote') }}</span></button>
+                                <button type="button" class="btn-main fx-slide" wire:click="toggleService({{ $service->id }}); $wire.goToStep(2);"><span>{{ __('front.add_to_quote') }}</span></button>
                             </div>
                             <h3 class="abs fs-32 lh-1 p-4 top-0 start-0 z-2">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</h3>
                             <div class="abs bg-blur z-2 top-0 w-100 h-100 hover-op-1"></div>
