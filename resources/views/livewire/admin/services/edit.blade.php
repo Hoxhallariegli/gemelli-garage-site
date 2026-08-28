@@ -12,7 +12,7 @@
                 </div>
 
                 <div>
-                    <x-form.file-upload name="image" wire:model="image" :label="'Foto e Shërbimit'" id="image" :isEditing="true" />
+                    <x-form.file-upload name="image" wire:model="image" :label="'Foto e Shërbimit'" id="image" :isEditing="true" :preview="$item->image" />
                 </div>
             </div>
 

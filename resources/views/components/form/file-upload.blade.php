@@ -29,15 +29,18 @@
                 $previewUrl = '';
 
                 // 1. Kontrollojmë nëse kemi një TemporaryUploadedFile (sapo është zgjedhur fotoja)
-                if ($tempFile && method_exists($tempFile, 'temporaryUrl')) {
+                if ($tempFile && !is_string($tempFile) && method_exists($tempFile, 'temporaryUrl')) {
                     try {
                         $previewUrl = $tempFile->temporaryUrl();
                         $hasPreview = true;
                     } catch (\Exception $e) {}
                 }
                 // 2. Kontrollojmë nëse kemi një URL ekzistuese (në edit mode)
-                elseif ($preview) {
-                    $previewUrl = str_starts_with($preview, 'http') ? $preview : asset($preview);
+                elseif ($preview || (is_string($tempFile) && !empty($tempFile))) {
+                    $finalPreview = $preview ?: $tempFile;
+                    $previewUrl = (str_starts_with($finalPreview, 'http') || str_starts_with($finalPreview, 'data:'))
+                        ? $finalPreview
+                        : asset($finalPreview);
                     $hasPreview = true;
                 }
             @endphp

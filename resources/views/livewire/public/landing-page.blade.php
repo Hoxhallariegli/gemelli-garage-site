@@ -182,7 +182,7 @@
                         <h1 class="fs-72 fs-xs-10vw text-uppercase wow fadeInUp">{{ __('front.subtitle') }}</h1>
                         <p class="mb-0 col-lg-6 offset-lg-3 wow fadeInUp" data-wow-delay=".2s">{{ __('front.description') }}</p>
                         <div class="spacer-single"></div>
-                        <a class="btn-main fx-slide" href="#configurator"><span>{{ __('front.configure_now') }}</span></a>
+                        <a class="btn-main fx-slide" href="#configurator" x-on:click.prevent="document.getElementById('configurator').scrollIntoView({ behavior: 'smooth' })"><span>{{ __('front.configure_now') }}</span></a>
                     </div>
 
                     <div class="spacer-single"></div>
@@ -216,7 +216,11 @@
                                 <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-64 object-cover" alt="">
                             @endif
                             <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
-                                <button type="button" class="btn-main fx-slide" wire:click="toggleService({{ $service->id }}); $wire.goToStep(2);"><span>{{ __('front.add_to_quote') }}</span></button>
+                                <button type="button" class="btn-main fx-slide"
+                                    wire:click="toggleService({{ $service->id }}); $wire.goToStep(2);"
+                                    x-on:click="document.getElementById('configurator').scrollIntoView({ behavior: 'smooth' })">
+                                    <span>{{ __('front.add_to_quote') }}</span>
+                                </button>
                             </div>
                             <h3 class="abs fs-32 lh-1 p-4 top-0 start-0 z-2">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</h3>
                             <div class="abs bg-blur z-2 top-0 w-100 h-100 hover-op-1"></div>
@@ -253,29 +257,36 @@
                     </div>
                 </div>
             @else
-                {{-- STEP 1: VEHICLE TYPE --}}
-                @if($step == 1)
+                {{-- STEP 1 & 2: VEHICLE TYPE & CONFIGURATION --}}
+                @if($step == 1 || $step == 2)
                 <div class="row g-4 animate-fadeIn">
-                    <div class="col-12 text-center mb-5">
-                        <h4 class="text-white text-uppercase tracking-widest fs-14">{{ __('front.step_1_title') }}</h4>
-                    </div>
-                    @foreach($bodyTypes as $bt)
-                    <div class="col-lg-2 col-md-3 col-6">
-                        <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}">
-                            <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}">
-                            <h4>{{ $bt->name }}</h4>
+                    {{-- Category Selection (Always Visible in Configurator) --}}
+                    <div class="col-12">
+                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.step_1_title') }}</h5>
+
+                        {{-- Mobile: Horizontal Scroll | Desktop: Grid --}}
+                        <div class="row flex-nowrap flex-md-wrap overflow-x-auto pb-3 g-3" style="scrollbar-width: none; -ms-overflow-style: none;">
+                            <style>
+                                .overflow-x-auto::-webkit-scrollbar { display: none; }
+                                .compact-card { min-width: 140px; padding: 15px !important; }
+                                @media (min-width: 768px) {
+                                    .compact-card { min-width: auto; }
+                                }
+                            </style>
+                            @foreach($bodyTypes as $bt)
+                            <div class="col-lg-2 col-md-3 col-6 flex-shrink-0 flex-md-shrink-1">
+                                <div wire:click="selectBodyType({{ $bt->id }})"
+                                     class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }} {{ $step == 2 ? 'compact-card' : '' }}">
+                                    <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="{{ $step == 2 ? 'mb-2 w-50' : '' }}">
+                                    <h4 class="{{ $step == 2 ? 'fs-9' : '' }}">{{ $bt->name }}</h4>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                     </div>
-                    @endforeach
-                </div>
-                @endif
 
-                {{-- STEP 2: SERVICES & MATERIALS (BASKET) --}}
-                @if($step == 2)
-                <div class="row g-5 animate-fadeIn">
-                    <div class="col-12 text-center mb-4">
-                        @php $selectedBodyType = $bodyTypes->find($body_type_id); @endphp
-                        <button wire:click="goToStep(1)" class="btn-back mb-3"><i class="fa fa-arrow-left"></i> {{ __('front.back_to_vehicle') }} ({{ $selectedBodyType ? $selectedBodyType->name : '' }})</button>
+                    @if($step == 2)
+                    <div class="col-12 text-center mt-5 mb-4">
                         <h2>{{ __('front.fill_basket') }}</h2>
                         <p class="text-gray-400">{{ __('front.basket_description') }}</p>
                     </div>
@@ -320,6 +331,7 @@
                             <button wire:click="goToStep(3)" class="btn-main fx-slide px-10 py-3 {{ empty($selected_services) && !$material_id ? 'opacity-50 pointer-events-none' : '' }}"><span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span></button>
                         </div>
                     </div>
+                    @endif
                 </div>
                 @endif
 
@@ -351,7 +363,7 @@
 
     <script>
         document.addEventListener('livewire:init', () => {
-           Livewire.on('scroll-to-contact', (event) => {
+           Livewire.on('scroll-to-configurator', () => {
                const element = document.getElementById('configurator');
                if (element) {
                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -30,7 +30,10 @@ class LandingPage extends Component
     public function selectBodyType($id)
     {
         $this->body_type_id = $id;
-        $this->step = 2;
+        if ($this->step == 1) {
+            $this->step = 2;
+            $this->dispatch('scroll-to-configurator');
+        }
     }
 
     public function toggleService($id)
@@ -39,6 +42,11 @@ class LandingPage extends Component
             $this->selected_services = array_diff($this->selected_services, [$id]);
         } else {
             $this->selected_services[] = $id;
+        }
+
+        // Auto-select first body type if none selected
+        if (!$this->body_type_id) {
+            $this->body_type_id = \App\Models\BodyType::first()?->id;
         }
     }
 
@@ -53,10 +61,11 @@ class LandingPage extends Component
 
     public function goToStep($step)
     {
-        $this->step = $step;
-        if ($step == 3) {
-            $this->dispatch('scroll-to-contact');
+        if ($step == 2 && !$this->body_type_id) {
+            $this->body_type_id = \App\Models\BodyType::first()?->id;
         }
+        $this->step = $step;
+        $this->dispatch('scroll-to-configurator');
     }
 
     public function getEstimatedPriceProperty()

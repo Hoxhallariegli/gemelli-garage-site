@@ -18,7 +18,7 @@
                 </div>
 
                 <div>
-                    <x-form.file-upload name="image" wire:model="image" :label="__('body-types.Image')" id="image" :isEditing="true" />
+                    <x-form.file-upload name="image" wire:model="image" :label="__('body-types.Image')" id="image" :isEditing="true" :preview="$item->image" />
                 </div>
             </div>
 
