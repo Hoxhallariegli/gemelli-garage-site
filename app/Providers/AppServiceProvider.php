@@ -34,8 +34,18 @@ class AppServiceProvider extends ServiceProvider
         $this->configureModels();
         $this->configurePasswordValidation();
         $this->configureHttp();
-        $this->configureViews();
+        $this->configureGlobalSettings(); // New helper to load settings
         $this->configureRateLimiting();
+    }
+
+    private function configureGlobalSettings(): void
+    {
+        if (! $this->app->runningInConsole()) {
+            $settings = cache()->remember('settings', 3600, fn () => Setting::all());
+            foreach ($settings as $setting) {
+                config()->set([$setting->key => $setting->value]);
+            }
+        }
     }
 
     private function configureRateLimiting(): void
@@ -92,17 +102,5 @@ private function configureHttp(): void
             ->numbers()
             ->uncompromised()
         );
-    }
-
-    private function configureViews(): void
-    {
-        view()->composer('components.layouts.app', function () {
-            if (Auth::check()) {
-                $settings = cache()->remember('settings', 3600, fn () => Setting::all());
-                foreach ($settings as $setting) {
-                    config()->set([$setting->key => $setting->value]);
-                }
-            }
-        });
     }
 }
