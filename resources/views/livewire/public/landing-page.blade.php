@@ -284,8 +284,13 @@
         .hover .abs-centered {
             opacity: 1 !important;
             pointer-events: auto !important;
-            transform: none !important;
+            transform: translate(-50%, -50%) !important;
             top: 50% !important;
+            left: 50% !important;
+            width: 100% !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
         }
         .hover .hover-op-0 {
             opacity: 1 !important;
@@ -431,7 +436,7 @@
         </section>
     </div>
 
-    {{-- BRANDS SECTION (Moved outside wire:ignore) --}}
+    {{-- BRANDS SECTION --}}
     @if($materialBrands->count() > 0)
     <section class="no-top pb-20">
         <div class="container">
@@ -439,14 +444,29 @@
                 <div class="col-lg-12">
                     <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
 
-                    <div class="row g-3 justify-content-center">
+                    {{-- Desktop Grid --}}
+                    <div class="row g-3 justify-content-center d-none d-md-flex">
                         @foreach($materialBrands as $brand)
-                        <div class="col-lg-2 col-md-3 col-6">
+                        <div class="col-lg-2 col-md-3">
                             <div class="wizard-card" style="padding: 15px; height: 100px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
                                 @if($brand->image)
                                     <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain; filter: none !important; opacity: 1 !important;">
                                 @endif
                                 <h4 class="mb-0 text-white fs-10 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Mobile Slider --}}
+                    <div class="d-flex d-md-none overflow-x-auto no-scrollbar gap-2 pb-2">
+                        @foreach($materialBrands as $brand)
+                        <div class="brand-card-wrapper" style="min-width: 140px; flex: 0 0 auto;">
+                            <div class="wizard-card" style="padding: 10px; height: 90px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
+                                @if($brand->image)
+                                    <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 35px; object-fit: contain; filter: none !important; opacity: 1 !important;">
+                                @endif
+                                <h4 class="mb-0 text-white fs-9 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
                             </div>
                         </div>
                         @endforeach
@@ -540,19 +560,38 @@
                 @endif
                 {{-- STEP 1: VEHICLE TYPE --}}
                 @if($step == 1)
-                <div class="row g-3 animate-fadeIn justify-content-center">
+                {{-- Desktop Grid --}}
+                <div class="row g-3 animate-fadeIn justify-content-center d-none d-md-flex">
                     <div class="col-12 text-center mb-3">
                         <div class="subtitle">{{ __('front.personalize') }}</div>
                         <h2 class="fs-32">{{ __('front.step_1_title') }}</h2>
                     </div>
                     @foreach($bodyTypes as $bt)
-                    <div class="col-lg-2 col-md-3 col-6">
+                    <div class="col-lg-2 col-md-3">
                         <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}" style="padding: 10px;">
                             <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="img-fluid" style="max-width: 100px;">
                             <h4 class="fs-10">{{ $bt->name }}</h4>
                         </div>
                     </div>
                     @endforeach
+                </div>
+
+                {{-- Mobile Slider --}}
+                <div class="d-md-none animate-fadeIn">
+                    <div class="text-center mb-3">
+                        <div class="subtitle">{{ __('front.personalize') }}</div>
+                        <h2 class="fs-24">{{ __('front.step_1_title') }}</h2>
+                    </div>
+                    <div class="d-flex overflow-x-auto no-scrollbar gap-2 pb-2">
+                        @foreach($bodyTypes as $bt)
+                        <div style="min-width: 120px; flex: 0 0 auto;">
+                            <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}" style="padding: 10px;">
+                                <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="img-fluid" style="max-width: 80px;">
+                                <h4 class="fs-9">{{ $bt->name }}</h4>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
                 @endif
 
