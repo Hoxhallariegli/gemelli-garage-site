@@ -46,5 +46,16 @@ class Edit extends Component
         session()->flash('success', __('parts.updated'));
         return to_route('admin.parts.index');
     }
-    protected function rules(): array { return array_merge(Part::rules($this->item->id), ['image' => 'nullable|image|max:15360']); }
+    protected function rules(): array
+    {
+        $rules = Part::rules($this->item->id);
+
+        if ($this->image && !is_string($this->image)) {
+            $rules['image'] = ['nullable', 'image', 'max:15360'];
+        } else {
+            $rules['image'] = ['nullable', 'string'];
+        }
+
+        return $rules;
+    }
 }

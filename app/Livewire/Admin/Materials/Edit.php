@@ -53,8 +53,6 @@ class Edit extends Component
     {
         $rules = Material::rules($this->item->id);
 
-        // Nëse kemi një upload të ri, e validojmë si imazh.
-        // Përndryshe e lëmë si string (path-i ekzistues).
         if ($this->image && !is_string($this->image)) {
             $rules['image'] = ['nullable', 'image', 'max:15360'];
         } else {
