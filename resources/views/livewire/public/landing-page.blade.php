@@ -328,6 +328,14 @@
             filter: none !important;
             opacity: 1 !important;
         }
+        /* Quick Fade Animation */
+        .animate-fadeIn {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 
     <div wire:ignore wire:key="landing-static-part">
@@ -371,7 +379,7 @@
                 <div class="row g-4">
                     @foreach($services as $index => $service)
                     <div class="col-sm-6 col-md-4" wire:key="service-card-{{ $service->id }}">
-                        <div class="hover rounded-1 overflow-hidden relative text-light text-center wow fadeInRight" data-wow-delay=".{{ $index * 2 }}s">
+                        <div class="hover rounded-1 overflow-hidden relative text-light text-center wow fadeIn" data-wow-delay="0.1s">
                             @if($service->image)
                                 <img src="{{ asset($service->image) }}" class="hover-scale-1-1 w-100 object-cover h-64" alt="{{ $service->name }}">
                             @else
