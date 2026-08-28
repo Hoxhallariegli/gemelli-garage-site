@@ -63,7 +63,7 @@ return [
     |
     */
 
-    ' temporary_file_upload' => [
+    'temporary_file_upload' => [
         'disk' => 'public_uploads',
         'rules' => ['required', 'file', 'max:102400'],
         'directory' => 'livewire-tmp',
