@@ -410,19 +410,20 @@
 
         {{-- BRANDS SECTION --}}
         @if($materialBrands->count() > 0)
-        <section class="no-top">
+        <section class="no-top pb-40">
             <div class="container">
-                <div class="row align-items-center g-4 text-center">
+                <div class="row g-4 text-center justify-content-center">
                     <div class="col-lg-12">
-                        <span class="text-xs uppercase tracking-widest text-gray-500">{{ __('front.brands_title') }}</span>
+                        <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
                     </div>
                     @foreach($materialBrands as $brand)
-                    <div class="col-md-2 col-6">
-                        @if($brand->image)
-                            <img src="{{ asset($brand->image) }}" class="img-fluid op-5 hover-op-1 transition-all" alt="{{ $brand->name }}" style="max-height: 40px; filter: grayscale(1);">
-                        @else
-                            <h4 class="mb-0 text-white op-3 hover-op-1 transition-all fs-14">{{ $brand->name }}</h4>
-                        @endif
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <div class="brand-item p-3 rounded-1 border border-white/5 bg-white/05 hover-bg-white/10 transition-all">
+                            @if($brand->image)
+                                <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 50px; object-fit: contain;">
+                            @endif
+                            <h4 class="mb-0 text-white fs-12 tracking-wider uppercase">{{ $brand->name }}</h4>
+                        </div>
                     </div>
                     @endforeach
                 </div>
