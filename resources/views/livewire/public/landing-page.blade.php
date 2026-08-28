@@ -194,41 +194,40 @@
             </div>
         </section>
 
-        <section class="py-12 lg:py-24 pt-0" id="services">
+        <section class="pt-0" id="services">
             <div class="container">
-                <div class="row justify-content-center mb-8 lg:mb-12">
-                    <div class="col-lg-6 text-center px-4">
-                        <div class="subtitle text-[10px] lg:text-xs">{{ __('front.our_services') }}</div>
-                        <h2 class="text-3xl lg:text-5xl">{{ __('front.premium_detailing') }}</h2>
-                        <p class="text-gray-400 text-sm lg:text-base">{{ __('front.choose_treatment') }}</p>
+                <div class="row g-4 justify-content-center mb-2">
+                    <div class="col-lg-6">
+                        <div class="text-center">
+                            <div class="subtitle">{{ __('front.our_services') }}</div>
+                            <h2>{{ __('front.premium_detailing') }}</h2>
+                            <p>{{ __('front.choose_treatment') }}</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="row g-3 lg:g-4">
+                <div class="row g-4">
                     @foreach($services as $index => $service)
-                    <div class="col-12 col-sm-6 col-md-4" wire:key="service-card-{{ $service->id }}">
-                        <div class="hover rounded-2xl overflow-hidden relative text-light text-center transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10">
+                    <div class="col-sm-6 col-md-4" wire:key="service-card-{{ $service->id }}">
+                        <div class="hover rounded-1 overflow-hidden relative text-light text-center wow fadeInRight" data-wow-delay=".{{ $index * 2 }}s">
                             @if($service->image)
-                                <img src="{{ asset($service->image) }}" class="hover-scale-1-1 w-100 object-cover h-56 lg:h-72" alt="{{ $service->name }}">
+                                <img src="{{ asset($service->image) }}" class="hover-scale-1-1 w-100 object-cover h-64" alt="{{ $service->name }}">
                             @else
-                                <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-56 lg:h-72 object-cover" alt="">
+                                <img src="{{ asset('assets/front/gemelli-garage/images/services-2/'.(($index % 4) + 1).'.webp') }}" class="hover-scale-1-1 w-100 h-64 object-cover" alt="">
                             @endif
-
-                            <div class="abs w-100 px-4 z-4 abs-centered opacity-0 hover:opacity-100 transition-opacity duration-500">
-                                <button type="button" class="btn-main fx-slide w-full"
+                            <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
+                                <button type="button" class="btn-main fx-slide"
                                     wire:click="toggleService({{ $service->id }}); $wire.goToStep(2);"
                                     x-on:click="document.getElementById('configurator').scrollIntoView({ behavior: 'smooth' })">
                                     <span>{{ __('front.add_to_quote') }}</span>
                                 </button>
                             </div>
-
-                            <h3 class="abs fs-24 lg:fs-32 lh-1 p-4 top-0 start-0 z-2 opacity-50">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</h3>
-                            <div class="abs bg-black/40 backdrop-blur-[2px] z-2 top-0 w-100 h-100 opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+                            <h3 class="abs fs-32 lh-1 p-4 top-0 start-0 z-2">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</h3>
+                            <div class="abs bg-blur z-2 top-0 w-100 h-100 hover-op-1"></div>
                             <div class="sw-overlay op-8"></div>
-
-                            <div class="abs z-2 bottom-0 w-100 p-6 text-center transition-all duration-500 hover:mb-12">
-                                <h4 class="mb-1 text-lg lg:text-xl font-black uppercase italic tracking-tighter">{{ $service->name }}</h4>
-                                <p class="text-[10px] lg:text-xs text-[#28a745] font-black uppercase tracking-widest">{{ __('front.from') }} €{{ number_format($service->base_price, 0) }}</p>
+                            <div class="abs z-2 abs-middle mt-2 w-100 text-center hover-op-0">
+                                <h4 class="mb-1">{{ $service->name }}</h4>
+                                <p class="text-xs text-gray-300">{{ __('front.from') }} €{{ number_format($service->base_price, 0) }}</p>
                             </div>
                         </div>
                     </div>
@@ -238,19 +237,19 @@
         </section>
     </div>
 
-    <section id="configurator" class="py-12 lg:py-24">
+    <section id="configurator" class="pb-100">
         <div class="container">
-            <div class="row justify-content-center mb-8 lg:mb-12">
-                <div class="col-lg-8 text-center px-4">
-                    <div class="subtitle text-[10px] lg:text-xs">{{ __('front.personalize') }}</div>
-                    <h2 class="text-3xl lg:text-5xl">{{ __('front.configure_your_service') }}</h2>
-                    <p class="text-gray-400 text-sm lg:text-base">{{ __('front.steps_description') }}</p>
+            <div class="row g-4 justify-content-center mb-5">
+                <div class="col-lg-8 text-center">
+                    <div class="subtitle">{{ __('front.personalize') }}</div>
+                    <h2>{{ __('front.configure_your_service') }}</h2>
+                    <p class="text-gray-400">{{ __('front.steps_description') }}</p>
                 </div>
             </div>
 
             @if($success)
                 <div class="row justify-content-center">
-                    <div class="col-lg-6 text-center py-12 bg-dark-2 rounded-2xl mx-4">
+                    <div class="col-lg-6 text-center py-10 bg-dark-2 rounded-1">
                         <i class="fa fa-check id-color fa-3x mb-4"></i>
                         <h3 class="text-2xl font-bold text-white mb-2">{{ __('front.request_sent') }}</h3>
                         <p class="text-gray-400">{{ __('front.contact_soon') }}</p>
@@ -258,105 +257,75 @@
                     </div>
                 </div>
             @else
-                {{-- STEP 1 & 2: VEHICLE TYPE & CONFIGURATION --}}
-                @if($step == 1 || $step == 2)
-                <div class="animate-fadeIn space-y-12">
-                    {{-- Category Selection (Always Visible in Configurator) --}}
-                    <div>
-                        <h5 class="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-6 opacity-50 flex items-center gap-2">
-                            <span class="w-8 h-[1px] bg-white/20"></span>
-                            {{ __('front.step_1_title') }}
-                        </h5>
+                {{-- STEP 1: VEHICLE TYPE (Sgjidhje Kategoria) --}}
+                <div class="row g-4 animate-fadeIn">
+                    <div class="col-12 mb-4">
+                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.step_1_title') }}</h5>
+                    </div>
+                    @foreach($bodyTypes as $bt)
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}">
+                            <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="img-fluid">
+                            <h4>{{ $bt->name }}</h4>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
 
-                        {{-- Clean Horizontal Scroll for Mobile --}}
-                        <div class="flex overflow-x-auto gap-4 pb-4 no-scrollbar -mx-4 px-4 lg:mx-0 lg:px-0 lg:grid lg:grid-cols-6 lg:flex-wrap">
-                            <style>
-                                .no-scrollbar::-webkit-scrollbar { display: none; }
-                                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-                            </style>
-                            @foreach($bodyTypes as $bt)
-                            <div wire:click="selectBodyType({{ $bt->id }})"
-                                 class="flex-shrink-0 cursor-pointer group w-24 lg:w-auto">
-                                <div class="aspect-square rounded-[2rem] border-2 flex items-center justify-center transition-all duration-500 {{ $body_type_id == $bt->id ? 'border-[#28a745] bg-[#28a745]/10 shadow-[0_0_20px_rgba(40,167,69,0.2)] scale-105' : 'border-white/5 bg-white/2 hover:border-white/10' }}">
-                                    <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}"
-                                         class="w-3/4 h-auto object-contain transition-all duration-500 {{ $body_type_id == $bt->id ? '' : 'grayscale opacity-40 group-hover:grayscale-0 group-hover:opacity-100' }}">
+                {{-- STEP 2: SERVICES & MATERIALS (Shfaqet vetëm nëse është bërë përzgjedhja) --}}
+                @if($step >= 2)
+                <div id="step-2-anchor"></div>
+                <div class="row g-5 animate-fadeIn mt-5 pt-5 border-t border-white/5">
+                    <div class="col-12 text-center mb-4">
+                        <h2>{{ __('front.fill_basket') }}</h2>
+                    </div>
+
+                    <div class="col-lg-7">
+                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.detailing_services') }}</h5>
+                        <div class="row g-3">
+                            @foreach($services as $s)
+                            <div class="col-md-6">
+                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row justify-content-between p-3 {{ in_array($s->id, $selected_services) ? 'active' : '' }}">
+                                    <div class="text-start">
+                                        <h4 class="mb-0 text-white fs-12">{{ $s->name }}</h4>
+                                        <span class="text-[#28a745] font-bold fs-11">€{{ number_format($s->base_price, 0) }}</span>
+                                    </div>
+                                    @if(in_array($s->id, $selected_services)) <i class="fa fa-check-circle text-[#28a745]"></i> @endif
                                 </div>
-                                <span class="block text-center text-[9px] font-black uppercase mt-3 tracking-tighter transition-colors {{ $body_type_id == $bt->id ? 'text-[#28a745]' : 'text-gray-500' }}">
-                                    {{ $bt->name }}
-                                </span>
                             </div>
                             @endforeach
                         </div>
                     </div>
 
-                    @if($step == 2)
-                    <div class="row g-4 lg:g-5">
-                        <div class="col-12 text-center mb-4">
-                            <h2 class="text-2xl lg:text-4xl text-white">{{ __('front.fill_basket') }}</h2>
-                            <p class="text-gray-400 text-sm">{{ __('front.basket_description') }}</p>
-                        </div>
-
-                        <div class="col-lg-7">
-                            <h5 class="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-6 opacity-50 flex items-center gap-2">
-                                <span class="w-8 h-[1px] bg-white/20"></span>
-                                {{ __('front.detailing_services') }}
-                            </h5>
-                            <div class="row g-3">
-                                @foreach($services as $s)
-                                <div class="col-md-6 col-12">
-                                    <div wire:click="toggleService({{ $s->id }})"
-                                         class="wizard-card flex-row justify-content-between p-4 min-h-[80px] {{ in_array($s->id, $selected_services) ? 'active' : '' }}">
-                                        <div class="text-start">
-                                            <h4 class="mb-0 text-white text-xs lg:text-sm">{{ $s->name }}</h4>
-                                            <span class="text-[#28a745] font-black text-xs">€{{ number_format($s->base_price, 0) }}</span>
-                                        </div>
-                                        @if(in_array($s->id, $selected_services))
-                                            <i class="fa fa-check-circle text-xl text-[#28a745]"></i>
-                                        @endif
-                                    </div>
+                    <div class="col-lg-5">
+                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.choose_wrap') }}</h5>
+                        <div class="row g-2">
+                            @foreach($materials as $mat)
+                            <div class="col-6">
+                                <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-3 {{ $material_id == $mat->id ? 'active' : '' }}">
+                                    <h4 class="fs-10 mb-1">{{ $mat->name }}</h4>
+                                    <span class="text-[#28a745] font-black fs-10">+€{{ number_format($mat->sell_price, 0) }}/m</span>
                                 </div>
-                                @endforeach
                             </div>
-                        </div>
-
-                        <div class="col-lg-5">
-                            <h5 class="text-white text-[10px] font-black uppercase tracking-[0.2em] mb-6 opacity-50 flex items-center gap-2">
-                                <span class="w-8 h-[1px] bg-white/20"></span>
-                                {{ __('front.choose_wrap') }}
-                            </h5>
-                            <div class="row g-2">
-                                @foreach($materials as $mat)
-                                <div class="col-6">
-                                    <div wire:click="selectMaterial({{ $mat->id }})"
-                                         class="wizard-card p-4 text-center {{ $material_id == $mat->id ? 'active' : '' }}">
-                                        <h4 class="text-[10px] mb-1">{{ $mat->name }}</h4>
-                                        <span class="text-[#28a745] font-black text-[10px]">+€{{ number_format($mat->sell_price, 0) }}/m</span>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <div class="col-12 mt-12">
-                            <div class="price-estimate-container border border-white/5 rounded-2xl p-6 lg:p-10 bg-dark-2">
-                                <div class="text-center lg:text-left mb-6 lg:mb-0">
-                                    <span class="text-[10px] text-gray-500 uppercase tracking-widest block mb-1">{{ __('front.estimated_total') }}</span>
-                                    <div class="text-4xl lg:text-6xl font-black text-white italic">€{{ number_format($this->estimatedPrice, 0) }}</div>
-                                </div>
-                                <button wire:click="goToStep(3)"
-                                        class="btn-main fx-slide w-full lg:w-auto px-12 py-4 {{ empty($selected_services) && !$material_id ? 'opacity-50 pointer-events-none' : '' }}">
-                                    <span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span>
-                                </button>
-                            </div>
+                            @endforeach
                         </div>
                     </div>
-                    @endif
+
+                    <div class="col-12 mt-10">
+                        <div class="price-estimate-container border border-white/5 rounded-1">
+                            <div>
+                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">{{ __('front.estimated_total') }}</span>
+                                <div class="text-4xl font-black text-white">€{{ number_format($this->estimatedPrice, 0) }}</div>
+                            </div>
+                            <button wire:click="goToStep(3)" class="btn-main fx-slide px-10 py-3 {{ empty($selected_services) && !$material_id ? 'opacity-50 pointer-events-none' : '' }}"><span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span></button>
+                        </div>
+                    </div>
                 </div>
                 @endif
 
                 {{-- STEP 3: CONTACT --}}
                 @if($step == 3)
-                <div class="row justify-content-center animate-fadeIn">
+                <div class="row justify-content-center animate-fadeIn mt-5">
                     <div class="col-lg-8">
                         <div class="p-40 bg-dark-2 rounded-1">
                             <button wire:click="goToStep(2)" class="btn-back mb-4"><i class="fa fa-arrow-left"></i> {{ __('front.change_services') }}</button>
@@ -382,8 +351,8 @@
 
     <script>
         document.addEventListener('livewire:init', () => {
-           Livewire.on('scroll-to-configurator', () => {
-               const element = document.getElementById('configurator');
+           Livewire.on('scroll-to-section', (event) => {
+               const element = document.getElementById(event.id);
                if (element) {
                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                }
