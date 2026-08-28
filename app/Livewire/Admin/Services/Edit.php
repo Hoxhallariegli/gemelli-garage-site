@@ -46,5 +46,19 @@ class Edit extends Component
         session()->flash('success', __('services.updated'));
         return to_route('admin.services.index');
     }
-    protected function rules(): array { return array_merge(Service::rules($this->item->id), ['image' => 'nullable|image|max:15360']); }
-}
+   protected function rules(): array
+   {
+       $rules = \App\Models\Service::rules($this->item->id);
+
+       // KJO ZGJIDH GABIMIN "MUST BE AN IMAGE"
+       if ($this->image && !is_string($this->image)) {
+           // Përdorim mimes në vend të image për më shumë siguri në server
+           $rules['image'] = ['nullable', 'file', 'mimes:jpeg,jpg,png,webp,gif', 'max:15360'];
+       } else {
+           // Nëse nuk kemi ngarkuar gjë të re, pranojmë path-in ekzistues si string
+           $rules['image'] = ['nullable', 'string'];
+       }
+
+       return $rules;
+   }
+   }
