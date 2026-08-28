@@ -54,10 +54,10 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => 'public',        // Kalojmë në public për pajtueshmëri me serverin
+        'disk' => null,        // Default (local) është më i sigurt për preview
         'rules' => ['required', 'file', 'max:102400'],       // Max 100MB
         'directory' => null,   // Example: 'tmp'                      | Default: 'livewire-tmp'
-        'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
+        'middleware' => 'web',  // Sigurohemi që kalon nëpër web middleware për session
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',

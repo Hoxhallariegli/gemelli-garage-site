@@ -24,12 +24,13 @@
         <div class="shrink-0 w-full sm:w-auto flex justify-center">
             @php
                 $modelName = $attributes->wire('model')->value();
-                $tempFile = $this->{$modelName} ?? null;
+                // Përdorim data_get që të funksionojë edhe me array (p.sh. uploads.1)
+                $tempFile = data_get($this, $modelName);
                 $hasPreview = false;
                 $previewUrl = '';
 
                 // 1. Kontrollojmë nëse kemi një TemporaryUploadedFile (sapo është zgjedhur fotoja)
-                if ($tempFile && !is_string($tempFile) && method_exists($tempFile, 'temporaryUrl')) {
+                if ($tempFile && !is_string($tempFile) && !is_array($tempFile) && method_exists($tempFile, 'temporaryUrl')) {
                     try {
                         $previewUrl = $tempFile->temporaryUrl();
                         $hasPreview = true;
@@ -37,11 +38,14 @@
                 }
                 // 2. Kontrollojmë nëse kemi një URL ekzistuese (në edit mode)
                 elseif ($preview || (is_string($tempFile) && !empty($tempFile))) {
-                    $finalPreview = $preview ?: $tempFile;
-                    $previewUrl = (str_starts_with($finalPreview, 'http') || str_starts_with($finalPreview, 'data:'))
-                        ? $finalPreview
-                        : asset($finalPreview);
-                    $hasPreview = true;
+                    $finalPreview = $preview ?: (is_string($tempFile) ? $tempFile : null);
+
+                    if ($finalPreview) {
+                        $previewUrl = (str_starts_with($finalPreview, 'http') || str_starts_with($finalPreview, 'data:'))
+                            ? $finalPreview
+                            : asset($finalPreview);
+                        $hasPreview = true;
+                    }
                 }
             @endphp
 
