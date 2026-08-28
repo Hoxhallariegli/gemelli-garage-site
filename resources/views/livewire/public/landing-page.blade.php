@@ -274,7 +274,8 @@
                 @if($step == 2)
                 <div class="row g-5 animate-fadeIn">
                     <div class="col-12 text-center mb-4">
-                        <button wire:click="goToStep(1)" class="btn-back mb-3"><i class="fa fa-arrow-left"></i> {{ __('front.back_to_vehicle') }} ({{ $bodyTypes->find($body_type_id)->name }})</button>
+                        @php $selectedBodyType = $bodyTypes->find($body_type_id); @endphp
+                        <button wire:click="goToStep(1)" class="btn-back mb-3"><i class="fa fa-arrow-left"></i> {{ __('front.back_to_vehicle') }} ({{ $selectedBodyType ? $selectedBodyType->name : '' }})</button>
                         <h2>{{ __('front.fill_basket') }}</h2>
                         <p class="text-gray-400">{{ __('front.basket_description') }}</p>
                     </div>
