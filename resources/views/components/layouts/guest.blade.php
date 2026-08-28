@@ -42,7 +42,8 @@
                                 <div class="d-flex">
                                     <div class="topbar-widget me-4">
                                         <a href="{{ route('language.switch', 'sq') }}" class="me-2 {{ app()->getLocale() == 'sq' ? 'text-white font-bold' : 'text-gray-400' }}">SQ</a>
-                                        <a href="{{ route('language.switch', 'en') }}" class="{{ app()->getLocale() == 'en' ? 'text-white font-bold' : 'text-gray-400' }}">EN</a>
+                                        <a href="{{ route('language.switch', 'en') }}" class="me-2 {{ app()->getLocale() == 'en' ? 'text-white font-bold' : 'text-gray-400' }}">EN</a>
+                                        <a href="{{ route('language.switch', 'it') }}" class="{{ app()->getLocale() == 'it' ? 'text-white font-bold' : 'text-gray-400' }}">IT</a>
                                     </div>
                                     <div class="topbar-widget me-5"><a href="#"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/phone.svg') }}" class="" alt="">{{ __('front.call_us') }}: +39 324 801 9211</a></div>
                                     <div class="topbar-widget"><a href="#"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/envelope.svg') }}" class="" alt="">{{ __('front.message_us') }}: gemellicargarage@gmail.com</a></div>

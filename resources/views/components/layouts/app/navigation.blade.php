@@ -3,7 +3,7 @@
 @endcan
 
 @can('view_workdesk')
-    <x-nav.link route="admin.work-desk" icon="computer-desktop">{{ __('Work Desk') }}</x-nav.link>
+    <x-nav.link route="admin.work-desk" icon="computer-desktop">{{ __('workdesk.Work Desk') }}</x-nav.link>
 @endcan
 
 <x-nav.divider>{{ __('admin.Modules') }}</x-nav.divider>
@@ -53,11 +53,11 @@
 @endcan
 
 @can('view_suppliers')
-    <x-nav.link route="admin.suppliers.index" icon="building-office-2">Suppliers</x-nav.link>
+    <x-nav.link route="admin.suppliers.index" icon="building-office-2">{{ __('suppliers.Suppliers') }}</x-nav.link>
 @endcan
 
 @can('view_purchases')
-    <x-nav.link route="admin.purchases.index" icon="shopping-cart">Purchases</x-nav.link>
+    <x-nav.link route="admin.purchases.index" icon="shopping-cart">{{ __('purchases.Purchases') }}</x-nav.link>
 @endcan
 
 @can('view_vehicle_brands')

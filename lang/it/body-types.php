@@ -1,0 +1,28 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'BodyType' => 'Tipo Carrozzeria',
+  'BodyTypes' => 'Tipi Carrozzeria',
+  'Action' => 'Azione',
+  'Reset' => 'Ripristina',
+  'Filters' => 'Filtri',
+  'Search' => 'Cerca',
+  'List of' => 'Elenco di',
+  'Save' => 'Salva',
+  'Update' => 'Aggiorna',
+  'Add BodyType' => 'Aggiungi Tipo Carrozzeria',
+  'Edit BodyType' => 'Modifica Tipo Carrozzeria',
+  'New record' => 'Nuovo record',
+  'Update info' => 'Aggiorna informazioni',
+  'No records found.' => 'Nessun record trovato.',
+  'created' => 'Tipo carrozzeria creato.',
+  'updated' => 'Tipo carrozzeria aggiornato.',
+  'deleted' => 'Tipo carrozzeria eliminato.',
+  'not_found' => 'Record non trovato.',
+  'delete_error_referenced' => 'Il record è referenziato da altri elementi e non può essere eliminato.',
+  'delete_error' => 'Impossibile eliminare il record.',
+  'Name' => 'Nome',
+  'Wrap Meters' => 'Metri Wrap',
+  'Image' => 'Immagine',
+];

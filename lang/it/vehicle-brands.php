@@ -1,0 +1,27 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'VehicleBrand' => 'Marca Veicolo',
+  'VehicleBrands' => 'Marche Veicoli',
+  'Action' => 'Azione',
+  'Reset' => 'Ripristina',
+  'Filters' => 'Filtri',
+  'Search' => 'Cerca',
+  'List of' => 'Elenco di',
+  'Save' => 'Salva',
+  'Update' => 'Aggiorna',
+  'Add VehicleBrand' => 'Aggiungi Marca Veicolo',
+  'Edit VehicleBrand' => 'Modifica Marca Veicolo',
+  'New record' => 'Nuovo record',
+  'Update info' => 'Aggiorna informazioni',
+  'No records found.' => 'Nessun record trovato.',
+  'created' => 'Marca veicolo creata.',
+  'updated' => 'Marca veicolo aggiornata.',
+  'deleted' => 'Marca veicolo eliminata.',
+  'not_found' => 'Record non trovato.',
+  'delete_error_referenced' => 'Il record è referenziato da altri elementi e non può essere eliminato.',
+  'delete_error' => 'Impossibile eliminare il record.',
+  'Name' => 'Nome',
+  'Logo' => 'Logo',
+];

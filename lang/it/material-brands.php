@@ -1,0 +1,27 @@
+<?php
+
+return [
+  'ID' => 'ID',
+  'MaterialBrand' => 'Marca Materiale',
+  'MaterialBrands' => 'Marche Materiali',
+  'Action' => 'Azione',
+  'Reset' => 'Ripristina',
+  'Filters' => 'Filtri',
+  'Search' => 'Cerca',
+  'List of' => 'Elenco di',
+  'Save' => 'Salva',
+  'Update' => 'Aggiorna',
+  'Add MaterialBrand' => 'Aggiungi Marca Materiale',
+  'Edit MaterialBrand' => 'Modifica Marca Materiale',
+  'New record' => 'Nuovo record',
+  'Update info' => 'Aggiorna informazioni',
+  'No records found.' => 'Nessun record trovato.',
+  'created' => 'Marca materiale creata.',
+  'updated' => 'Marca materiale aggiornata.',
+  'deleted' => 'Marca materiale eliminata.',
+  'not_found' => 'Record non trovato.',
+  'delete_error_referenced' => 'Il record è referenziato da altri elementi e non può essere eliminato.',
+  'delete_error' => 'Impossibile eliminare il record.',
+  'Name' => 'Nome',
+  'Image' => 'Immagine',
+];

@@ -174,11 +174,23 @@ class LandingPage extends Component
 
     public function render()
     {
+        $materialBrands = \App\Models\MaterialBrand::all();
+
+        // Fallback to materials table if material_brands is empty
+        if ($materialBrands->isEmpty()) {
+            $materialBrands = Material::query()
+                ->whereNotNull('brand')
+                ->where('brand', '!=', '')
+                ->pluck('brand')
+                ->unique()
+                ->map(fn($name) => (object)['name' => $name, 'image' => null]);
+        }
+
         return view('livewire.public.landing-page', [
             'services' => Service::where('active', true)->get(),
             'materials' => Material::all(),
             'bodyTypes' => \App\Models\BodyType::all(),
-            'materialBrands' => \App\Models\MaterialBrand::all(),
+            'materialBrands' => $materialBrands,
         ])->layout('components.layouts.guest');
     }
 }

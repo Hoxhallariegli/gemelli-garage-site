@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'Work Desk' => 'Work Desk',
+    'Work Desk' => 'Tavolina e Punës',
     'Description' => 'Pranimi dhe menaxhimi i shërbimeve aktive.',
     'Vehicle Registration' => 'Regjistrimi i Mjetit',
     'Select Client' => 'Zgjidh Klientin',
