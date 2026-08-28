@@ -7,7 +7,7 @@
         #contact .form-control,
         #configurator .form-control {
             background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(40, 167, 69, 0.3) !important; /* Subtle Green Border */
+            border: 1px solid rgba(40, 167, 69, 0.3) !important;
             color: #fff !important;
             border-radius: 0px !important;
             height: 50px !important;
@@ -111,60 +111,189 @@
             color: #28a745;
         }
 
-        /* Material/Color Specific */
-        .material-swatch {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-bottom: 10px;
-            border: 2px solid rgba(255,255,255,0.1);
+        /* Mobile Adjustments for Wizard Cards */
+        @media (max-width: 768px) {
+            .jarallax { min-height: 70vh !important; }
+            .wizard-card {
+                padding: 10px;
+            }
+            .wizard-card img {
+                max-width: 80px;
+                margin-bottom: 5px;
+            }
+            .wizard-card h4 {
+                font-size: 9px;
+                letter-spacing: 1px;
+            }
+            .price-estimate-container {
+                display: none !important; /* Hidden on mobile, using sticky footer instead */
+            }
+            .section-padding-mobile {
+                padding-top: 40px !important;
+                padding-bottom: 40px !important;
+            }
         }
 
-        .step-indicator {
+        /* Sticky Footer for Mobile */
+        .sticky-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #111;
+            border-top: 1px solid rgba(40, 167, 69, 0.3);
+            padding: 15px 20px;
+            z-index: 9999;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .sticky-action-bar {
+                display: flex;
+            }
+            body {
+                padding-bottom: 80px; /* Space for sticky bar */
+            }
+        }
+
+        /* Step Progress Indicator */
+        .step-progress-wrapper {
             display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 40px;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
         }
-
-        .step-dot {
-            width: 8px;
-            height: 8px;
+        .step-progress-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.05);
+            z-index: 1;
+        }
+        .step-progress-bar {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            height: 2px;
+            background: #28a745;
+            z-index: 2;
+            transition: width 0.5s ease;
+        }
+        .step-item {
+            position: relative;
+            z-index: 3;
+            width: 30px;
+            height: 30px;
+            background: #1a1a1a;
+            border: 2px solid rgba(255,255,255,0.1);
             border-radius: 50%;
-            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
             transition: all 0.3s ease;
         }
-
-        .step-dot.active {
+        .step-item.active {
+            border-color: #28a745;
+            color: #fff;
             background: #28a745;
-            box-shadow: 0 0 10px #28a745;
-            width: 20px;
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
+        }
+        .step-item.completed {
+            border-color: #28a745;
+            color: #28a745;
+            background: #1a1a1a;
+        }
+
+        /* Summary Widget Styles */
+        .selection-summary-container {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            margin-bottom: 20px;
             border-radius: 4px;
         }
-
-        /* 6. Back Button Premium Sync */
-        .btn-back {
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            color: #fff !important;
-            padding: 8px 20px !important;
-            font-size: 11px !important;
-            text-transform: uppercase !important;
-            font-weight: 700 !important;
-            letter-spacing: 2px !important;
-            border-radius: 0px !important;
-            transition: all 0.3s ease !important;
+        .summary-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 8px;
+        }
+        .summary-items {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .summary-tag {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            text-decoration: none !important;
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            color: #28a745;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
         }
-
-        .btn-back:hover {
-            background: rgba(40, 167, 69, 0.1) !important;
-            border-color: #28a745 !important;
-            color: #28a745 !important;
+        .summary-tag.warning {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: rgba(255, 0, 0, 0.3);
+            color: #ff4444;
+        }
+        .summary-tag i.fa-times {
+            margin-left: 8px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+        .summary-tag i.fa-times:hover {
+            opacity: 1;
+        }
+        .summary-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            white-space: nowrap;
+        }
+        .btn-change-vehicle {
+            font-size: 9px;
+            color: #28a745;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 700;
+        }
+        .btn-change-vehicle:hover {
+            text-decoration: underline;
+            opacity: 0.8;
+        }
+        /* Service Card Hover Fix */
+        .hover-op-0, .hover-op-1 {
+            transition: all 0.3s ease;
+        }
+        .abs-centered {
+            pointer-events: none;
+            opacity: 0;
+        }
+        .hover:hover .abs-centered {
+            pointer-events: auto;
+            opacity: 1;
         }
     </style>
 
@@ -217,8 +346,7 @@
                             @endif
                             <div class="abs w-100 px-4 hover-op-1 z-4 hover-mt-40 abs-centered">
                                 <button type="button" class="btn-main fx-slide"
-                                    wire:click="toggleService({{ $service->id }}); $wire.goToStep(2);"
-                                    x-on:click="document.getElementById('configurator').scrollIntoView({ behavior: 'smooth' })">
+                                    wire:click="addServiceAndScroll({{ $service->id }})">
                                     <span>{{ __('front.add_to_quote') }}</span>
                                 </button>
                             </div>
@@ -239,11 +367,20 @@
 
     <section id="configurator" class="pb-100">
         <div class="container">
-            <div class="row g-4 justify-content-center mb-5">
-                <div class="col-lg-8 text-center">
-                    <div class="subtitle">{{ __('front.personalize') }}</div>
-                    <h2>{{ __('front.configure_your_service') }}</h2>
-                    <p class="text-gray-400">{{ __('front.steps_description') }}</p>
+            {{-- Progress Indicator --}}
+            <div class="row justify-content-center mb-5">
+                <div class="col-lg-6">
+                    <div class="step-progress-wrapper">
+                        <div class="step-progress-bar" style="width: {{ ($step - 1) * 50 }}%"></div>
+                        <div class="step-item {{ $step >= 1 ? 'active' : '' }} {{ $step > 1 ? 'completed' : '' }}">1</div>
+                        <div class="step-item {{ $step >= 2 ? 'active' : '' }} {{ $step > 2 ? 'completed' : '' }}">2</div>
+                        <div class="step-item {{ $step >= 3 ? 'active' : '' }}">3</div>
+                    </div>
+                    <div class="text-center">
+                        @if($step == 1) <span class="text-xs uppercase tracking-widest text-gray-500">{{ __('front.step_1_label') ?? 'Kategoria e Mjetit' }}</span> @endif
+                        @if($step == 2) <span class="text-xs uppercase tracking-widest text-gray-500">{{ __('front.step_2_label') ?? 'Zgjidh Shërbimet' }}</span> @endif
+                        @if($step == 3) <span class="text-xs uppercase tracking-widest text-gray-500">{{ __('front.step_3_label') ?? 'Të Dhënat Tuaja' }}</span> @endif
+                    </div>
                 </div>
             </div>
 
@@ -257,39 +394,80 @@
                     </div>
                 </div>
             @else
-                {{-- STEP 1: VEHICLE TYPE (Sgjidhje Kategoria) --}}
-                <div class="row g-4 animate-fadeIn">
-                    <div class="col-12 mb-4">
-                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.step_1_title') }}</h5>
+                {{-- SELECTION SUMMARY WIDGET (Visible in Step 2 & 3) --}}
+                @if($step > 1)
+                <div class="row justify-content-center animate-fadeIn">
+                    <div class="col-lg-12">
+                        <div class="selection-summary-container">
+                            <div class="summary-header">
+                                <span class="summary-label"><i class="fa fa-shopping-basket me-2"></i> {{ __('front.your_selection') ?? 'Zgjedhja Juaj' }}</span>
+                                @if($step == 2)
+                                    <a wire:click="goToStep(1)" class="btn-change-vehicle"><i class="fa fa-sync-alt me-1"></i> {{ __('front.change_vehicle_short') ?? 'Ndrysho' }}</a>
+                                @endif
+                            </div>
+
+                            <div class="summary-items">
+                                @if($this->selectedBodyTypeData)
+                                    <div class="summary-tag">
+                                        <i class="fa fa-car me-2"></i> {{ $this->selectedBodyTypeData->name }}
+                                        <i class="fa fa-times" wire:click="goToStep(1)"></i>
+                                    </div>
+                                @else
+                                    <div class="summary-tag warning" wire:click="goToStep(1)" style="cursor:pointer;">
+                                        <i class="fa fa-exclamation-triangle me-2"></i> {{ __('front.vehicle_required') ?? 'Mjeti i Detyrueshëm' }}
+                                    </div>
+                                @endif
+
+                                @foreach($this->selectedServicesData as $s)
+                                    <div class="summary-tag">
+                                        {{ $s->name }}
+                                        <i class="fa fa-times" wire:click="toggleService({{ $s->id }})"></i>
+                                    </div>
+                                @endforeach
+
+                                @if($this->selectedMaterialData)
+                                    <div class="summary-tag">
+                                        <i class="fa fa-fill-drip me-2"></i> {{ $this->selectedMaterialData->name }}
+                                        <i class="fa fa-times" wire:click="selectMaterial({{ $this->selectedMaterialData->id }})"></i>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                {{-- STEP 1: VEHICLE TYPE --}}
+                @if($step == 1)
+                <div class="row g-3 animate-fadeIn justify-content-center">
+                    <div class="col-12 text-center mb-3">
+                        <div class="subtitle">{{ __('front.personalize') }}</div>
+                        <h2 class="fs-32">{{ __('front.step_1_title') }}</h2>
                     </div>
                     @foreach($bodyTypes as $bt)
                     <div class="col-lg-2 col-md-3 col-6">
-                        <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}">
-                            <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="img-fluid">
-                            <h4>{{ $bt->name }}</h4>
+                        <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}" style="padding: 10px;">
+                            <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="img-fluid" style="max-width: 100px;">
+                            <h4 class="fs-10">{{ $bt->name }}</h4>
                         </div>
                     </div>
                     @endforeach
                 </div>
+                @endif
 
-                {{-- STEP 2: SERVICES & MATERIALS (Shfaqet vetëm nëse është bërë përzgjedhja) --}}
-                @if($step >= 2)
-                <div class="row g-5 animate-fadeIn mt-5 pt-5 border-t border-white/5">
-                    <div class="col-12 text-center mb-4">
-                        <h2>{{ __('front.fill_basket') }}</h2>
-                    </div>
-
+                {{-- STEP 2: SERVICES & MATERIALS --}}
+                @if($step == 2)
+                <div class="row g-4 animate-fadeIn mt-0">
                     <div class="col-lg-7">
-                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.detailing_services') }}</h5>
-                        <div class="row g-3">
+                        <h5 class="text-white text-uppercase tracking-widest fs-10 mb-3 border-l-2 border-[#28a745] pl-3">{{ __('front.detailing_services') }}</h5>
+                        <div class="row g-2">
                             @foreach($services as $s)
                             <div class="col-md-6">
-                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row justify-content-between p-3 {{ in_array($s->id, $selected_services) ? 'active' : '' }}">
+                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row justify-content-between p-2 {{ in_array($s->id, $selected_services) ? 'active' : '' }}" style="min-height: 50px;">
                                     <div class="text-start">
-                                        <h4 class="mb-0 text-white fs-12">{{ $s->name }}</h4>
-                                        <span class="text-[#28a745] font-bold fs-11">€{{ number_format($s->base_price, 0) }}</span>
+                                        <h4 class="mb-0 text-white fs-11">{{ $s->name }}</h4>
+                                        <span class="text-[#28a745] font-bold fs-10">€{{ number_format($s->base_price, 0) }}</span>
                                     </div>
-                                    @if(in_array($s->id, $selected_services)) <i class="fa fa-check-circle text-[#28a745]"></i> @endif
+                                    @if(in_array($s->id, $selected_services)) <i class="fa fa-check-circle text-[#28a745] fs-12"></i> @endif
                                 </div>
                             </div>
                             @endforeach
@@ -297,26 +475,26 @@
                     </div>
 
                     <div class="col-lg-5">
-                        <h5 class="text-white text-uppercase tracking-widest fs-12 mb-4 border-l-2 border-[#28a745] pl-3">{{ __('front.choose_wrap') }}</h5>
+                        <h5 class="text-white text-uppercase tracking-widest fs-10 mb-3 border-l-2 border-[#28a745] pl-3">{{ __('front.choose_wrap') }}</h5>
                         <div class="row g-2">
                             @foreach($materials as $mat)
                             <div class="col-6">
-                                <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-3 {{ $material_id == $mat->id ? 'active' : '' }}">
-                                    <h4 class="fs-10 mb-1">{{ $mat->name }}</h4>
-                                    <span class="text-[#28a745] font-black fs-10">+€{{ number_format($mat->sell_price, 0) }}/m</span>
+                                <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-2 {{ $material_id == $mat->id ? 'active' : '' }}" style="min-height: 50px;">
+                                    <h4 class="fs-10 mb-0">{{ $mat->name }}</h4>
+                                    <span class="text-[#28a745] font-black fs-9">+€{{ number_format($mat->sell_price, 0) }}/m</span>
                                 </div>
                             </div>
                             @endforeach
                         </div>
                     </div>
 
-                    <div class="col-12 mt-10">
-                        <div class="price-estimate-container border border-white/5 rounded-1">
+                    <div class="col-12 mt-4">
+                        <div class="price-estimate-container border border-white/5 rounded-1 p-3 m-0">
                             <div>
-                                <span class="text-[10px] text-gray-500 uppercase tracking-widest">{{ __('front.estimated_total') }}</span>
-                                <div class="text-4xl font-black text-white">€{{ number_format($this->estimatedPrice, 0) }}</div>
+                                <span class="text-[9px] text-gray-500 uppercase tracking-widest">{{ __('front.estimated_total') }}</span>
+                                <div class="text-3xl font-black text-white">€{{ number_format($this->estimatedPrice, 0) }}</div>
                             </div>
-                            <button wire:click="goToStep(3)" class="btn-main fx-slide px-10 py-3 {{ empty($selected_services) && !$material_id ? 'opacity-50 pointer-events-none' : '' }}"><span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span></button>
+                            <button wire:click="goToStep(3)" class="btn-main fx-slide px-8 py-2 {{ (empty($selected_services) && !$material_id) || !$body_type_id ? 'opacity-50 pointer-events-none' : '' }}"><span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span></button>
                         </div>
                     </div>
                 </div>
@@ -324,20 +502,19 @@
 
                 {{-- STEP 3: CONTACT --}}
                 @if($step == 3)
-                <div class="row justify-content-center animate-fadeIn mt-5">
-                    <div class="col-lg-8">
-                        <div class="p-40 bg-dark-2 rounded-1">
-                            <button wire:click="goToStep(2)" class="btn-back mb-4"><i class="fa fa-arrow-left"></i> {{ __('front.change_services') }}</button>
-                            <h2 class="mb-4">{{ __('front.your_data') }}</h2>
+                <div class="row justify-content-center animate-fadeIn mt-2">
+                    <div class="col-lg-10">
+                        <div class="p-30 bg-dark-2 rounded-1 section-padding-mobile" style="padding: 25px !important;">
+                            <h2 class="mb-3 fs-24">{{ __('front.your_data') }}</h2>
                             <form wire:submit.prevent="submitAppointment" class="form-border">
-                                <div class="row g-3">
-                                    <div class="col-md-6"><input type="text" wire:model="brand" class="form-control" placeholder="{{ __('front.brand_placeholder') }}" required></div>
-                                    <div class="col-md-6"><input type="text" wire:model="model" class="form-control" placeholder="{{ __('front.model_placeholder') }}" required></div>
-                                    <div class="col-md-12"><input type="text" wire:model="name" class="form-control" placeholder="{{ __('front.name_placeholder') }}" required></div>
-                                    <div class="col-md-12"><input type="text" wire:model="phone" class="form-control" placeholder="{{ __('front.phone_placeholder') }}" required></div>
-                                    <div class="col-md-12"><input type="email" wire:model="email" class="form-control" placeholder="{{ __('front.email_placeholder') }}"></div>
-                                    <div class="col-md-12"><textarea wire:model="message" class="form-control" placeholder="{{ __('front.notes_placeholder') }}" rows="3"></textarea></div>
-                                    <div class="col-md-12 mt-4"><button type="submit" class="btn-main fx-slide w-100 py-3"><span>{{ __('front.send_request') }} <i class="fa fa-paper-plane ms-2"></i></span></button></div>
+                                <div class="row g-2">
+                                    <div class="col-md-6"><input type="text" wire:model="brand" class="form-control" placeholder="{{ __('front.brand_placeholder') }}" required style="height: 40px !important;"></div>
+                                    <div class="col-md-6"><input type="text" wire:model="model" class="form-control" placeholder="{{ __('front.model_placeholder') }}" required style="height: 40px !important;"></div>
+                                    <div class="col-md-6"><input type="text" wire:model="name" class="form-control" placeholder="{{ __('front.name_placeholder') }}" required style="height: 40px !important;"></div>
+                                    <div class="col-md-6"><input type="text" wire:model="phone" class="form-control" placeholder="{{ __('front.phone_placeholder') }}" required inputmode="tel" style="height: 40px !important;"></div>
+                                    <div class="col-md-12"><input type="email" wire:model="email" class="form-control" placeholder="{{ __('front.email_placeholder') }}" style="height: 40px !important;"></div>
+                                    <div class="col-md-12"><textarea wire:model="message" class="form-control" placeholder="{{ __('front.notes_placeholder') }}" rows="2"></textarea></div>
+                                    <div class="col-md-12 mt-3"><button type="submit" class="btn-main fx-slide w-100 py-2"><span>{{ __('front.send_request') }} <i class="fa fa-paper-plane ms-2"></i></span></button></div>
                                 </div>
                             </form>
                         </div>
@@ -346,6 +523,19 @@
                 @endif
             @endif
         </div>
+
+        {{-- STICKY FOOTER (MOBILE ONLY) --}}
+        @if(!$success && $step == 2)
+        <div class="sticky-action-bar animate-fadeInUp">
+            <div class="text-start">
+                <span class="text-[9px] text-gray-500 uppercase tracking-widest block">{{ __('front.total') ?? 'Totali' }}</span>
+                <span class="text-xl font-black text-white">€{{ number_format($this->estimatedPrice, 0) }}</span>
+            </div>
+            <button wire:click="goToStep(3)" class="btn-main fx-slide {{ (empty($selected_services) && !$material_id) || !$body_type_id ? 'opacity-50 pointer-events-none' : '' }}" style="padding: 10px 20px;">
+                <span>{{ __('front.continue') ?? 'Vazhdo' }} <i class="fa fa-arrow-right ms-2"></i></span>
+            </button>
+        </div>
+        @endif
     </section>
 
     <script>
@@ -353,7 +543,16 @@
            Livewire.on('scroll-to-configurator', () => {
                const element = document.getElementById('configurator');
                if (element) {
-                   element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                   const offset = 80; // Offset for potential sticky header
+                   const bodyRect = document.body.getBoundingClientRect().top;
+                   const elementRect = element.getBoundingClientRect().top;
+                   const elementPosition = elementRect - bodyRect;
+                   const offsetPosition = elementPosition - offset;
+
+                   window.scrollTo({
+                       top: offsetPosition,
+                       behavior: 'smooth'
+                   });
                }
            });
         });

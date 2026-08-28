@@ -30,10 +30,8 @@ class LandingPage extends Component
     public function selectBodyType($id)
     {
         $this->body_type_id = $id;
-        if ($this->step == 1) {
-            $this->step = 2;
-            $this->dispatch('scroll-to-configurator');
-        }
+        $this->step = 2;
+        $this->dispatch('scroll-to-configurator');
     }
 
     public function toggleService($id)
@@ -43,11 +41,15 @@ class LandingPage extends Component
         } else {
             $this->selected_services[] = $id;
         }
+    }
 
-        // Auto-select first body type if none selected
-        if (!$this->body_type_id) {
-            $this->body_type_id = \App\Models\BodyType::first()?->id;
+    public function addServiceAndScroll($id)
+    {
+        if (!in_array($id, $this->selected_services)) {
+            $this->selected_services[] = $id;
         }
+        $this->step = 2;
+        $this->dispatch('scroll-to-configurator');
     }
 
     public function selectMaterial($id)
@@ -61,9 +63,20 @@ class LandingPage extends Component
 
     public function goToStep($step)
     {
-        if ($step == 2 && !$this->body_type_id) {
-            $this->body_type_id = \App\Models\BodyType::first()?->id;
+        // Validation before going to Step 3
+        if ($step == 3) {
+            if (empty($this->selected_services) && !$this->material_id) {
+                $this->dispatch('notify', ['type' => 'error', 'message' => __('front.select_at_least_one')]);
+                return;
+            }
         }
+
+        if ($step == 2 && !$this->body_type_id) {
+            $this->step = 1;
+            $this->dispatch('scroll-to-configurator');
+            return;
+        }
+
         $this->step = $step;
         $this->dispatch('scroll-to-configurator');
     }
@@ -88,6 +101,21 @@ class LandingPage extends Component
         }
 
         return $total;
+    }
+
+    public function getSelectedServicesDataProperty()
+    {
+        return Service::whereIn('id', $this->selected_services)->get();
+    }
+
+    public function getSelectedMaterialDataProperty()
+    {
+        return $this->material_id ? Material::find($this->material_id) : null;
+    }
+
+    public function getSelectedBodyTypeDataProperty()
+    {
+        return $this->body_type_id ? \App\Models\BodyType::find($this->body_type_id) : null;
     }
 
     public function submitAppointment(CreateJobRequestAction $action)
