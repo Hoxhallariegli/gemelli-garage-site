@@ -47,12 +47,15 @@ class SmsService
 
         // We use the existing sendNotification but we'll need to make sure it handles data correctly
         // For now, I'll update FirebaseService to support pure data messages
-        $sent = $this->firebase->sendData($device->fcm_token, $data);
+        $messageId = $this->firebase->sendData($device->fcm_token, $data);
 
-        if ($sent) {
-            $smsLog->update(['status' => 'queued']);
+        if ($messageId) {
+            $smsLog->update([
+                'status' => 'queued',
+                'fcm_message_id' => $messageId
+            ]);
         }
 
-        return $sent;
+        return (bool) $messageId;
     }
 }

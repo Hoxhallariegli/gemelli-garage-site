@@ -82,20 +82,20 @@ class FirebaseService
         }
     }
 
-    public function sendData(string $token, array $data): bool
+    public function sendData(string $token, array $data): ?string
     {
         $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
-        if (!$enabled) return false;
+        if (!$enabled) return null;
 
         $config = $this->getFirebaseConfig();
         $projectId = $config['project_id'];
         $credentials = $config['credentials'];
 
-        if (!$projectId || !$credentials) return false;
+        if (!$projectId || !$credentials) return null;
 
         try {
             $accessToken = $this->getAccessToken($credentials);
-            if (!$accessToken) return false;
+            if (!$accessToken) return null;
 
             $response = Http::withToken($accessToken)->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
                 'message' => [
@@ -107,10 +107,17 @@ class FirebaseService
                 ]
             ]);
 
-            return $response->successful();
+            if ($response->successful()) {
+                $name = $response->json()['name'] ?? '';
+                // Emri kthehet ne formatin "projects/my-project/messages/0:12345..."
+                // Ne na duhet vetem pjesa pas "messages/"
+                return str_contains($name, 'messages/') ? explode('messages/', $name)[1] : $name;
+            }
+
+            return null;
         } catch (\Exception $e) {
             Log::error('Firebase Data Error: ' . $e->getMessage());
-            return false;
+            return null;
         }
     }
 
