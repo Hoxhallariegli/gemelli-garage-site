@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "372208546820",
+    "project_id": "gemelligarage",
+    "storage_bucket": "gemelligarage.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:372208546820:android:ef84edce029b137b2df151",
+        "android_client_info": {
+          "package_name": "com.gemelligarage.sms_gateway"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCK8WGLKVTXz0T3BmJJNL0-ZV1UHfqfsB8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
