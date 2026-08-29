@@ -8,18 +8,39 @@ use Illuminate\Support\Facades\Log;
 
 class FirebaseService
 {
+    protected function getFirebaseConfig(): array
+    {
+        $projectId = env('FIREBASE_PROJECT_ID', Setting::where('key', 'firebase_project_id')->value('value'));
+        $credentialsSource = env('FIREBASE_CREDENTIALS', Setting::where('key', 'firebase_credentials')->value('value'));
+
+        $credentials = null;
+        if ($credentialsSource && str_ends_with($credentialsSource, '.json')) {
+            $path = base_path($credentialsSource);
+            if (file_exists($path)) {
+                $credentials = json_decode(file_get_contents($path), true);
+            }
+        } elseif ($credentialsSource) {
+            $credentials = json_decode($credentialsSource, true);
+        }
+
+        return [
+            'project_id' => $projectId,
+            'credentials' => $credentials
+        ];
+    }
+
     public function sendNotification(string $title, string $body, string $topic = 'all'): bool
     {
         // Prioritizohet .env, nese jo merret nga databaza
-        $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value'));
+        $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
         if (!$enabled) return false;
 
-        $projectId = env('FIREBASE_PROJECT_ID', Setting::where('key', 'firebase_project_id')->value('value'));
-        $credentialsJson = env('FIREBASE_CREDENTIALS', Setting::where('key', 'firebase_credentials')->value('value'));
-        $credentials = json_decode($credentialsJson, true);
+        $config = $this->getFirebaseConfig();
+        $projectId = $config['project_id'];
+        $credentials = $config['credentials'];
 
         if (!$projectId || !$credentials) {
-            Log::warning('Firebase config is missing in both .env and Settings UI.');
+            Log::warning('Firebase config is missing or invalid.');
             return false;
         }
 
@@ -57,6 +78,38 @@ class FirebaseService
             return true;
         } catch (\Exception $e) {
             Log::error('Firebase Notification Error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function sendData(string $token, array $data): bool
+    {
+        $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
+        if (!$enabled) return false;
+
+        $config = $this->getFirebaseConfig();
+        $projectId = $config['project_id'];
+        $credentials = $config['credentials'];
+
+        if (!$projectId || !$credentials) return false;
+
+        try {
+            $accessToken = $this->getAccessToken($credentials);
+            if (!$accessToken) return false;
+
+            $response = Http::withToken($accessToken)->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
+                'message' => [
+                    'token' => $token,
+                    'data' => array_map('strval', $data),
+                    'android' => [
+                        'priority' => 'high'
+                    ]
+                ]
+            ]);
+
+            return $response->successful();
+        } catch (\Exception $e) {
+            Log::error('Firebase Data Error: ' . $e->getMessage());
             return false;
         }
     }

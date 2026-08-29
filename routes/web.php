@@ -30,6 +30,10 @@ Route::get('language/{locale}', function ($locale) {
     return redirect()->back();
 })->name('language.switch');
 
+// SMS Action Routes
+Route::get('sms/confirm/{token}', [App\Http\Controllers\Public\SmsActionController::class, 'confirm'])->name('sms.confirm');
+Route::get('sms/cancel/{token}', [App\Http\Controllers\Public\SmsActionController::class, 'cancel'])->name('sms.cancel');
+
 Route::prefix(config('admintw.prefix'))->middleware(['auth', 'verified', 'activeUser', 'ipCheckMiddleware'])->group(function () {
     Route::get('/', Dashboard::class)->name('dashboard');
 

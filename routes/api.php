@@ -13,6 +13,14 @@ declare(strict_types=1);
 |
 */
 
+use App\Http\Controllers\Api\SmsController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('sms')->group(function () {
+    Route::post('/register', [SmsController::class, 'register']);
+    Route::post('/status-update', [SmsController::class, 'statusUpdate']);
+});
+
 
 
 
