@@ -10,6 +10,14 @@
     <meta content="" name="keywords" >
     <meta content="" name="author" >
 
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#28a745">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#28a745">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <!-- CSS Files ================================================== -->
     <link href="{{ asset('assets/front/gemelli-garage/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" id="bootstrap">
     <link href="{{ asset('assets/front/gemelli-garage/css/plugins.css') }}" rel="stylesheet" type="text/css" >
