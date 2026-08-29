@@ -27,7 +27,7 @@ class SmsTemplates extends Component
     {
         return view('livewire.admin.sms.sms-templates', [
             'templates' => SmsTemplate::all(),
-        ])->layout('layouts.app');
+        ])->layout('components.layouts.app');
     }
 
     public function create(): void

@@ -116,6 +116,9 @@ class PermissionSeeder extends Seeder
             ['name' => 'add_vehicle_models', 'label' => 'Add Vehicle Models', 'module' => 'Vehicle Models'],
             ['name' => 'edit_vehicle_models', 'label' => 'Edit Vehicle Models', 'module' => 'Vehicle Models'],
             ['name' => 'delete_vehicle_models', 'label' => 'Delete Vehicle Models', 'module' => 'Vehicle Models'],
+
+            // SMS Gateway
+            ['name' => 'view_sms_gateway', 'label' => 'View SMS Gateway', 'module' => 'SMS Gateway'],
         ];
 
         foreach ($permissions as $permission) {

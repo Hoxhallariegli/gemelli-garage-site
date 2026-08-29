@@ -14,7 +14,7 @@ class SmsDevices extends Component
     {
         return view('livewire.admin.sms.sms-devices', [
             'devices' => SmsDevice::latest()->get(),
-        ])->layout('layouts.app');
+        ])->layout('components.layouts.app');
     }
 
     public function toggleActive(int $id): void

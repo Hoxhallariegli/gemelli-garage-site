@@ -60,6 +60,15 @@
     <x-nav.link route="admin.purchases.index" icon="shopping-cart">{{ __('purchases.Purchases') }}</x-nav.link>
 @endcan
 
+@can('view_sms_gateway')
+    <x-nav.group icon="chat-bubble-bottom-center-text" label="SMS Gateway" route="admin.sms.">
+        <x-nav.group-item route="admin.sms.index">Settings</x-nav.group-item>
+        <x-nav.group-item route="admin.sms.logs">Logs</x-nav.group-item>
+        <x-nav.group-item route="admin.sms.devices">Devices</x-nav.group-item>
+        <x-nav.group-item route="admin.sms.templates">Templates</x-nav.group-item>
+    </x-nav.group>
+@endcan
+
 @can('view_vehicle_brands')
     <x-nav.link route="admin.vehicle-brands.index" icon="circle-stack">{{ __('vehicle-brands.VehicleBrands') }}</x-nav.link>
 @endcan

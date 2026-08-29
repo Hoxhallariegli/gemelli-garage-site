@@ -47,7 +47,7 @@
         {{-- Test SMS Form --}}
         <x-card>
             <div class="flex items-center gap-3 mb-6">
-                <div class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                <div class="size-8 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-600">
                     <x-heroicon-o-paper-airplane class="size-4" />
                 </div>
                 <h3 class="font-black text-gray-900 dark:text-white uppercase tracking-tight text-xs">{{ __('Test SMS Gateway') }}</h3>
@@ -63,7 +63,7 @@
                 </x-form.group>
 
                 <div class="pt-2">
-                    <x-btn type="submit" variant="emerald" class="w-full justify-center" icon="paper-airplane">
+                    <x-btn type="submit" variant="green" class="w-full justify-center" icon="paper-airplane">
                         {{ __('Send Test SMS') }}
                     </x-btn>
                 </div>

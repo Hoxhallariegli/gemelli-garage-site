@@ -32,7 +32,7 @@ class SmsLogs extends Component
 
         return view('livewire.admin.sms.sms-logs', [
             'logs' => $query->paginate($this->perPage),
-        ])->layout('layouts.app');
+        ])->layout('components.layouts.app');
     }
 
     public function retry(int $id, SmsService $smsService): void

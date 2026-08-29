@@ -85,13 +85,13 @@
                 </header>
 
                 <main class="p-8 space-y-6">
-                    <x-form.group label="{{ __('Template Type') }}" for="type">
+                    <x-form.group label="Template Type" for="type">
                         <x-form.input wire:model="type" id="type" placeholder="e.g. reminder, promotional" />
                         <small class="text-gray-400 text-[9px] font-black uppercase tracking-widest italic">{{ __('Used to identify the template in the system.') }}</small>
                     </x-form.group>
 
-                    <x-form.group label="{{ __('Message Body') }}" for="body">
-                        <x-form.textarea wire:model="body" id="body" rows="6" placeholder="{{ __('Type your message template...') }}" />
+                    <x-form.group label="Message Body" for="body">
+                        <x-form.textarea wire:model="body" id="body" rows="6" placeholder="Type your message template..." />
                         <div class="mt-2 flex flex-wrap gap-2">
                             @foreach(['{name}', '{time}', '{link_confirm}', '{link_cancel}'] as $tag)
                                 <button type="button" @click="$wire.body += '{{ $tag }}'" class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-700 text-[8px] font-black uppercase text-gray-500 dark:text-gray-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
@@ -99,16 +99,17 @@
                                 </button>
                             @endforeach
                         </div>
-                    </main>
+                    </x-form.group>
+                </main>
 
-                    <footer class="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
-                        <x-btn wire:click="$set('showingModal', false)" variant="secondary">
-                            {{ __('Cancel') }}
-                        </x-btn>
-                        <x-btn wire:click="save" variant="blue">
-                            {{ __('Save Template') }}
-                        </x-btn>
-                    </footer>
+                <footer class="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+                    <x-btn wire:click="$set('showingModal', false)" variant="secondary">
+                        {{ __('Cancel') }}
+                    </x-btn>
+                    <x-btn wire:click="save" variant="blue">
+                        {{ __('Save Template') }}
+                    </x-btn>
+                </footer>
             </div>
         </div>
     @endif
