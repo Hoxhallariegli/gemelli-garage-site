@@ -91,6 +91,10 @@ return [
     'terms' => 'Terms & Conditions',
     'privacy' => 'Privacy Policy',
     'premium_services' => 'Premium Services',
-    'working_hours' => 'Mon - Sat: 09:00 - 19:00',
+    'working_hours' => 'Opening Hours',
+    'mon_fri' => 'Monday - Friday',
+    'sat' => 'Saturday',
+    'sun' => 'Sunday',
+    'closed' => 'Closed',
     'location' => 'Melegnano, Italy',
 ];

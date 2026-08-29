@@ -91,6 +91,10 @@ return [
     'terms' => 'Termini e Condizioni',
     'privacy' => 'Informativa sulla Privacy',
     'premium_services' => 'Servizi Premium',
-    'working_hours' => 'Lun - Sab: 09:00 - 19:00',
+    'working_hours' => 'Orari di Apertura',
+    'mon_fri' => 'Lunedì - Venerdì',
+    'sat' => 'Sabato',
+    'sun' => 'Domenica',
+    'closed' => 'Chiuso',
     'location' => 'Melegnano, Italia',
 ];

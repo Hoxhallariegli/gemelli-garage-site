@@ -91,6 +91,10 @@ return [
     'terms' => 'Kushtet & Termat',
     'privacy' => 'Politika e Privatësisë',
     'premium_services' => 'Shërbime Premium',
-    'working_hours' => 'Hënë - Shtunë: 09:00 - 19:00',
+    'working_hours' => 'Orari i Punës',
+    'mon_fri' => 'Hënë - Premte',
+    'sat' => 'Shtunë',
+    'sun' => 'Diel',
+    'closed' => 'Mbyllur',
     'location' => 'Melegnano, Itali',
 ];

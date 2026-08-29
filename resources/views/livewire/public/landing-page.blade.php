@@ -352,7 +352,7 @@
                         <h1 class="fs-72 fs-xs-10vw text-uppercase">{{ __('front.subtitle') }}</h1>
                         <p class="mb-0 col-lg-6 offset-lg-3">{{ __('front.description') }}</p>
                         <div class="spacer-single"></div>
-                        <a class="btn-main fx-slide" href="#configurator" x-on:click.prevent="document.getElementById('configurator').scrollIntoView({ behavior: 'smooth' })"><span>{{ __('front.configure_now') }}</span></a>
+                        <a class="btn-main fx-slide" href="#configurator" x-on:click.prevent="scrollToConfigurator()"><span>{{ __('front.configure_now') }}</span></a>
                     </div>
 
                     <div class="spacer-single"></div>
@@ -698,21 +698,25 @@
     </section>
 
     <script>
+        function scrollToConfigurator() {
+            const element = document.getElementById('configurator');
+            if (element) {
+                const offset = 80; // Offset for potential sticky header
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = element.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
         document.addEventListener('livewire:init', () => {
            Livewire.on('scroll-to-configurator', () => {
-               const element = document.getElementById('configurator');
-               if (element) {
-                   const offset = 80; // Offset for potential sticky header
-                   const bodyRect = document.body.getBoundingClientRect().top;
-                   const elementRect = element.getBoundingClientRect().top;
-                   const elementPosition = elementRect - bodyRect;
-                   const offsetPosition = elementPosition - offset;
-
-                   window.scrollTo({
-                       top: offsetPosition,
-                       behavior: 'smooth'
-                   });
-               }
+               scrollToConfigurator();
            });
         });
     </script>

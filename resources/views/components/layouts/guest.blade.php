@@ -94,7 +94,7 @@
                             </div>
                             <div class="de-flex-col">
                                 <div class="menu_side_area">
-                                    <a href="#vehicle-selection" class="btn-main fx-slide hover-white"><span>{{ __('front.make_appointment') }}</span></a>
+                                    <a href="#configurator" class="btn-main fx-slide hover-white" x-on:click.prevent="scrollToConfigurator()"><span>{{ __('front.make_appointment') }}</span></a>
                                     <span id="menu-btn"></span>
                                 </div>
 
@@ -163,6 +163,13 @@
 
               <div class="col-lg-4 col-sm-6 order-lg-2 order-sm-1">
                 <div class="widget">
+                  <h5>{{ __('front.working_hours') }}</h5>
+                  <div class="mb-4">
+                    <div class="d-flex justify-content-between text-white-50 border-bottom border-white/5 py-1"><span>{{ __('front.mon_fri') }}</span> <span class="text-white">08:00 - 13:00, 14:00 - 18:00</span></div>
+                    <div class="d-flex justify-content-between text-white-50 border-bottom border-white/5 py-1"><span>{{ __('front.sat') }}</span> <span class="text-white">08:30 - 02:30</span></div>
+                    <div class="d-flex justify-content-between text-white-50 py-1"><span>{{ __('front.sun') }}</span> <span class="text-white">{{ __('front.closed') }}</span></div>
+                  </div>
+
                   <h5>{{ __('front.contact') }}</h5>
 
                   <div class="fw-bold text-white">
@@ -228,8 +235,13 @@
               <li>{{ __('front.detailing') }}</li>
             </ul>
             <div class="spacer-30-line"></div>
+            <h5>{{ __('front.working_hours') }}</h5>
+            <div class="mb-4 text-sm">
+                <div class="d-flex justify-content-between mb-1"><span>{{ __('front.mon_fri') }}:</span> <span class="text-white">08:00-13:00, 14:00-18:00</span></div>
+                <div class="d-flex justify-content-between mb-1"><span>{{ __('front.sat') }}:</span> <span class="text-white">08:30-02:30</span></div>
+                <div class="d-flex justify-content-between"><span>{{ __('front.sun') }}:</span> <span class="text-white">{{ __('front.closed') }}</span></div>
+            </div>
             <h5>{{ __('front.contact') }}</h5>
-            <div><i class="icofont-clock-time me-2 op-5"></i>{{ __('front.working_hours') }}</div>
             <div><i class="icofont-location-pin me-2 op-5"></i>{{ __('front.location') }}</div>
             <div class="social-icons mt-4">
                 <a href="https://instagram.com/gemellicargarage"><i class="fa-brands fa-instagram"></i></a>
