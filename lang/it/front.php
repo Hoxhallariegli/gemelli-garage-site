@@ -95,7 +95,43 @@ return [
     'detailing' => 'Detailing Interno/Esterno',
     'legal_office' => 'Sede Legale',
     'terms' => 'Termini e Condizioni',
+    'terms_content' => '
+        <div class="legal-text">
+            <h4>1. Panoramica</h4>
+            <p>Benvenuti a Gemelli Car Garage. Utilizzando il nostro sito e i nostri servizi, accetti i seguenti termini.</p>
+
+            <h4>2. Prenotazioni e Preventivi</h4>
+            <p>I prezzi calcolati nel configuratore sono <strong>stime preliminari</strong>. Il prezzo finale sarà confermato solo dopo l\'ispezione fisica del veicolo da parte del nostro staff. La prenotazione è considerata valida solo dopo aver ricevuto una nostra conferma (tramite telefono o email).</p>
+
+            <h4>3. Servizi di Wrapping e Detailing</h4>
+            <p>Utilizziamo materiali premium come 3M, Avery Dennison e KPMF. La garanzia copre i difetti di installazione, ma non copre i danni causati da uso improprio, incidenti o lavaggi ad alta pressione a distanza ravvicinata.</p>
+
+            <h4>4. Cancellazioni</h4>
+            <p>Vi preghiamo di avvisarci almeno 24 ore prima se desiderate annullare o modificare l\'orario del vostro appuntamento.</p>
+
+            <h4>5. Responsabilità</h4>
+            <p>Gemelli Car Garage non è responsabile per gli oggetti personali lasciati all\'interno del veicolo durante il trattamento.</p>
+        </div>',
     'privacy' => 'Informativa sulla Privacy',
+    'privacy_content' => '
+        <div class="legal-text">
+            <h4>1. Raccolta dei Dati</h4>
+            <p>Raccogliamo il tuo nome, numero di telefono, email e dati del veicolo solo quando utilizzi il nostro configuratore per richiedere un preventivo o una prenotazione.</p>
+
+            <h4>2. Utilizzo delle Informazioni</h4>
+            <p>I tuoi dati vengono utilizzati esclusivamente per:</p>
+            <ul>
+                <li>Comunicare con te riguardo alla tua prenotazione.</li>
+                <li>Inviare il preventivo richiesto.</li>
+                <li>Migliorare i nostri servizi.</li>
+            </ul>
+
+            <h4>3. Sicurezza</h4>
+            <p>Adottiamo misure tecniche e organizzative per proteggere i tuoi dati personali da accessi non autorizzati. Non vendiamo né cediamo i tuoi dati a terzi per scopi di marketing.</p>
+
+            <h4>4. I Tuoi Diritti</h4>
+            <p>Hai il diritto di richiedere l\'accesso, la correzione o la cancellazione dei tuoi dati personali dal nostro sistema in qualsiasi momento contattandoci all\'indirizzo gemellicargarage@gmail.com.</p>
+        </div>',
     'premium_services' => 'Servizi Premium',
     'working_hours' => 'Orari di Apertura',
     'mon_fri' => 'Lunedì - Venerdì',

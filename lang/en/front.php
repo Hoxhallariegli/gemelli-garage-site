@@ -95,7 +95,43 @@ return [
     'detailing' => 'Internal/External Detailing',
     'legal_office' => 'Legal Office',
     'terms' => 'Terms & Conditions',
+    'terms_content' => '
+        <div class="legal-text">
+            <h4>1. Overview</h4>
+            <p>Welcome to Gemelli Car Garage. By using our website and services, you agree to the following terms.</p>
+
+            <h4>2. Bookings and Estimates</h4>
+            <p>Prices calculated in the configurator are <strong>preliminary estimates</strong>. The final price will be confirmed only after a physical inspection of the vehicle by our staff. A booking is considered valid only after you have received a confirmation from us (via phone or email).</p>
+
+            <h4>3. Wrapping and Detailing Services</h4>
+            <p>We use premium materials such as 3M, Avery Dennison, and KPMF. The warranty covers installation defects but does not cover damage caused by misuse, accidents, or high-pressure washing at close range.</p>
+
+            <h4>4. Cancellations</h4>
+            <p>Please notify us at least 24 hours in advance if you wish to cancel or change your appointment time.</p>
+
+            <h4>5. Liability</h4>
+            <p>Gemelli Car Garage is not responsible for personal items left inside the vehicle while it is being serviced.</p>
+        </div>',
     'privacy' => 'Privacy Policy',
+    'privacy_content' => '
+        <div class="legal-text">
+            <h4>1. Data Collection</h4>
+            <p>We collect your name, phone number, email, and vehicle data only when you use our configurator to request a quote or booking.</p>
+
+            <h4>2. Use of Information</h4>
+            <p>Your data is used exclusively for:</p>
+            <ul>
+                <li>Communicating with you regarding your booking.</li>
+                <li>Sending the requested quote.</li>
+                <li>Improving our services.</li>
+            </ul>
+
+            <h4>3. Security</h4>
+            <p>We take technical and organizational measures to protect your personal data against unauthorized access. We do not sell or give your data to third parties for marketing purposes.</p>
+
+            <h4>4. Your Rights</h4>
+            <p>You have the right to request access, correction, or deletion of your personal data from our system at any time by contacting us at gemellicargarage@gmail.com.</p>
+        </div>',
     'premium_services' => 'Premium Services',
     'working_hours' => 'Opening Hours',
     'mon_fri' => 'Monday - Friday',

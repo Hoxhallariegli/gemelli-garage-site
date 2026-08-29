@@ -21,6 +21,8 @@ Livewire::setUpdateRoute(function ($handle) {
 });
 
 Route::get('/', \App\Livewire\Public\LandingPage::class)->name('home');
+Route::view('/terms', 'public.terms')->name('terms');
+Route::view('/privacy', 'public.privacy')->name('privacy');
 Route::get('view-job/{token}', [App\Http\Controllers\Admin\JobPrintController::class, 'publicShow'])->name('public.job.view');
 Route::get('view-job/{token}/preview.jpg', [App\Http\Controllers\Admin\JobPrintController::class, 'previewImage'])->name('public.job.preview-image');
 Route::get('language/{locale}', function ($locale) {

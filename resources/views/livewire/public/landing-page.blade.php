@@ -748,7 +748,7 @@
                                 <i class="bg-color i-circle fa fa-phone"></i>
                                 <div class="text">
                                     <h4>{{ __('front.call_us') }}</h4>
-                                    +39 324 801 9211<br>+39 324 801 9211
+                                    +39 324 801 9211<br>
                                 </div>
                             </div>
                         </div>

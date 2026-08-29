@@ -95,7 +95,43 @@ return [
     'detailing' => 'Detailing i Brendshëm/Jashtëm',
     'legal_office' => 'Zyra Ligjore',
     'terms' => 'Kushtet & Termat',
+    'terms_content' => '
+        <div class="legal-text">
+            <h4>1. Përmbledhje</h4>
+            <p>Mirësevini në Gemelli Car Garage. Duke përdorur faqen tonë dhe shërbimet tona, ju pranoni kushtet e mëposhtme.</p>
+
+            <h4>2. Rezervimet dhe Preventivat</h4>
+            <p>Çmimet e llogaritura në konfigurator janë <strong>llogaritje paraprake</strong>. Çmimi final do të konfirmohet vetëm pas inspektimit fizik të mjetit nga stafi ynë. Rezervimi konsiderohet i vlefshëm vetëm pasi të keni marrë një konfirmim nga ne (me telefon ose email).</p>
+
+            <h4>3. Shërbimet e Wrapping dhe Detailing</h4>
+            <p>Ne përdorim materiale premium si 3M, Avery Dennison dhe KPMF. Garancia mbulon defektet e instalimit, por nuk mbulon dëmtimet e shkaktuara nga keqpërdorimi, aksidentet ose larja me presion të lartë në distancë të afërt.</p>
+
+            <h4>4. Anulimet</h4>
+            <p>Ju lutemi të na njoftoni të paktën 24 orë përpara nëse dëshironi të anuloni ose ndryshoni orarin e takimit tuaj.</p>
+
+            <h4>5. Përgjegjësia</h4>
+            <p>Gemelli Car Garage nuk mban përgjegjësi për sende personale të lëna brenda mjetit gjatë kohës që mjeti është në proces trajtimi.</p>
+        </div>',
     'privacy' => 'Politika e Privatësisë',
+    'privacy_content' => '
+        <div class="legal-text">
+            <h4>1. Mbledhja e të Dhënave</h4>
+            <p>Ne mbledhim emrin tuaj, numrin e telefonit, email-in dhe të dhënat e mjetit tuaj vetëm kur ju përdorni konfiguratorin tonë për të kërkuar një preventiv ose rezervim.</p>
+
+            <h4>2. Përdorimi i Informacionit</h4>
+            <p>Të dhënat tuaja përdoren ekskluzivisht për:</p>
+            <ul>
+                <li>Komunikimin me ju lidhur me rezervimin tuaj.</li>
+                <li>Dërgimin e preventivit të kërkuar.</li>
+                <li>Përmirësimin e shërbimeve tona.</li>
+            </ul>
+
+            <h4>3. Siguria</h4>
+            <p>Ne marrim masa teknike dhe organizative për të mbrojtur të dhënat tuaja personale kundër aksesit të paautorizuar. Ne nuk ua shesim apo japim të dhënat tuaja palëve të treta për qëllime marketingu.</p>
+
+            <h4>4. Të Drejtat Tuaja</h4>
+            <p>Ju keni të drejtë të kërkoni akses, korrigjim ose fshirje të të dhënave tuaja personale nga sistemi ynë në çdo kohë duke na kontaktuar në gemellicargarage@gmail.com.</p>
+        </div>',
     'premium_services' => 'Shërbime Premium',
     'working_hours' => 'Orari i Punës',
     'mon_fri' => 'Hënë - Premte',

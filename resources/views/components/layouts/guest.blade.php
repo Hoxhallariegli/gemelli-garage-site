@@ -89,6 +89,7 @@
                                     <li><a class="menu-item" href="#about">{{ __('front.about') }}</a></li>
                                     <li><a class="menu-item" href="#services">{{ __('front.services') }}</a></li>
                                     <li><a class="menu-item" href="#contact">{{ __('front.contact') }}</a></li>
+                                    <li class="d-md-none"><a class="menu-item text-color" href="{{ route('login') }}"><i class="fa fa-user-lock me-2"></i>{{ __('front.admin_login') }}</a></li>
                                 </ul>
                                 <!-- mainmenu end -->
                             </div>
@@ -204,8 +205,8 @@
                       &copy; {{ date('Y') }} - Gemelli Car Garage by E4ProTech
                     </div>
                     <ul class="menu-simple">
-                      <li><a href="#">{{ __('front.terms') }}</a></li>
-                      <li><a href="#">{{ __('front.privacy') }}</a></li>
+                      <li><a href="{{ route('terms') }}">{{ __('front.terms') }}</a></li>
+                      <li><a href="{{ route('privacy') }}">{{ __('front.privacy') }}</a></li>
                     </ul>
                   </div>
                 </div>

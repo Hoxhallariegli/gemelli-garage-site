@@ -159,7 +159,7 @@
                                         </div>
                                     @endif
                                     <div class="min-w-0">
-                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic truncate sm:whitespace-normal">{{ $s->service?->name }}</span>
+                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic sm:whitespace-normal">{{ $s->service?->name }}</span>
                                         <span class="text-[7px] font-black text-emerald-500 uppercase tracking-widest">{{ __('workdesk.Service') }}</span>
                                     </div>
                                 </div>
@@ -184,7 +184,7 @@
                                         </div>
                                     @endif
                                     <div class="min-w-0">
-                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic truncate sm:whitespace-normal">{{ $m->material?->name }}</span>
+                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic sm:whitespace-normal">{{ $m->material?->name }}</span>
                                         <span class="text-[7px] font-black text-blue-500 uppercase tracking-widest">{{ __('workdesk.Material') }}</span>
                                     </div>
                                 </div>
@@ -209,7 +209,7 @@
                                         </div>
                                     @endif
                                     <div class="min-w-0">
-                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic truncate sm:whitespace-normal">{{ $p->part?->name }}</span>
+                                        <span class="block text-[10px] sm:text-xs font-black text-gray-900 uppercase tracking-tight italic sm:whitespace-normal">{{ $p->part?->name }}</span>
                                         <span class="text-[7px] font-black text-orange-500 uppercase tracking-widest">{{ __('workdesk.Part') }}</span>
                                     </div>
                                 </div>
