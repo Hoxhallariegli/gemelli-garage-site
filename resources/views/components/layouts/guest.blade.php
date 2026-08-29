@@ -11,9 +11,9 @@
     <meta content="" name="author" >
 
     <!-- Chrome, Firefox OS and Opera -->
-    <meta name="theme-color" content="#28a745">
+    <meta name="theme-color" content="#111111">
     <!-- Windows Phone -->
-    <meta name="msapplication-navbutton-color" content="#28a745">
+    <meta name="msapplication-navbutton-color" content="#111111">
     <!-- iOS Safari -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
