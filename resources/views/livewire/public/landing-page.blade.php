@@ -364,6 +364,33 @@
             </div>
         </section>
 
+        </section>
+
+        {{-- ABOUT SECTION --}}
+        <section id="about">
+            <div class="container">
+                <div class="row g-4 align-items-center">
+                    <div class="col-lg-6">
+                        <div class="subtitle">{{ __('front.about') }}</div>
+                        <h2 class="fs-40">{{ __('front.about_title') }}</h2>
+                        <p class="lead">{{ __('front.about_desc_1') }}</p>
+                        <p>{{ __('front.about_desc_2') }}</p>
+                        <div class="spacer-10"></div>
+                        <a class="btn-main fx-slide" href="#configurator" x-on:click.prevent="scrollToConfigurator()"><span>{{ __('front.make_appointment') }}</span></a>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="relative">
+                            <img src="{{ asset('assets/front/gemelli-garage/images/misc/c1.webp') }}" class="img-fluid rounded-1" alt="">
+                            <div class="abs p-4 bg-color text-light rounded-1 start-0 bottom-0 m-4 sm-hide">
+                                <h3 class="mb-0">10+</h3>
+                                <div class="text-sm uppercase tracking-widest">{{ __('front.years_experience') ?? 'Vite Eksperiencë' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section class="pt-0" id="services">
             <div class="container">
                 <div class="row g-4 justify-content-center mb-2">
@@ -691,6 +718,54 @@
                                 <p>{{ __('front.faq_3_a') }}</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- CONTACT SECTION --}}
+    <section id="contact" class="no-top">
+        <div class="container">
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-12 text-center">
+                    <div class="subtitle">{{ __('front.contact') }}</div>
+                    <h2>{{ __('front.contact_title') }}</h2>
+                </div>
+                <div class="col-lg-10">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="feature-box f-boxed style-3 text-center p-4">
+                                <i class="bg-color i-circle fa fa-location-dot"></i>
+                                <div class="text">
+                                    <h4>{{ __('front.visit_us') }}</h4>
+                                    Viale della repubblica 30,<br>Melegnano 20077
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-box f-boxed style-3 text-center p-4">
+                                <i class="bg-color i-circle fa fa-phone"></i>
+                                <div class="text">
+                                    <h4>{{ __('front.call_us') }}</h4>
+                                    +39 324 801 9211<br>+39 324 801 9211
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="feature-box f-boxed style-3 text-center p-4">
+                                <i class="bg-color i-circle fa fa-envelope"></i>
+                                <div class="text">
+                                    <h4>{{ __('front.message_us') }}</h4>
+                                    gemellicargarage@gmail.com<br>info@gemellicargarage.it
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12 mt-5">
+                    <div class="rounded-1 overflow-hidden" style="height: 400px; filter: grayscale(1) invert(1);">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2801.344405370425!2d9.324321676646875!3d45.35821037107238!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4786d708f51a7005%3A0x8673a5a4b7f87c8d!2sViale%20della%20Repubblica%2C%2030%2C%2020077%20Melegnano%20MI%2C%20Italy!5e0!3m2!1sen!2s!4v1710000000000!5m2!1sen!2s" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
                     </div>
                 </div>
             </div>

@@ -86,8 +86,8 @@
                                 <!-- mainemenu begin -->
                                 <ul id="mainmenu">
                                     <li><a class="menu-item" href="/">{{ __('front.home') }}</a></li>
-                                    <li><a class="menu-item" href="#services">{{ __('front.services') }}</a></li>
                                     <li><a class="menu-item" href="#about">{{ __('front.about') }}</a></li>
+                                    <li><a class="menu-item" href="#services">{{ __('front.services') }}</a></li>
                                     <li><a class="menu-item" href="#contact">{{ __('front.contact') }}</a></li>
                                 </ul>
                                 <!-- mainmenu end -->
