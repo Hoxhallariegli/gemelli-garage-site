@@ -482,11 +482,11 @@
                     <div class="row g-3 justify-content-center">
                         @foreach($materialBrands as $brand)
                         <div class="col-lg-2 col-md-3 col-6">
-                            <div class="wizard-card" style="padding: 15px; height: 100px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
+                            <div class="wizard-card" style="padding: 20px; height: 130px; transform: none !important; cursor: default; background: rgba(255,255,255,0.02) !important;">
                                 @if($brand->image)
-                                    <img src="{{ asset($brand->image) }}" class="img-fluid mb-2" alt="{{ $brand->name }}" style="max-height: 40px; object-fit: contain; filter: none !important; opacity: 1 !important;">
+                                    <img src="{{ asset($brand->image) }}" class="img-fluid mb-3" alt="{{ $brand->name }}" style="max-height: 55px; object-fit: contain; filter: none !important; opacity: 1 !important;">
                                 @endif
-                                <h4 class="mb-0 text-white fs-10 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
+                                <h4 class="mb-0 text-white fs-11 tracking-wider uppercase" style="color: #fff !important;">{{ $brand->name }}</h4>
                             </div>
                         </div>
                         @endforeach
@@ -618,16 +618,18 @@
 
                     @if($this->isWrapSelected)
                     <div class="col-lg-5 animate-fadeIn">
-                        <h5 class="text-white text-uppercase tracking-widest fs-10 mb-3 border-l-2 border-[#28a745] pl-3">{{ __('front.choose_wrap') }}</h5>
-                        <div class="row g-2">
-                            @foreach($materials as $mat)
-                            <div class="col-6">
-                                <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-2 {{ $material_id == $mat->id ? 'active' : '' }}" style="min-height: 50px;">
-                                    <h4 class="fs-10 mb-0">{{ $mat->name }}</h4>
-                                    <span class="text-[#28a745] font-black fs-9">+€{{ number_format($mat->sell_price, 0) }}/m</span>
+                        <div class="p-4 bg-dark-2 rounded-1 shadow-2xl" style="border: 1px solid #28a745 !important;">
+                            <h5 class="text-white text-uppercase tracking-widest fs-10 mb-4">{{ __('front.choose_wrap') }}</h5>
+                            <div class="row g-2">
+                                @foreach($materials as $mat)
+                                <div class="col-6">
+                                    <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-2 {{ $material_id == $mat->id ? 'active' : '' }}" style="min-height: 50px;">
+                                        <h4 class="fs-10 mb-1 text-white">{{ $mat->name }}</h4>
+                                        <span class="text-[#28a745] font-black fs-9" style="color: #28a745 !important;">+€{{ number_format($mat->sell_price, 0) }}/m</span>
+                                    </div>
                                 </div>
+                                @endforeach
                             </div>
-                            @endforeach
                         </div>
                     </div>
                     @endif
