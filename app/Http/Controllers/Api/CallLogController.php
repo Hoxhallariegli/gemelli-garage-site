@@ -8,8 +8,13 @@ use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class CallController extends Controller
+class CallLogController extends Controller
 {
+    public function index()
+    {
+        return CallLog::latest()->paginate();
+    }
+
     public function log(Request $request)
     {
         Log::info('--- SMS GATEWAY: CALL ATTEMPT ---', $request->all());
