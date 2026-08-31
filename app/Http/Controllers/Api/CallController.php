@@ -17,7 +17,14 @@ class CallController extends Controller
         $request->validate([
             'phone_number' => 'required|string',
             'type' => 'nullable|string',
+            'api_key' => 'required|string',
         ]);
+
+        // Validojmë pajisjen
+        $device = \App\Models\SmsDevice::where('api_key', $request->api_key)->first();
+        if (!$device) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized device'], 401);
+        }
 
         $phoneNumber = $request->phone_number;
         // Pastrojmë numrin nga hapësirat apo karakteret shtesë
