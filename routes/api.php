@@ -14,12 +14,15 @@ declare(strict_types=1);
 */
 
 use App\Http\Controllers\Api\SmsController;
+use App\Http\Controllers\Api\CallController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('sms')->group(function () {
     Route::post('/register', [SmsController::class, 'register']);
     Route::post('/status-update', [SmsController::class, 'statusUpdate']);
 });
+
+Route::post('/calls/log', [CallController::class, 'log']);
 
 
 

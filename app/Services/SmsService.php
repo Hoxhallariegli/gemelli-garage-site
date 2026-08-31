@@ -47,19 +47,20 @@ class SmsService
 
         // Dërgojmë një njoftim vizual që përmban edhe të dhënat e SMS-it (Data)
         // Kjo bën që Android ta shfaqë njoftimin vizual DHE të nisë SMS-in me të njëjtin sinjal
-        $sent = $this->firebase->sendNotification(
+        $messageId = $this->firebase->sendNotification(
             "SMS Gateway: Dërgim...",
             "Po dërgohet te {$smsLog->phone_number}: " . \Illuminate\Support\Str::limit($smsLog->body, 40),
             $device->fcm_token,
             $data
         );
 
-        if ($sent) {
+        if ($messageId) {
             $smsLog->update([
                 'status' => 'queued',
+                'fcm_message_id' => $messageId
             ]);
         }
 
-        return $sent;
+        return (bool) $messageId;
     }
 }

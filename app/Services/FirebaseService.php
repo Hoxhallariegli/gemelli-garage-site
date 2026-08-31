@@ -29,11 +29,11 @@ class FirebaseService
         ];
     }
 
-    public function sendNotification(string $title, string $body, string $topic = 'all', array $extraData = []): bool
+    public function sendNotification(string $title, string $body, string $topic = 'all', array $extraData = []): ?string
     {
         // Prioritizohet .env, nese jo merret nga databaza
         $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
-        if (!$enabled) return false;
+        if (!$enabled) return null;
 
         $config = $this->getFirebaseConfig();
         $projectId = $config['project_id'];
@@ -41,12 +41,12 @@ class FirebaseService
 
         if (!$projectId || !$credentials) {
             Log::warning('Firebase config is missing or invalid.');
-            return false;
+            return null;
         }
 
         try {
             $token = $this->getAccessToken($credentials);
-            if (!$token) return false;
+            if (!$token) return null;
 
             $dataPayload = array_merge([
                 'title' => $title,
@@ -75,15 +75,16 @@ class FirebaseService
                 'message' => $message
             ]);
 
-            if (!$response->successful()) {
-                Log::error('Firebase API Response: ' . $response->body());
-                return false;
+            if ($response->successful()) {
+                $name = $response->json()['name'] ?? '';
+                return str_contains($name, 'messages/') ? explode('messages/', $name)[1] : $name;
             }
 
-            return true;
+            Log::error('Firebase API Response: ' . $response->body());
+            return null;
         } catch (\Exception $e) {
             Log::error('Firebase Notification Error: ' . $e->getMessage());
-            return false;
+            return null;
         }
     }
 
