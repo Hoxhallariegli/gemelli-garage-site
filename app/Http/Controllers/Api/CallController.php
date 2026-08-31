@@ -12,43 +12,27 @@ class CallController extends Controller
 {
     public function log(Request $request)
     {
-        Log::info('Incoming call log attempt ooooo', $request->all());
+        Log::info('Incoming call log attempt', $request->all());
 
-        $request->validate([
-            'phone_number' => 'required|string',
-            'type' => 'nullable|string',
-        ]);
+        // Heqim çdo lloj validimi bllokues
+        $phoneNumber = $request->phone_number ?? 'Unknown';
 
-        // Nëse ka api_key, e kontrollojmë, nëse jo, e lejojmë (për test ose pajisje të vjetra)
-        if ($request->has('api_key')) {
-            $device = \App\Models\SmsDevice::where('api_key', $request->api_key)->first();
-            if (!$device) {
-                Log::warning('Unauthorized call log attempt with invalid API Key');
-            }
-        }
+        // Pastrojmë numrin
+        $phoneNumber = preg_replace('/[^0-9+]/', '', (string)$phoneNumber);
 
-        $phoneNumber = $request->phone_number;
-        // Pastrojmë numrin nga hapësirat apo karakteret shtesë
-        $phoneNumber = preg_replace('/[^0-9+]/', '', $phoneNumber);
-
-        // Kontrollojmë nëse numri i përket një klienti ekzistues
+        // Kontrollojmë klientin
         $client = Client::where('phone', 'like', '%' . substr($phoneNumber, -8) . '%')->first();
 
-        $callLog = CallLog::create([
+        CallLog::create([
             'phone_number' => $phoneNumber,
             'caller_name' => $client ? $client->name : 'Unknown',
             'type' => $request->type ?? 'incoming',
             'is_client' => (bool)$client,
         ]);
 
-        // Mund të dërgojmë një njoftim Livewire ose Toast në Dashboard këtu
-        // dispatch(new \App\Events\IncomingCall($callLog));
-
         return response()->json([
             'success' => true,
-            'message' => 'Call logged successfully',
-            'is_client' => (bool)$client,
-            'client_name' => $client ? $client->name : null,
+            'message' => 'Call logged',
         ]);
     }
 }
