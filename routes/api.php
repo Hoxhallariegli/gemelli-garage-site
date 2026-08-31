@@ -13,8 +13,8 @@ declare(strict_types=1);
 |
 */
 
-use App\Http\Controllers\Api\SmsController;
 use App\Http\Controllers\Api\CallLogController;
+use App\Http\Controllers\Api\CallJobController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('sms')->group(function () {
@@ -24,3 +24,7 @@ Route::prefix('sms')->group(function () {
 
 Route::post('/calls/log', [CallLogController::class, 'log']);
 Route::apiResource('call-logs', CallLogController::class);
+
+Route::post('/call-jobs', [CallJobController::class, 'store']);
+Route::get('/call-jobs/next', [CallJobController::class, 'getNext']);
+Route::post('/call-jobs/{id}/status', [CallJobController::class, 'updateStatus']);

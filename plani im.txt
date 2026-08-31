@@ -1,0 +1,215 @@
+DETYRË: Apliko një test telefonate nga web-i duke përdorur APK-në ekzistuese Android
+
+Kam një APK/projekt Flutter ekzistues me emrin Gemelli Gateway. Aktualisht projekti përdor Flutter dhe ka këto pjesë:
+
+- Firebase Core dhe Firebase Messaging për komanda në background.
+- Telephony për dërgim SMS.
+- Phone State për zbulim të eventeve të telefonatave.
+- Call Log për fallback nga historiku i telefonatave.
+- HTTP API për komunikim me web/backend.
+- SharedPreferences për server_url dhe api_key.
+- Pajisja e testimit është Samsung Galaxy S25 Ultra.
+
+QËLLIMI
+
+Dua të bëj një test nga web-i ku një përdorues i autorizuar shtyp një buton “Test Call”, serveri krijon një call job dhe APK-ja në Samsung S25 Ultra e merr detyrën. Pastaj dua të verifikoj që:
+
+1. Web-i mund të dërgojë komandën te backend-i.
+2. Backend-i mund t’ia dorëzojë komandën APK-së.
+3. APK-ja mund të tentojë të nisë një telefonatë te një numër testimi.
+4. APK-ja të raportojë te backend-i statusin e job-it.
+5. Web-i të shfaqë statuset `pending`, `processing`, `started`, `completed` ose `failed`.
+
+KUFIZIM I RËNDËSISHËM
+
+Mos supozo se një aplikacion i zakonshëm Android mund të marrë audion e një telefonate normale celulare/SIM dhe ta transmetojë live në browser. Së pari analizo kufizimet reale të Android-it dhe modelit S25 Ultra.
+
+Nëse audio dy-drejtimëshe nga web-i në telefonatën normale SIM nuk është e mundur me API standarde Android, mos përdor zgjidhje me përgjim, root, accessibility abuse ose kapje të fshehtë të audios. Në atë rast implemento vetëm testin e nisjes së telefonatës dhe statusin, dhe raporto qartë se audio live kërkon WebRTC/VoIP ose një provider telefonie cloud.
+
+KËRKESA PËR SIGURI DHE PËLQIM
+
+- Testi duhet të përdoret vetëm me numër që kontrollohet nga unë ose me pëlqim të qartë.
+- Shto një checkbox ose konfirmim “I have consent to call this number”.
+- Mos lejo dërgim masiv ose loop telefonatash.
+- Shto rate limit dhe vetëm një test aktiv për pajisje.
+- Mos vendos password-e ose sekrete të përhershme hard-coded në APK.
+- Përdor HTTPS.
+- Përdor token unik të pajisjes ose JWT në header:
+
+  Authorization: Bearer <ACCESS_TOKEN>
+
+- Mos e dërgo token-in në body nëse nuk është absolutisht i nevojshëm.
+- Mos ruaj audio të telefonatave.
+- Mos regjistro ose transmeto biseda.
+- Shfaq qartë në aplikacion kur nis një telefonatë testimi.
+
+ARKITEKTURA E PREFERUAR PËR TESTIN
+
+Përdor këtë rrjedhë:
+
+Web
+  POST /api/call-jobs
+      ↓
+Backend ruan job-in me status `pending`
+      ↓
+APK merr job-in në një nga këto mënyra:
+- Firebase Cloud Messaging, nëse projekti ekzistues e përdor ende;
+- ose polling të kontrolluar, nëse duam ta testojmë pa Firebase.
+      ↓
+APK nis telefonatën me Android ACTION_CALL, nëse leja dhe kufizimet e Android-it e lejojnë
+      ↓
+APK POST /api/call-jobs/{job_id}/status
+      ↓
+Web shfaq statusin
+
+ENDPOINT-ET QË DUHET TË IMPLEMENTOHEN OSE TË PËRSHTATEN
+
+1. POST /api/call-jobs
+
+Request:
+{
+  "phone_number": "+3556XXXXXXX",
+  "purpose": "reservation_test",
+  "consent_confirmed": true,
+  "device_id": "device-123"
+}
+
+Response:
+{
+  "job_id": "job-123",
+  "status": "pending"
+}
+
+2. GET /api/call-jobs/next?device_id=device-123
+
+Duhet të kthejë vetëm një job të autorizuar dhe të papërfunduar.
+
+Response:
+{
+  "job_id": "job-123",
+  "phone_number": "+3556XXXXXXX",
+  "type": "test_call",
+  "status": "processing"
+}
+
+3. POST /api/call-jobs/{job_id}/status
+
+Request:
+{
+  "status": "started",
+  "error_message": null,
+  "occurred_at": "2026-08-31T12:00:00Z"
+}
+
+Lejo këto statuse:
+
+- pending
+- processing
+- started
+- completed
+- failed
+- cancelled
+
+APK-JA
+
+Në projektin Flutter:
+
+1. Kontrollo dhe rregullo importet, sidomos:
+
+import 'package:flutter/material.dart';
+import 'dart:async';
+
+2. Mos e prish funksionimin ekzistues të SMS dhe call logs.
+
+3. Shto një model `CallJob`.
+
+4. Shto një servis `CallJobService` për:
+
+- marrjen e job-it;
+- claim/lock të job-it;
+- raportimin e statusit;
+- retry me kufi maksimal;
+- shmangien e dërgimit të të njëjtit job dy herë.
+
+5. Shto një buton testimi në UI vetëm për administratorin ose përdoruesin e autorizuar.
+
+6. Shto fushë për numrin e testimit.
+
+7. Shto checkbox për pëlqimin:
+
+“I confirm that I have permission to call this number.”
+
+8. Para nisjes së telefonatës:
+
+- kontrollo që numri është valid;
+- kontrollo që job_id nuk është përpunuar më parë;
+- kontrollo lejen CALL_PHONE;
+- raportoi `processing`;
+- tento nisjen e telefonatës;
+- raporto `started` ose `failed`.
+
+9. Nëse përdor Android ACTION_CALL, dokumento saktësisht nëse kërkohet ndërveprim i përdoruesit dhe nëse funksionon kur aplikacioni është në background.
+
+10. Mos klasifiko `CALL_STARTED` automatikisht si `outgoing`. Përdor vetëm `CALL_OUTGOING` për thirrje dalëse, nëse statusi mbështetet nga versioni i paketës.
+
+11. Ruaj dhe anulo `StreamSubscription` në `dispose()`.
+
+12. Shto kontroll `mounted` para çdo `setState()` pas `await`.
+
+13. Shto `dispose()` për të gjithë TextEditingController-at.
+
+14. Normalizo domain-in para krijimit të endpoint-it:
+
+final baseUrl = serverUrl.trim().replaceFirst(RegExp(r'/+$'), '');
+
+15. Kontrollo të gjitha response status codes, jo vetëm 200.
+
+16. Mos e ruaj API key-n në body të kërkesave nëse backend-i përdor Bearer token.
+
+17. Nëse ruhet ndonjë token në telefon, përdor secure storage dhe jo vetëm SharedPreferences, nëse është e mundur.
+
+PA FIREBASE
+
+Nëse vendosim ta bëjmë testin pa Firebase, implemento polling të kufizuar, për shembull vetëm kur aplikacioni është aktiv ose me një mekanizëm Android të lejuar. Mos premto që polling do të ekzekutohet me besueshmëri kur aplikacioni është plotësisht i mbyllur.
+
+Nëse polling në background nuk është i besueshëm, shpjego që për komandë të menjëhershme nevojitet push messaging ose një shërbim persistent, dhe mos e fsheh këtë kufizim.
+
+PËR AUDIO LIVE
+
+Mos implemento kapje ose transmetim të audios së telefonatës normale SIM në mënyrë të fshehtë. Nëse kërkesa për audio live nuk është e mundur me Android API standarde, krijo një raport teknik dhe propozo alternativën:
+
+- WebRTC/VoIP në web dhe APK;
+- ose provider telefonie cloud me browser calling dhe numër normal të klientit.
+
+TESTET E PRANIMIT
+
+Implementimi konsiderohet i suksesshëm vetëm nëse:
+
+1. `flutter analyze` përfundon pa gabime.
+2. APK-ja instalohet në Samsung S25 Ultra.
+3. Web-i krijon një call job.
+4. APK-ja e merr vetëm një herë job-in.
+5. Numri i testimit thirret ose sistemi raporton qartë pse nuk mund të thirret.
+6. Backend-i merr statuset në rendin e duhur.
+7. Web-i shfaq statusin final.
+8. Një job i njëjtë nuk nis dy telefonata.
+9. Një numër pa pëlqim refuzohet.
+10. Gabimet e internetit dhe timeout trajtohen.
+11. `flutter analyze` nuk ka gabime compile-time.
+12. Dokumentohen qartë kufizimet për background dhe audio live.
+
+DELIVERABLES
+
+Më jep:
+
+1. Lista e skedarëve që ndryshove.
+2. Kodin final të ndryshuar.
+3. Ndryshimet e nevojshme në `pubspec.yaml`.
+4. Ndryshimet e nevojshme në AndroidManifest.xml.
+5. Specifikimin e endpoint-eve backend.
+6. Shembullin e payload-it nga web-i.
+7. Hapat për ta testuar nga web-i te Samsung S25 Ultra.
+8. Rezultatin e `flutter analyze`.
+9. Një seksion “Known Limitations” ku të thuash qartë nëse audio live e SIM-it nuk është e mundur.
+
+Mos thuaj “funksionon” pa e verifikuar me analizë të kodit, testet dhe kufizimet e Android-it.
