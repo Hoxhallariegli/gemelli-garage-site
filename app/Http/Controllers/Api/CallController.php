@@ -12,6 +12,8 @@ class CallController extends Controller
 {
     public function log(Request $request)
     {
+        Log::info('Incoming call log attempt', $request->all());
+
         $request->validate([
             'phone_number' => 'required|string',
             'type' => 'nullable|string',
