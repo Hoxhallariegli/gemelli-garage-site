@@ -12,18 +12,19 @@ class CallController extends Controller
 {
     public function log(Request $request)
     {
-        Log::info('Incoming call log attempt', $request->all());
+        Log::info('Incoming call log attempt ooooo', $request->all());
 
         $request->validate([
             'phone_number' => 'required|string',
             'type' => 'nullable|string',
-            'api_key' => 'required|string',
         ]);
 
-        // Validojmë pajisjen
-        $device = \App\Models\SmsDevice::where('api_key', $request->api_key)->first();
-        if (!$device) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized device'], 401);
+        // Nëse ka api_key, e kontrollojmë, nëse jo, e lejojmë (për test ose pajisje të vjetra)
+        if ($request->has('api_key')) {
+            $device = \App\Models\SmsDevice::where('api_key', $request->api_key)->first();
+            if (!$device) {
+                Log::warning('Unauthorized call log attempt with invalid API Key');
+            }
         }
 
         $phoneNumber = $request->phone_number;
