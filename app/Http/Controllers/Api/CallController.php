@@ -12,27 +12,44 @@ class CallController extends Controller
 {
     public function log(Request $request)
     {
-        Log::info('Incoming call log attempt', $request->all());
+        Log::info('--- SMS GATEWAY: CALL ATTEMPT ---', $request->all());
 
-        // Heqim çdo lloj validimi bllokues
         $phoneNumber = $request->phone_number ?? 'Unknown';
 
-        // Pastrojmë numrin
+        if (!$phoneNumber || $phoneNumber === 'Unknown') {
+            Log::warning('SMS GATEWAY: Skipping call with Unknown number');
+            return response()->json(['success' => false, 'message' => 'Skipping unknown number']);
+        }
+
         $phoneNumber = preg_replace('/[^0-9+]/', '', (string)$phoneNumber);
 
-        // Kontrollojmë klientin
+        // Kontrollojmë duplikatin e saktë (numër dhe tip brenda 10 sekondave)
+        $recentCall = CallLog::where('phone_number', $phoneNumber)
+            ->where('type', $request->type ?? 'incoming')
+            ->where('created_at', '>=', now()->subSeconds(10))
+            ->first();
+
+        if ($recentCall) {
+            Log::info('SMS GATEWAY: Duplicate call ignored for ' . $phoneNumber);
+            return response()->json(['success' => true, 'message' => 'Duplicate call ignored']);
+        }
+
         $client = Client::where('phone', 'like', '%' . substr($phoneNumber, -8) . '%')->first();
+        $callerName = $request->caller_name ?? ($client ? $client->name : 'Unknown');
 
-        CallLog::create([
-            'phone_number' => $phoneNumber,
-            'caller_name' => $client ? $client->name : 'Unknown',
-            'type' => $request->type ?? 'incoming',
-            'is_client' => (bool)$client,
-        ]);
+        try {
+            CallLog::create([
+                'phone_number' => $phoneNumber,
+                'caller_name' => $callerName,
+                'type' => $request->type ?? 'incoming',
+                'is_client' => (bool)$client,
+            ]);
+            Log::info('SMS GATEWAY: Success! Call logged for ' . $callerName);
+        } catch (\Exception $e) {
+            Log::error('SMS GATEWAY: Database Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Database error'], 500);
+        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Call logged',
-        ]);
+        return response()->json(['success' => true, 'message' => 'Call logged']);
     }
 }
