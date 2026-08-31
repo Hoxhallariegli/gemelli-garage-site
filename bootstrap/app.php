@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Middleware\ActiveUser;
 use App\Http\Middleware\IpCheckMiddleware;
 use App\Http\Middleware\VerifyCsrfToken;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -44,5 +45,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->dontTruncateRequestExceptions();
 
-        $exceptions->render(fn (TokenMismatchException $e) => redirect()->back()->withInput()->with('error', __('The page has expired due to inactivity. Please refresh and try again.')));
+        $exceptions->render(function (TokenMismatchException $e, Request $request) {
+            if ($request->hasHeader('X-Livewire')) {
+                return response()->json(['message' => 'Session expired'], 419);
+            }
+
+            return redirect()->route('login')->with('error', __('The page has expired due to inactivity. Please login again.'));
+        });
     })->create();

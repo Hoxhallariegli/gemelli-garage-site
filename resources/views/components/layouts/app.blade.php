@@ -219,6 +219,34 @@
             window.dispatchEvent(new CustomEvent('toast', { detail: { message: "{{ session('error') }}", type: 'error' } }));
         });
     @endif
+
+    // Force full page reload on session expiry (419) or unauthorized access (401)
+    document.addEventListener('livewire:init', () => {
+        Livewire.hook('request', ({ fail }) => {
+            fail(({ status, preventDefault }) => {
+                if (status === 419 || status === 401) {
+                    preventDefault();
+                    window.location.replace("{{ route('login') }}");
+                }
+            });
+        });
+
+        // Intercept all navigations to login and force hard reload
+        document.addEventListener('livewire:navigate', (event) => {
+            const url = event.detail.url;
+            if (url.includes('/login') || url.includes('/logout')) {
+                event.preventDefault();
+                window.location.href = url;
+            }
+        });
+    });
+
+    // Final safety check: if we are on login but dashboard assets are still here
+    document.addEventListener('livewire:navigated', () => {
+        if (window.location.pathname.includes('/login')) {
+            window.location.reload();
+        }
+    });
 </script>
 
 </body>

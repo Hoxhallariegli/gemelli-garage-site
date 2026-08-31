@@ -29,7 +29,7 @@ class FirebaseService
         ];
     }
 
-    public function sendNotification(string $title, string $body, string $topic = 'all'): bool
+    public function sendNotification(string $title, string $body, string $topic = 'all', array $extraData = []): bool
     {
         // Prioritizohet .env, nese jo merret nga databaza
         $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
@@ -48,14 +48,19 @@ class FirebaseService
             $token = $this->getAccessToken($credentials);
             if (!$token) return false;
 
+            $dataPayload = array_merge([
+                'title' => $title,
+                'body' => $body,
+            ], $extraData);
+
             $message = [
                 'notification' => [
                     'title' => $title,
                     'body' => $body,
                 ],
-                'data' => [
-                    'title' => $title,
-                    'body' => $body,
+                'data' => array_map('strval', $dataPayload),
+                'android' => [
+                    'priority' => 'high'
                 ]
             ];
 
