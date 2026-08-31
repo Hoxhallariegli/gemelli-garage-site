@@ -47,9 +47,10 @@ class CallLogController extends Controller
                 'phone_number' => $phoneNumber,
                 'caller_name' => $callerName,
                 'type' => $request->type ?? 'incoming',
+                'call_time' => now(), // SHTOJME KOHEN KETU
                 'is_client' => (bool)$client,
             ]);
-            Log::info('SMS GATEWAY: Success! Call logged for ' . $callerName);
+            Log::info('--- SMS GATEWAY: Success! Call logged for ' . $callerName);
         } catch (\Exception $e) {
             Log::error('SMS GATEWAY: Database Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Database error'], 500);
