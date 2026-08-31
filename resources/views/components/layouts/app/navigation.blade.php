@@ -66,6 +66,7 @@
         <x-nav.group-item route="admin.sms.logs">Logs</x-nav.group-item>
         <x-nav.group-item route="admin.sms.devices">Devices</x-nav.group-item>
         <x-nav.group-item route="admin.sms.templates">Templates</x-nav.group-item>
+        <x-nav.group-item route="admin.calls.index">Call Logs</x-nav.group-item>
     </x-nav.group>
 @endcan
 
