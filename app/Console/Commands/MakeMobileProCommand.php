@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Ultimate Pro" me Quick-Add, Image-Safety dhe Smart Headers';
+    protected $description = 'Gjeneron modulin Mobile "Armor-Plated" me Smart Relation Mapping, Method Spoofing dhe Image-Safety';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin ULTIMATE PRO: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin FINAL PRO: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -67,7 +67,7 @@ class MakeMobileProCommand extends Command
             'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
-            // Detektojme fushen e imazhit (perfshire logo)
+            // Shtuam 'logo' ketu
             'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo'])),
             'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
             'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
@@ -120,7 +120,7 @@ class MakeMobileProCommand extends Command
             \$file->move(public_path('uploads'), \$name);
             \$validated['{$imageField}'] = 'uploads/' . \$name;
         } else {
-            // Mos e prek fushen nese nuk ka file te ri
+            // Mos e prek fushen nese nuk ka file te ri ne kete request
             unset(\$validated['{$imageField}']);
         }";
         }
@@ -137,6 +137,7 @@ class MakeMobileProCommand extends Command
             $imports .= "use {$this->meta['update_action']};\n";
             $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
+            // Perditesimi i paster per file-t
             $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
@@ -174,7 +175,8 @@ class MakeMobileProCommand extends Command
 
     private function generateFlutterListPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart");
-        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
+        // Shtuam license_plate ketu
+        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['license_plate'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
 
         $stub = <<<DART
 import 'package:flutter/material.dart';
@@ -307,12 +309,12 @@ class _{$this->className}FormState extends State<{$this->className}FormScreen> {
 $vars
   @override void initState() { super.initState(); _init(); }
   Future<void> _init() async { $init _canDelete = await ApiService.hasPermission('delete_{$permPrefix}'); _loadData(); }
-  Future<void> _loadData() async { try { $loaders } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
+  Future<void> _loadData() async { try {  } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
 
   String _getLabel(dynamic e) {
     if (e == null) return 'Zgjidh...';
     if (e['name'] is Map) return (e['name']['sq'] ?? e['name']['en'] ?? 'N/A').toString();
-    var label = e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? e['customer_name'] ?? 'ID: \${e['id']}';
+    var label = e['name'] ?? e['license_plate'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? 'ID: \${e['id']}';
     return label.toString();
   }
 
