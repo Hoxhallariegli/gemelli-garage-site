@@ -15,10 +15,15 @@ use App\Domain\BodyType\Actions\DeleteBodyTypeAction;
 class BodyTypeController extends Controller
 {
     
-    public function index(Request $request, BodyTypeListQuery $query)
+    public function index(Request $request, BodyTypeListQuery $listQuery)
     {
         abort_if_cannot('view_body_types');
-        $items = $query->execute($request);
+        $builder = $listQuery->handle(
+            $request->all(),
+            $request->get('sort_field', 'id'),
+            $request->get('sort_dir', 'asc')
+        );
+        $items = $builder->paginate($request->get('per_page', 50));
         $items->getCollection()->transform(fn($i) => $this->transformItem($i));
         return response()->json($items);
     }

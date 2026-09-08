@@ -15,10 +15,15 @@ use App\Domain\CallLog\Actions\DeleteCallLogAction;
 class CallLogController extends Controller
 {
     
-    public function index(Request $request, CallLogListQuery $query)
+    public function index(Request $request, CallLogListQuery $listQuery)
     {
         abort_if_cannot('view_call_logs');
-        $items = $query->execute($request);
+        $builder = $listQuery->handle(
+            $request->all(),
+            $request->get('sort_field', 'id'),
+            $request->get('sort_dir', 'asc')
+        );
+        $items = $builder->paginate($request->get('per_page', 50));
         $items->getCollection()->transform(fn($i) => $this->transformItem($i));
         return response()->json($items);
     }

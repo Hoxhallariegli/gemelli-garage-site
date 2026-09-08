@@ -197,10 +197,15 @@ class MakeMobileProCommand extends Command
         if ($this->meta['index_query']) {
             $imports .= "use {$this->meta['index_query']};\n";
             $indexLogic = "
-    public function index(Request \$request, {$this->className}ListQuery \$query)
+    public function index(Request \$request, {$this->className}ListQuery \$listQuery)
     {
         abort_if_cannot('view_{$permPrefix}');
-        \$items = \$query->execute(\$request);
+        \$builder = \$listQuery->handle(
+            \$request->all(),
+            \$request->get('sort_field', 'id'),
+            \$request->get('sort_dir', 'asc')
+        );
+        \$items = \$builder->paginate(\$request->get('per_page', 50));
         \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i));
         return response()->json(\$items);
     }";

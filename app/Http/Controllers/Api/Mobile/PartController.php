@@ -15,10 +15,15 @@ use App\Domain\Part\Actions\DeletePartAction;
 class PartController extends Controller
 {
     
-    public function index(Request $request, PartListQuery $query)
+    public function index(Request $request, PartListQuery $listQuery)
     {
         abort_if_cannot('view_parts');
-        $items = $query->execute($request);
+        $builder = $listQuery->handle(
+            $request->all(),
+            $request->get('sort_field', 'id'),
+            $request->get('sort_dir', 'asc')
+        );
+        $items = $builder->paginate($request->get('per_page', 50));
         $items->getCollection()->transform(fn($i) => $this->transformItem($i));
         return response()->json($items);
     }
