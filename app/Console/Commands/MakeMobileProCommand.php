@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Super Pro" me Auto-Loading Relations dhe Full Image View';
+    protected $description = 'Gjeneron modulin Mobile "Ultra Pro" me Auto-Labeling dhe Full Image View';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin SUPER PRO: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin ULTRA PRO: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -139,13 +139,13 @@ class MakeMobileProCommand extends Command
         foreach ($this->meta['fields'] as $f) {
             $type = "dynamic";
             if (in_array($f, $this->meta['json_fields'])) $type = "Map<String, dynamic>";
-            elseif (Str::endsWith($f, '_id')) $type = "int";
+            elseif (Str::endsWith($f, '_id')) $type = "dynamic";
             $camel = Str::camel($f);
             $fields .= "  final $type? $camel;\n";
             $fromJson .= "      $camel: json['" . (in_array($f, $this->meta['json_fields']) ? "{$f}_raw" : $f) . "'],\n";
             $toJson .= "      '$f': $camel,\n";
         }
-        $stub = "class {$this->className} {\n  final int? id;\n$fields\n  {$this->className}({this.id, " . collect($this->meta['fields'])->map(fn($f) => "this." . Str::camel($f))->implode(', ') . "});\n\n  factory {$this->className}.fromJson(Map<String, dynamic> json) => {$this->className}(\n      id: json['id'],\n$fromJson  );\n\n  Map<String, dynamic> toJson() => {\n      'id': id,\n$toJson  };\n}";
+        $stub = "class {$this->className} {\n  final dynamic id;\n$fields\n  {$this->className}({this.id, " . collect($this->meta['fields'])->map(fn($f) => "this." . Str::camel($f))->implode(', ') . "});\n\n  factory {$this->className}.fromJson(Map<String, dynamic> json) => {$this->className}(\n      id: json['id'],\n$fromJson  );\n\n  Map<String, dynamic> toJson() => {\n      'id': id,\n$toJson  };\n}";
         File::put($path, $stub);
     }
 
@@ -211,13 +211,13 @@ DART;
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
               onTap: () async { final p = await ImagePicker().pickImage(source: ImageSource.gallery); if(p != null) setState(()=>_imagePath = p.path); },
-              child: Container(height: 140, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 30))),
-            ), const SizedBox(height: 12),\n";
+              child: Container(height: 180, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 40))),
+            ), const SizedBox(height: 16),\n";
             } elseif (isset($this->meta['relations'][$f])) {
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
                 $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...';\n";
-                $init .= "    _selected$safe = widget.item?['$f'];\n";
-                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { var data = jsonDecode(r$safe.body)['data']; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
+                $init .= "    _selected$safe = widget.item?['$f'];\n    if(widget.item?['{$rel['method']}'] != null) { _selected{$safe}Label = _getLabel(widget.item!['{$rel['method']}']); }\n";
+                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { var data = jsonDecode(r$safe.body)['data']; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
@@ -276,7 +276,7 @@ $vars
   String _getLabel(dynamic e) {
     if (e == null) return 'Zgjidh...';
     if (e['name'] is Map) return (e['name']['sq'] ?? e['name']['en'] ?? 'N/A').toString();
-    var label = e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? 'ID: \${e['id']}';
+    var label = e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? e['customer_name'] ?? 'ID: \${e['id']}';
     return label.toString();
   }
 
