@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Nuclear Pro" me Smart Sync dhe Image Protection';
+    protected $description = 'Gjeneron modulin Mobile "Titanium" me Image Protection dhe Smart Endpoints';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin NUCLEAR PRO: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin TITANIUM: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -67,8 +67,7 @@ class MakeMobileProCommand extends Command
             'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
-            // Detektim i zgjeruar i imazhit
-            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo', 'picture_path'])),
+            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo'])),
             'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
             'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
             'update_action' => "{$domainPath}\\Actions\\Update{$this->className}Action",
@@ -120,7 +119,7 @@ class MakeMobileProCommand extends Command
             \$file->move(public_path('uploads'), \$name);
             \$validated['{$imageField}'] = 'uploads/' . \$name;
         } else {
-            // KRITIKE: Laravel i mban fushat ekzistuese nese i heqim nga array i update
+            // KRITIKE: Heqim nga array qe Laravel te mos e preke ne DB
             unset(\$validated['{$imageField}']);
         }";
         }
@@ -129,15 +128,15 @@ class MakeMobileProCommand extends Command
             $imports .= "use {$this->meta['dto_class']};\nuse {$this->meta['create_action']};\n";
             $storeLogic = "    public function store(Request \$request, Create{$this->className}Action \$action) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules() : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); \$item = {$this->className}::create(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data \u003d \$request-\u003eall(); \$rules \u003d method_exists({$this->className}::class, \u0027rules\u0027) ? {$this->className}::rules() : []; \$validated \u003d validator(\$data, \$rules ?: [\u0027*\u0027\u003d\u003e\u0027nullable\u0027])-\u003evalidate(); if (\$request-\u003ehasFile(\u0027{$imageField}\u0027)) { \$file \u003d \$request-\u003efile(\u0027{$imageField}\u0027); \$name \u003d time() . \u0027_\u0027 . \$file-\u003egetClientOriginalName(); \$file-\u003emove(public_path(\u0027uploads\u0027), \$name); \$validated[\u0027{$imageField}\u0027] \u003d \u0027uploads/\u0027 . \$name; } \$item \u003d {$this->className}::create(\$validated); return response()-\u003ejson([\u0027success\u0027 \u003d\u003e true, \u0027data\u0027 \u003d\u003e \$this-\u003etransformItem(\$item)]); }";
         }
 
         if (class_exists($this->meta['dto_class']) && class_exists($this->meta['update_action'])) {
             if(!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
             $imports .= "use {$this->meta['update_action']};\n";
-            $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); if(!isset(\$data['{$imageField}'])) \$data['{$imageField}'] = \$item->{$imageField}; \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$request->all(); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
         $stub = "<?php\n\nnamespace App\Http\Controllers\Api\Mobile;\n\nuse App\Http\Controllers\Controller;\nuse {$this->meta['model_fqn']};\nuse Illuminate\Http\Request;\n{$imports}\n\nclass {$this->className}Controller extends Controller\n{\n    public function index() { abort_if_cannot('view_{$permPrefix}'); \$items = {$this->className}::query(){$relWith}->latest()->paginate(50); \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i)); return response()->json(\$items); }\n    {$storeLogic}\n    {$updateLogic}\n    public function destroy(\$id) { abort_if_cannot('delete_{$permPrefix}'); try { \$item = {$this->className}::findOrFail(\$id); \$item->delete(); return response()->json(['success' => true]); } catch (\Throwable \$e) { return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400); } }\n    private function transformItem(\$item) { foreach ({$jsonFields} as \$f) { \$val = \$item->getRawOriginal(\$f); \$item->setAttribute(\"{\$f}_raw\", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val); } return \$item; }\n    private function prepareData(Request \$request) { \$data = \$request->all(); foreach ({$jsonFields} as \$f) { if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true); } return \$data; }\n}";
@@ -174,7 +173,6 @@ class MakeMobileProCommand extends Command
 
     private function generateFlutterListPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart");
-        // PRIORITET: Targa, Emri, Titulli
         $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['license_plate'] ?? item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
 
         $stub = <<<DART
@@ -203,7 +201,7 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: _items.length,
         itemBuilder: (context, index) {
-          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'] ?? item['logo'] ?? item['picture_path'];
+          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'] ?? item['logo'];
           return Container(
             margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
             child: ListTile(
@@ -384,7 +382,7 @@ $vars
     setState(() => _isSaving = true);
     final payload = <String, dynamic>{}; $payload
 
-    // KRITIKE: Heqim fushen e imazhit nese nuk ka file te ri qe te mos behet null ne DB
+    // KRITIKE: Heqim imazhin nese eshte null qe te mos behet null ne DB
     if(_imagePath == null) payload.remove('$imageField');
 
     try {

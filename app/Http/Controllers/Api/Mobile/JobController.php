@@ -17,7 +17,7 @@ class JobController extends Controller
   1 => 'service',
 ))->latest()->paginate(50); $items->getCollection()->transform(fn($i) => $this->transformItem($i)); return response()->json($items); }
         public function store(Request $request, CreateJobAction $action) { abort_if_cannot('add_jobs'); $data = $this->prepareData($request); $dto = JobDTO::fromArray($data); $item = $action->execute($dto); return response()->json(['success' => true, 'data' => $this->transformItem($item)]); }
-        public function update(Request $request, $id, UpdateJobAction $action) { abort_if_cannot('edit_jobs'); $item = Job::findOrFail($id); $data = $this->prepareData($request); $dto = JobDTO::fromArray($data); $item = $action->execute($item, $dto); return response()->json(['success' => true, 'data' => $this->transformItem($item)]); }
+        public function update(Request $request, $id, UpdateJobAction $action) { abort_if_cannot('edit_jobs'); $item = Job::findOrFail($id); $data = $this->prepareData($request); if(!isset($data[''])) $data[''] = $item->; $dto = JobDTO::fromArray($data); $item = $action->execute($item, $dto); return response()->json(['success' => true, 'data' => $this->transformItem($item)]); }
     public function destroy($id) { abort_if_cannot('delete_jobs'); try { $item = Job::findOrFail($id); $item->delete(); return response()->json(['success' => true]); } catch (\Throwable $e) { return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400); } }
     private function transformItem($item) { foreach (array (
 ) as $f) { $val = $item->getRawOriginal($f); $item->setAttribute("{$f}_raw", is_string($val) && str_starts_with($val, '{') ? json_decode($val, true) : $val); } return $item; }
