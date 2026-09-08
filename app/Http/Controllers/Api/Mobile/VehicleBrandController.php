@@ -17,7 +17,10 @@ class VehicleBrandController extends Controller
     public function store(Request $request)
     {
         abort_if_cannot('add_vehicle_brands');
-        $data = $request->all();
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'logo' => 'nullable|image|max:2048'
+        ]);
 
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
@@ -34,7 +37,12 @@ class VehicleBrandController extends Controller
     {
         abort_if_cannot('edit_vehicle_brands');
         $item = VehicleBrand::findOrFail($id);
-        $data = $request->all();
+
+        // Përdorim validate për të marrë vetëm fushat që na duhen (pa _method)
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'logo' => 'nullable'
+        ]);
 
         if ($request->hasFile('logo')) {
             if ($item->logo && file_exists(public_path($item->logo))) @unlink(public_path($item->logo));
