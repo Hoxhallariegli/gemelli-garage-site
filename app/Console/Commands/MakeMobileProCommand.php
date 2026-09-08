@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile me Spatie Permissions, Row Buttons dhe Compact UI';
+    protected $description = 'Gjeneron modulin Mobile "Super Pro" me Smart Relations dhe Premium UI';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke përpunuar modulin PREMIUM: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin SUPER PRO: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me sukses!");
+            $this->info("✅ Moduli {$this->className} u përfundua me Super Pro UI!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -53,25 +53,13 @@ class MakeMobileProCommand extends Command
 
     private function resolveMeta(): bool
     {
-        $candidates = [
-            "App\\Models\\BerberApp\\{$this->className}",
-            "App\\Models\\{$this->className}",
-            "App\\{$this->className}"
-        ];
-
+        $candidates = ["App\\Models\\BerberApp\\{$this->className}", "App\\Models\\{$this->className}", "App\\{$this->className}"];
         $modelClass = null;
-        foreach ($candidates as $candidate) {
-            if (class_exists($candidate)) { $modelClass = $candidate; break; }
-        }
-
-        if (!$modelClass) { $this->error("Modeli {$this->className} nuk u gjet."); return false; }
+        foreach ($candidates as $c) { if (class_exists($c)) { $modelClass = $c; break; } }
+        if (!$modelClass) { $this->error("Modeli {$this->className} s'u gjet."); return false; }
 
         $model = new $modelClass();
-
         $domainPath = "App\\Domain\\{$this->className}";
-        $dtoClass = "{$domainPath}\\DTOs\\{$this->className}DTO";
-        $createActionClass = "{$domainPath}\\Actions\\Create{$this->className}Action";
-        $updateActionClass = "{$domainPath}\\Actions\\Update{$this->className}Action";
 
         $this->meta = [
             'class' => $this->className,
@@ -79,9 +67,9 @@ class MakeMobileProCommand extends Command
             'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
-            'dto_class' => class_exists($dtoClass) ? $dtoClass : null,
-            'create_action' => class_exists($createActionClass) ? $createActionClass : null,
-            'update_action' => class_exists($updateActionClass) ? $updateActionClass : null,
+            'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
+            'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
+            'update_action' => "{$domainPath}\\Actions\\Update{$this->className}Action",
         ];
         return true;
     }
@@ -113,110 +101,24 @@ class MakeMobileProCommand extends Command
         $jsonFields = var_export($this->meta['json_fields'], true);
         $permPrefix = $this->pluralSnake;
 
-        $imports = "";
-        $storeLogic = "";
-        $updateLogic = "";
+        $imports = ""; $storeLogic = ""; $updateLogic = "";
 
-        if ($this->meta['dto_class'] && $this->meta['create_action']) {
+        if (class_exists($this->meta['dto_class']) && class_exists($this->meta['create_action'])) {
             $imports .= "use {$this->meta['dto_class']};\nuse {$this->meta['create_action']};\n";
-            $storeLogic = "
-    public function store(Request \$request, Create{$this->className}Action \$action)
-    {
-        abort_if_cannot('add_{$permPrefix}');
-        \$data = \$this->prepareData(\$request);
-        \$dto = {$this->className}DTO::fromArray(\$data);
-        \$item = \$action->execute(\$dto);
-        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
-    }";
+            $storeLogic = "    public function store(Request \$request, Create{$this->className}Action \$action) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $storeLogic = "
-    public function store(Request \$request)
-    {
-        abort_if_cannot('add_{$permPrefix}');
-        \$data = \$this->prepareData(\$request);
-        \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules() : [];
-        \$validated = validator(\$data, \$rules ?: collect((new {$this->className})->getFillable())->mapWithKeys(fn(\$f)=>[\$f=>'required'])->toArray())->validate();
-        \$item = {$this->className}::create(\$validated);
-        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
-    }";
+            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$item = {$this->className}::create(\$data); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
-        if ($this->meta['dto_class'] && $this->meta['update_action']) {
-            if (!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
+        if (class_exists($this->meta['dto_class']) && class_exists($this->meta['update_action'])) {
+            if(!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
             $imports .= "use {$this->meta['update_action']};\n";
-            $updateLogic = "
-    public function update(Request \$request, \$id, Update{$this->className}Action \$action)
-    {
-        abort_if_cannot('edit_{$permPrefix}');
-        \$item = {$this->className}::findOrFail(\$id);
-        \$data = \$this->prepareData(\$request);
-        \$dto = {$this->className}DTO::fromArray(\$data);
-        \$item = \$action->execute(\$item, \$dto);
-        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
-    }";
+            $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $updateLogic = "
-    public function update(Request \$request, \$id)
-    {
-        abort_if_cannot('edit_{$permPrefix}');
-        \$item = {$this->className}::findOrFail(\$id);
-        \$data = \$this->prepareData(\$request);
-        \$item->update(\$data);
-        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
-    }";
+            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$item->update(\$data); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
-        $stub = <<<PHP
-<?php
-
-namespace App\Http\Controllers\Api\Mobile;
-
-use App\Http\Controllers\Controller;
-use {$this->meta['model_fqn']};
-use Illuminate\Http\Request;
-{$imports}
-
-class {$this->className}Controller extends Controller
-{
-    public function index()
-    {
-        abort_if_cannot('view_{$permPrefix}');
-        \$items = {$this->className}::query(){$relWith}->latest()->paginate(50);
-        \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i));
-        return response()->json(\$items);
-    }
-    {$storeLogic}
-    {$updateLogic}
-
-    public function destroy(\$id)
-    {
-        abort_if_cannot('delete_{$permPrefix}');
-        try {
-            \$item = {$this->className}::findOrFail(\$id);
-            \$item->delete();
-            return response()->json(['success' => true]);
-        } catch (\Throwable \$e) {
-            return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400);
-        }
-    }
-
-    private function transformItem(\$item) {
-        foreach ({$jsonFields} as \$f) {
-            \$val = \$item->getRawOriginal(\$f);
-            \$item->setAttribute("{\$f}_raw", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val);
-        }
-        return \$item;
-    }
-
-    private function prepareData(Request \$request) {
-        \$data = \$request->all();
-        foreach ({$jsonFields} as \$f) {
-            if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true);
-        }
-        return \$data;
-    }
-}
-PHP;
+        $stub = "<?php\n\nnamespace App\Http\Controllers\Api\Mobile;\n\nuse App\Http\Controllers\Controller;\nuse {$this->meta['model_fqn']};\nuse Illuminate\Http\Request;\n{$imports}\n\nclass {$this->className}Controller extends Controller\n{\n    public function index() { abort_if_cannot('view_{$permPrefix}'); \$items = {$this->className}::query(){$relWith}->latest()->paginate(50); \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i)); return response()->json(\$items); }\n    {$storeLogic}\n    {$updateLogic}\n    public function destroy(\$id) { abort_if_cannot('delete_{$permPrefix}'); try { \$item = {$this->className}::findOrFail(\$id); \$item->delete(); return response()->json(['success' => true]); } catch (\Throwable \$e) { return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400); } }\n    private function transformItem(\$item) { foreach ({$jsonFields} as \$f) { \$val = \$item->getRawOriginal(\$f); \$item->setAttribute(\"{\$f}_raw\", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val); } return \$item; }\n    private function prepareData(Request \$request) { \$data = \$request->all(); foreach ({$jsonFields} as \$f) { if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true); } return \$data; }\n}";
         File::put($path, $stub);
     }
 
@@ -241,7 +143,7 @@ PHP;
             elseif (Str::endsWith($f, '_id')) $type = "int";
             $camel = Str::camel($f);
             $fields .= "  final $type? $camel;\n";
-            $fromJson .= "      $camel: json['" . ($type == "Map<String, dynamic>" ? "{$f}_raw" : $f) . "'],\n";
+            $fromJson .= "      $camel: json['" . (in_array($f, $this->meta['json_fields']) ? "{$f}_raw" : $f) . "'],\n";
             $toJson .= "      '$f': $camel,\n";
         }
         $stub = "class {$this->className} {\n  final int? id;\n$fields\n  {$this->className}({this.id, " . collect($this->meta['fields'])->map(fn($f) => "this." . Str::camel($f))->implode(', ') . "});\n\n  factory {$this->className}.fromJson(Map<String, dynamic> json) => {$this->className}(\n      id: json['id'],\n$fromJson  );\n\n  Map<String, dynamic> toJson() => {\n      'id': id,\n$toJson  };\n}";
@@ -250,7 +152,7 @@ PHP;
 
     private function generateFlutterListPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart");
-        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? 'ID: \${item['id']}')";
+        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
 
         $stub = <<<DART
 import 'package:flutter/material.dart';
@@ -287,7 +189,7 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
         itemBuilder: (context, index) {
           final item = _items[index];
           String name = $nameLogic;
-          String? photo = item['photo'];
+          String? photo = item['photo'] ?? item['image'];
 
           return Container(
             margin: const EdgeInsets.only(bottom: 8),
@@ -320,7 +222,7 @@ DART;
 
         foreach ($this->meta['fields'] as $f) {
             $label = Str::headline($f);
-            if (Str::contains($f, ['photo', 'image'])) {
+            if (Str::contains($f, ['photo', 'image', 'picture'])) {
                 $hasImage = true; $vars .= "  String? _imagePath;\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
@@ -331,11 +233,11 @@ DART;
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
                 $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...';\n";
                 $init .= "    _selected$safe = widget.item?['$f'];\n";
-                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { setState(() { _{$rel['method']}Options = jsonDecode(r$safe.body)['data']; if(_selected$safe != null) { try { var found = _{$rel['method']}Options.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = found['name'] is Map ? (found['name']['sq'] ?? found['name']['en']) : (found['name'] ?? found['customer_name'] ?? found['title'] ?? found['type'] ?? 'ID: \${found['id']}'); } catch(_) {} } }); }\n";
+                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { setState(() { _{$rel['method']}Options = jsonDecode(r$safe.body)['data']; if(_selected$safe != null) { try { var found = _{$rel['method']}Options.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
-                setState(() { _selected$safe = val['id']; _selected{$safe}Label = val['name'] is Map ? (val['name']['sq'] ?? val['name']['en']) : (val['name'] ?? val['customer_name'] ?? val['title'] ?? val['type'] ?? 'ID: \${val['id']}'); });
+                setState(() { _selected$safe = val['id']; _selected{$safe}Label = _getLabel(val); });
               }),
               child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), const Icon(Icons.arrow_drop_down, size: 18)])),
             ), const SizedBox(height: 12),\n";
@@ -354,7 +256,9 @@ DART;
             } else {
                 $vars .= "  final _{$f}C = TextEditingController();\n";
                 $init .= "    _{$f}C.text = widget.item?['$f']?.toString() ?? '';\n";
-                $widgets .= "            _buildTextField(_{$f}C, '$label', Icons.edit_note_outlined), const SizedBox(height: 12),\n";
+                $isNum = Str::contains($f, ['price', 'amount', 'km', 'year', 'qty', 'stock', 'rate', 'cost']);
+                $icon = $isNum ? 'Icons.euro_outlined' : 'Icons.edit_note_outlined';
+                $widgets .= "            _buildTextField(_{$f}C, '$label', $icon, isNumeric: " . ($isNum ? 'true' : 'false') . "), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _{$f}C.text;\n";
             }
         }
@@ -391,6 +295,12 @@ $vars
 
   Future<void> _loadData() async { try { $loaders } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
 
+  String _getLabel(dynamic e) {
+    if (e == null) return 'N/A';
+    if (e['name'] is Map) return e['name']['sq'] ?? e['name']['en'] ?? 'N/A';
+    return e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? 'ID: \${e['id']}';
+  }
+
   void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (context) {
         List<dynamic> filtered = List.from(options);
@@ -400,14 +310,13 @@ $vars
               const SizedBox(height: 12),
               TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], contentPadding: EdgeInsets.zero, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
               onChanged: (q) { setModalState(() { filtered = options.where((e) {
-                String name = e['name'] is Map ? (e['name']['sq'] ?? e['name']['en'] ?? '') : (e['name'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? '');
+                String name = _getLabel(e);
                 return name.toLowerCase().contains(q.toLowerCase());
               }).toList(); }); }),
               const SizedBox(height: 12),
               Expanded(child: ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
                   var e = filtered[i];
-                  String name = e['name'] is Map ? (e['name']['sq'] ?? e['name']['en'] ?? '') : (e['name'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? 'ID: \${e['id']}');
-                  return ListTile(title: Text(name, style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
+                  return ListTile(title: Text(_getLabel(e), style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
               }))
           ]));
         });
@@ -432,10 +341,10 @@ $vars
     ]);
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumeric = false}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _buildSectionTitle(label), const SizedBox(height: 4),
-      TextFormField(controller: controller, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
+      TextFormField(controller: controller, keyboardType: isNumeric ? TextInputType.number : TextInputType.text, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
     ]);
   }
 
@@ -469,7 +378,7 @@ $vars
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.white,
     appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shtim' : 'Edito', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
-    body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : SingleChildScrollView(padding: const EdgeInsets.all(16), child: Form(key: _formKey, child: Column(children: [ $widgets const SizedBox(height: 20),
+    body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : SingleChildScrollView(padding: const EdgeInsets.all(20), child: Form(key: _formKey, child: Column(children: [ $widgets const SizedBox(height: 20),
             Row(children: [
               Expanded(flex: 10, child: SizedBox(height: 48, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isSaving ? null : _save, child: _isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.save_outlined, size: 18), SizedBox(width: 8), Text('RUAJ', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14))])))),
               if(widget.item != null && _canDelete) ...[
