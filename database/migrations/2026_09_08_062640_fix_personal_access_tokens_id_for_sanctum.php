@@ -3,20 +3,21 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Ne Hostinger/MySQL, ndryshimi i ID-se nga UUID ne BigInt kerkon fshirjen dhe rikrijimin
-        // sepse eshte Primary Key.
-
+        // Fshijmë tabelën ekzistuese që të pastrojmë konfigurimin e gabuar
         Schema::dropIfExists('personal_access_tokens');
 
         Schema::create('personal_access_tokens', function (Blueprint $table) {
-            $table->id(); // Kjo krijon bigIncrements('id') standard
-            $table->morphs('tokenable');
+            $table->id(); // ID e vete tokenit (Auto-increment)
+
+            // Përdorim uuidMorphs sepse User model përdor UUID.
+            // Kjo krijon 'tokenable_type' dhe 'tokenable_id' (si string/uuid).
+            $table->uuidMorphs('tokenable');
+
             $table->string('name');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
