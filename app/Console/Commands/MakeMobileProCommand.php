@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Armor-Plated" me Smart Relation Mapping, Method Spoofing dhe Image-Safety';
+    protected $description = 'Gjeneron modulin Mobile "Nuclear Pro" me Smart Sync dhe Image Protection';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin FINAL PRO: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin NUCLEAR PRO: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me sukses maksimal!");
+            $this->info("✅ Moduli {$this->className} u përfundua me sukses total!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -67,8 +67,8 @@ class MakeMobileProCommand extends Command
             'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
-            // Shtuam 'logo' ketu
-            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo'])),
+            // Detektim i zgjeruar i imazhit
+            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo', 'picture_path'])),
             'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
             'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
             'update_action' => "{$domainPath}\\Actions\\Update{$this->className}Action",
@@ -120,7 +120,7 @@ class MakeMobileProCommand extends Command
             \$file->move(public_path('uploads'), \$name);
             \$validated['{$imageField}'] = 'uploads/' . \$name;
         } else {
-            // Mos e prek fushen nese nuk ka file te ri ne kete request
+            // KRITIKE: Laravel i mban fushat ekzistuese nese i heqim nga array i update
             unset(\$validated['{$imageField}']);
         }";
         }
@@ -137,7 +137,6 @@ class MakeMobileProCommand extends Command
             $imports .= "use {$this->meta['update_action']};\n";
             $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            // Perditesimi i paster per file-t
             $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
@@ -175,8 +174,8 @@ class MakeMobileProCommand extends Command
 
     private function generateFlutterListPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart");
-        // Shtuam license_plate ketu
-        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['license_plate'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
+        // PRIORITET: Targa, Emri, Titulli
+        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['license_plate'] ?? item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
 
         $stub = <<<DART
 import 'package:flutter/material.dart';
@@ -204,7 +203,7 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: _items.length,
         itemBuilder: (context, index) {
-          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'] ?? item['logo'];
+          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'] ?? item['logo'] ?? item['picture_path'];
           return Container(
             margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
             child: ListTile(
@@ -314,7 +313,7 @@ $vars
   String _getLabel(dynamic e) {
     if (e == null) return 'Zgjidh...';
     if (e['name'] is Map) return (e['name']['sq'] ?? e['name']['en'] ?? 'N/A').toString();
-    var label = e['name'] ?? e['license_plate'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? 'ID: \${e['id']}';
+    var label = e['license_plate'] ?? e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? e['customer_name'] ?? 'ID: \${e['id']}';
     return label.toString();
   }
 
@@ -384,6 +383,10 @@ $vars
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
     final payload = <String, dynamic>{}; $payload
+
+    // KRITIKE: Heqim fushen e imazhit nese nuk ka file te ri qe te mos behet null ne DB
+    if(_imagePath == null) payload.remove('$imageField');
+
     try {
       final res = $saveCall;
       if (res.statusCode >= 200 && res.statusCode < 300) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('U ruajt! ✅'), backgroundColor: Colors.green)); Navigator.pop(context, true); }
