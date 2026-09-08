@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Ultimate Pro" me Quick-Add Relations, Image-Safety dhe Auto-Refresh';
+    protected $description = 'Gjeneron modulin Mobile "Ultimate Pro" me Quick-Add, Image-Safety dhe Auto-Selection';
 
     private string $className;
     private string $snakeName;
@@ -67,6 +67,7 @@ class MakeMobileProCommand extends Command
             'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
+            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture'])),
             'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
             'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
             'update_action' => "{$domainPath}\\Actions\\Update{$this->className}Action",
@@ -104,20 +105,37 @@ class MakeMobileProCommand extends Command
         $relWith = !empty($this->meta['relations']) ? "->with(" . var_export(collect($this->meta['relations'])->pluck('method')->toArray(), true) . ")" : "";
         $jsonFields = var_export($this->meta['json_fields'], true);
         $permPrefix = $this->pluralSnake;
+        $imageField = $this->meta['image_field'];
 
         $imports = ""; $storeLogic = ""; $updateLogic = "";
+
+        $fileHandling = "";
+        if ($imageField) {
+            $fileHandling = "
+        if (\$request->hasFile('{$imageField}')) {
+            if (\$item->{$imageField} && file_exists(public_path(\$item->{$imageField}))) @unlink(public_path(\$item->{$imageField}));
+            \$file = \$request->file('{$imageField}');
+            \$name = time() . '_' . \$file->getClientOriginalName();
+            \$file->move(public_path('uploads'), \$name);
+            \$validated['{$imageField}'] = 'uploads/' . \$name;
+        } else {
+            unset(\$validated['{$imageField}']); // Mos e prek nese s'ka file te ri
+        }";
+        }
+
         if (class_exists($this->meta['dto_class']) && class_exists($this->meta['create_action'])) {
             $imports .= "use {$this->meta['dto_class']};\nuse {$this->meta['create_action']};\n";
             $storeLogic = "    public function store(Request \$request, Create{$this->className}Action \$action) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$item = {$this->className}::create(\$data); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules() : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); \$item = {$this->className}::create(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
+
         if (class_exists($this->meta['dto_class']) && class_exists($this->meta['update_action'])) {
             if(!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
             $imports .= "use {$this->meta['update_action']};\n";
             $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$item->update(\$data); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); \$item = {$this->className}::findOrFail(\$id); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
         $stub = "<?php\n\nnamespace App\Http\Controllers\Api\Mobile;\n\nuse App\Http\Controllers\Controller;\nuse {$this->meta['model_fqn']};\nuse Illuminate\Http\Request;\n{$imports}\n\nclass {$this->className}Controller extends Controller\n{\n    public function index() { abort_if_cannot('view_{$permPrefix}'); \$items = {$this->className}::query(){$relWith}->latest()->paginate(50); \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i)); return response()->json(\$items); }\n    {$storeLogic}\n    {$updateLogic}\n    public function destroy(\$id) { abort_if_cannot('delete_{$permPrefix}'); try { \$item = {$this->className}::findOrFail(\$id); \$item->delete(); return response()->json(['success' => true]); } catch (\Throwable \$e) { return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400); } }\n    private function transformItem(\$item) { foreach ({$jsonFields} as \$f) { \$val = \$item->getRawOriginal(\$f); \$item->setAttribute(\"{\$f}_raw\", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val); } return \$item; }\n    private function prepareData(Request \$request) { \$data = \$request->all(); foreach ({$jsonFields} as \$f) { if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true); } return \$data; }\n}";
@@ -206,10 +224,11 @@ DART;
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_form_screen.dart");
         $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false;
         $permPrefix = $this->pluralSnake;
+        $imageField = $this->meta['image_field'];
 
         foreach ($this->meta['fields'] as $f) {
             $label = Str::headline($f);
-            if (Str::contains($f, ['photo', 'image', 'picture'])) {
+            if ($f === $imageField) {
                 $hasImage = true;
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
@@ -257,7 +276,7 @@ DART;
         }
 
         $saveCall = $hasImage
-            ? "await ApiService.postMultipart(widget.item == null ? '/{$this->pluralKebab}' : '/{$this->pluralKebab}/\${widget.item!['id']}', payload, filePath: _imagePath, fieldName: 'photo')"
+            ? "await ApiService.postMultipart(widget.item == null ? '/{$this->pluralKebab}' : '/{$this->pluralKebab}/\${widget.item!['id']}', payload, filePath: _imagePath, fieldName: '$imageField')"
             : "widget.item == null ? await ApiService.post('/{$this->pluralKebab}', payload) : await ApiService.put('/{$this->pluralKebab}/\${widget.item!['id']}', payload)";
 
         $stub = <<<DART
