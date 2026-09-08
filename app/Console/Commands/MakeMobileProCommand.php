@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Ultra Pro" me Auto-Labeling dhe Full Image View';
+    protected $description = 'Gjeneron modulin Mobile "Armor-Plated" me Smart Loading dhe Full View Images';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin ULTRA PRO: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin ARMOR-PLATED: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua saktë!");
+            $this->info("✅ Moduli {$this->className} u përfundua me sukses maksimal!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -211,19 +211,19 @@ DART;
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
               onTap: () async { final p = await ImagePicker().pickImage(source: ImageSource.gallery); if(p != null) setState(()=>_imagePath = p.path); },
-              child: Container(height: 180, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 40))),
+              child: Container(height: 160, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 40))),
             ), const SizedBox(height: 16),\n";
             } elseif (isset($this->meta['relations'][$f])) {
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
-                $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...';\n";
+                $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...'; bool _loading{$safe} = false;\n";
                 $init .= "    _selected$safe = widget.item?['$f'];\n    if(widget.item?['{$rel['method']}'] != null) { _selected{$safe}Label = _getLabel(widget.item!['{$rel['method']}']); }\n";
-                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { var data = jsonDecode(r$safe.body)['data']; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
+                $loaders .= "      setState(() => _loading{$safe} = true); final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { var body = jsonDecode(r$safe.body); var data = body is Map ? (body['data'] ?? []) : body; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); } setState(() => _loading{$safe} = false);\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
                 setState(() { _selected$safe = val['id']; _selected{$safe}Label = _getLabel(val); });
-              }),
-              child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), const Icon(Icons.arrow_drop_down, size: 18)])),
+              }, isLoading: _loading{$safe}),
+              child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), _loading{$safe} ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.arrow_drop_down, size: 18)])),
             ), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _selected$safe;\n";
             } elseif (Str::contains($f, ['_at', 'date', 'time'])) {
@@ -280,7 +280,7 @@ $vars
     return label.toString();
   }
 
-  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect) {
+  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect, {bool isLoading = false}) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (context) {
         List<dynamic> filtered = List.from(options);
         return StatefulBuilder(builder: (context, setModalState) {
@@ -290,7 +290,7 @@ $vars
               TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], contentPadding: EdgeInsets.zero, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
               onChanged: (q) { setModalState(() { filtered = options.where((e) { return _getLabel(e).toLowerCase().contains(q.toLowerCase()); }).toList(); }); }),
               const SizedBox(height: 12),
-              Expanded(child: ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
+              Expanded(child: isLoading ? const Center(child: CircularProgressIndicator()) : filtered.isEmpty ? const Center(child: Text('Nuk u gjet asnjë rezultat.')) : ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
                   var e = filtered[i];
                   return ListTile(title: Text(_getLabel(e), style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
               }))
