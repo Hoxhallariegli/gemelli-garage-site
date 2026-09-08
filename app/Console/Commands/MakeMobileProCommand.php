@@ -163,9 +163,14 @@ class MakeMobileProCommand extends Command
             try {
                 $return = $method->invoke(new $modelClass());
                 if ($return instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+                    $relatedShort = class_basename($return->getRelated());
                     $relations[$return->getForeignKeyName()] = [
                         'method' => $method->name,
-                        'endpoint' => Str::plural(Str::kebab($method->name)),
+                        // Endpoint duhet te perputhet me modelin real te lidhur (VehicleBrand -> vehicle-brands),
+                        // jo me emrin e metodes se relacionit (brand -> brands) qe mund te mos ekzistoje si rruge.
+                        'endpoint' => Str::kebab(Str::plural($relatedShort)),
+                        'model' => $relatedShort,
+                        'model_snake' => Str::snake($relatedShort),
                     ];
                 }
             } catch (Throwable $e) {}
@@ -381,7 +386,9 @@ PHP;
 
     private function generateFlutterListPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart");
-        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? 'ID: \${item['id']}')";
+        $nameLogic = "item['license_plate'] != null && item['license_plate'].toString().isNotEmpty ? item['license_plate'].toString() : (item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? 'ID: \${item['id']}'))";
+        $imageField = collect($this->meta['fields'])->first(fn($f) => preg_match('/^(image|photo|logo|avatar|picture)(_[a-z0-9_]+)?$/i', $f));
+        $imageField = $imageField ?: 'photo';
 
         $stub = <<<DART
 import 'package:flutter/material.dart';
@@ -424,7 +431,7 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
     if (reset) { setState(() { _loading = true; _page = 1; _hasMore = true; _items.clear(); }); }
     else { setState(() => _loadingMore = true); }
 
-    final qp = _query.isNotEmpty ? '&q=\${Uri.encodeQueryComponent(_query)}' : '';
+    final qp = _query.isNotEmpty ? '&search=\${Uri.encodeQueryComponent(_query)}' : '';
     final res = await ApiService.get('/{$this->pluralKebab}?page=\$_page\$qp');
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body);
@@ -472,7 +479,7 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
                   }
                   final item = _items[index];
                   String name = $nameLogic;
-                  String? photo = item['photo'];
+                  String? photo = item['{$imageField}'];
 
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
@@ -502,31 +509,50 @@ DART;
 
     private function generateFlutterFormPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_form_screen.dart");
-        $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false;
+        $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false; $imageFieldName = 'photo'; $quickAddMethods = "";
         $permPrefix = $this->pluralSnake;
+        $quickAddImports = [];
 
         foreach ($this->meta['fields'] as $f) {
             $label = Str::headline($f);
-            if (Str::contains($f, ['photo', 'image'])) {
-                $hasImage = true; $vars .= "  String? _imagePath;\n";
+            if (preg_match('/^(image|photo|logo|avatar|picture)(_[a-z0-9_]+)?$/i', $f)) {
+                $hasImage = true; $imageFieldName = $f; $vars .= "  String? _imagePath;\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
               onTap: () async { final p = await ImagePicker().pickImage(source: ImageSource.gallery); if(p != null) setState(()=>_imagePath = p.path); },
-              child: Container(height: 120, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.file(File(_imagePath!), fit: BoxFit.cover)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.cover)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 30))),
+              child: Container(height: 160, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 30))),
             ), const SizedBox(height: 12),\n";
             } elseif (isset($this->meta['relations'][$f])) {
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
+                $relModel = $rel['model']; $relSnake = $rel['model_snake'];
+                $quickAddImports[$relSnake] = "import '{$relSnake}_form_screen.dart';";
                 $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...';\n";
                 $init .= "    _selected$safe = widget.item?['$f'];\n";
-                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { setState(() { _{$rel['method']}Options = jsonDecode(r$safe.body)['data']; if(_selected$safe != null) { try { var found = _{$rel['method']}Options.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = found['name'] is Map ? (found['name']['sq'] ?? found['name']['en']) : (found['name'] ?? found['customer_name'] ?? found['title'] ?? found['type'] ?? 'ID: \${found['id']}'); } catch(_) {} } }); }\n";
+                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}?per_page=1000'); if(r$safe.statusCode==200) { final list$safe = (jsonDecode(r$safe.body)['data'] ?? jsonDecode(r$safe.body)) as List<dynamic>; setState(() { _{$rel['method']}Options = list$safe; if(_selected$safe != null) { try { var found = list$safe.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
-                setState(() { _selected$safe = val['id']; _selected{$safe}Label = val['name'] is Map ? (val['name']['sq'] ?? val['name']['en']) : (val['name'] ?? val['customer_name'] ?? val['title'] ?? val['type'] ?? 'ID: \${val['id']}'); });
-              }),
+                setState(() { _selected$safe = val['id']; _selected{$safe}Label = _getLabel(val); });
+              }, onQuickAdd: () => _quickAdd$safe()),
               child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), const Icon(Icons.arrow_drop_down, size: 18)])),
             ), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _selected$safe;\n";
+                $quickAddMethods .= "
+  Future<void> _quickAdd$safe() async {
+    final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => const {$relModel}FormScreen()));
+    if (res == true) {
+      final r = await ApiService.get('/{$rel['endpoint']}?per_page=1000');
+      if (r.statusCode == 200) {
+        final list = (jsonDecode(r.body)['data'] ?? jsonDecode(r.body)) as List<dynamic>;
+        if (list.isNotEmpty) {
+          list.sort((a, b) => (int.tryParse(b['id'].toString()) ?? 0).compareTo(int.tryParse(a['id'].toString()) ?? 0));
+          final newest = list.first;
+          setState(() { _{$rel['method']}Options = list; _selected$safe = newest['id']; _selected{$safe}Label = _getLabel(newest); });
+        }
+      }
+    }
+  }
+";
             } elseif (Str::contains($f, ['_at', 'date', 'time'])) {
                 $vars .= "  final _{$f}C = TextEditingController();\n";
                 $init .= "    _{$f}C.text = widget.item?['$f']?.toString() ?? '';\n";
@@ -539,16 +565,21 @@ DART;
                 $widgets .= "            _buildTextField(_{$f}En, '$label (EN)', Icons.translate), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = {'sq': _{$f}Sq.text, 'en': _{$f}En.text};\n";
             } else {
+                $isNumeric = preg_match('/^(price|cost|amount|total|qty|quantity|year|km|kilometer|kilometra|distance|meter|metra|nr|number)(_[a-z0-9_]+)?$/i', $f);
+                $kbType = $isNumeric ? ', keyboardType: TextInputType.number' : '';
                 $vars .= "  final _{$f}C = TextEditingController();\n";
                 $init .= "    _{$f}C.text = widget.item?['$f']?.toString() ?? '';\n";
-                $widgets .= "            _buildTextField(_{$f}C, '$label', Icons.edit_note_outlined), const SizedBox(height: 12),\n";
+                $widgets .= "            _buildTextField(_{$f}C, '$label', Icons.edit_note_outlined{$kbType}), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _{$f}C.text;\n";
             }
         }
 
         $saveCall = $hasImage
-            ? "await ApiService.postMultipart(widget.item == null ? '/{$this->pluralKebab}' : '/{$this->pluralKebab}/\${widget.item!['id']}', payload, filePath: _imagePath, fieldName: 'photo')"
+            ? "await ApiService.postMultipart(widget.item == null ? '/{$this->pluralKebab}' : '/{$this->pluralKebab}/\${widget.item!['id']}', payload, filePath: _imagePath, fieldName: '{$imageFieldName}')"
             : "widget.item == null ? await ApiService.post('/{$this->pluralKebab}', payload) : await ApiService.put('/{$this->pluralKebab}/\${widget.item!['id']}', payload)";
+
+        $quickAddImportsStr = implode("\n", array_values($quickAddImports));
+        $moduleLabel = Str::headline($this->className);
 
         $stub = <<<DART
 import 'package:flutter/material.dart';
@@ -557,6 +588,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+{$quickAddImportsStr}
 
 class {$this->className}FormScreen extends StatefulWidget {
   final Map<String, dynamic>? item;
@@ -578,23 +610,36 @@ $vars
 
   Future<void> _loadData() async { try { $loaders } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
 
-  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect) {
+  // Prioriteti: Targa (license_plate) > name (sq/en) > customer_name > title > type > ID
+  String _getLabel(dynamic e) {
+    if (e == null) return 'N/A';
+    final lp = e['license_plate'];
+    if (lp != null && lp.toString().isNotEmpty) return lp.toString();
+    final n = e['name'];
+    if (n is Map) return (n['sq'] ?? n['en'] ?? 'N/A').toString();
+    return (n ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? 'ID: \${e['id']}').toString();
+  }
+$quickAddMethods
+  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect, {VoidCallback? onQuickAdd}) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (context) {
         List<dynamic> filtered = List.from(options);
         return StatefulBuilder(builder: (context, setModalState) {
           return Container(height: MediaQuery.of(context).size.height * 0.6, padding: const EdgeInsets.all(20), child: Column(children: [
-              Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
+              Row(children: [
+                Expanded(child: Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))),
+                if (onQuickAdd != null) TextButton.icon(
+                  onPressed: () { Navigator.pop(context); onQuickAdd(); },
+                  icon: const Icon(Icons.add_circle_outline, size: 16),
+                  label: const Text('Shto të ri', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                ),
+              ]),
+              const SizedBox(height: 8),
               TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], contentPadding: EdgeInsets.zero, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
-              onChanged: (q) { setModalState(() { filtered = options.where((e) {
-                String name = e['name'] is Map ? (e['name']['sq'] ?? e['name']['en'] ?? '') : (e['name'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? '');
-                return name.toLowerCase().contains(q.toLowerCase());
-              }).toList(); }); }),
+              onChanged: (q) { setModalState(() { filtered = options.where((e) => _getLabel(e).toLowerCase().contains(q.toLowerCase())).toList(); }); }),
               const SizedBox(height: 12),
               Expanded(child: ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
                   var e = filtered[i];
-                  String name = e['name'] is Map ? (e['name']['sq'] ?? e['name']['en'] ?? '') : (e['name'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? 'ID: \${e['id']}');
-                  return ListTile(title: Text(name, style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
+                  return ListTile(title: Text(_getLabel(e), style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
               }))
           ]));
         });
@@ -619,10 +664,10 @@ $vars
     ]);
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {TextInputType? keyboardType}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _buildSectionTitle(label), const SizedBox(height: 4),
-      TextFormField(controller: controller, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
+      TextFormField(controller: controller, keyboardType: keyboardType, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
     ]);
   }
 
@@ -655,7 +700,7 @@ $vars
 
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.white,
-    appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shtim' : 'Edito', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
+    appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shto {$moduleLabel}' : 'Edito {$moduleLabel}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
     body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : SingleChildScrollView(padding: const EdgeInsets.all(20), child: Form(key: _formKey, child: Column(children: [ $widgets const SizedBox(height: 20),
             Row(children: [
               Expanded(flex: 10, child: SizedBox(height: 48, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isSaving ? null : _save, child: _isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.save_outlined, size: 18), SizedBox(width: 8), Text('RUAJ', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14))])))),
