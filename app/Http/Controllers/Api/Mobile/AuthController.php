@@ -22,7 +22,13 @@ class AuthController extends Controller
 
         if (! $user || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['Të dhënat e hyrjes janë të pasakta.'],
+                'email' => ['Email ose fjalëkalimi është i gabuar.'],
+            ]);
+        }
+
+        if (!$user->is_active) {
+            throw ValidationException::withMessages([
+                'email' => ['Llogaria juaj nuk është aktive. Ju lutem kontaktoni admin-in.'],
             ]);
         }
 
