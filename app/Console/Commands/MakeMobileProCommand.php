@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Armor-Plated" me Smart Relation Mapping dhe Full View Images';
+    protected $description = 'Gjeneron modulin Mobile "Ultimate Pro" me Quick-Add Relations, Image-Safety dhe Auto-Refresh';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin ARMOR-PLATED: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin ULTIMATE: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -87,7 +87,8 @@ class MakeMobileProCommand extends Command
                     $relatedModel = get_class($return->getRelated());
                     $relations[$return->getForeignKeyName()] = [
                         'method' => $method->name,
-                        // FIX: Marrim emrin e saktë të rrugës bazuar në modelin e lidhur
+                        'class' => class_basename($relatedModel),
+                        'snake' => Str::snake(class_basename($relatedModel)),
                         'endpoint' => Str::plural(Str::kebab(class_basename($relatedModel))),
                     ];
                 }
@@ -209,7 +210,7 @@ DART;
         foreach ($this->meta['fields'] as $f) {
             $label = Str::headline($f);
             if (Str::contains($f, ['photo', 'image', 'picture'])) {
-                $hasImage = true; $vars .= "  String? _imagePath;\n";
+                $hasImage = true;
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
               onTap: () async { final p = await ImagePicker().pickImage(source: ImageSource.gallery); if(p != null) setState(()=>_imagePath = p.path); },
@@ -219,12 +220,18 @@ DART;
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
                 $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...'; bool _loading{$safe} = false;\n";
                 $init .= "    _selected$safe = widget.item?['$f'];\n    if(widget.item?['{$rel['method']}'] != null) { _selected{$safe}Label = _getLabel(widget.item!['{$rel['method']}']); }\n";
-                $loaders .= "      setState(() => _loading{$safe} = true); final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { var body = jsonDecode(r$safe.body); var data = body is Map ? (body['data'] ?? []) : body; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); } setState(() => _loading{$safe} = false);\n";
+
+                $vars .= "  Future<void> _loadRel{$safe}() async { setState(() => _loading{$safe} = true); final r = await ApiService.get('/{$rel['endpoint']}'); if(r.statusCode==200) { var body = jsonDecode(r.body); var data = body is Map ? (body['data'] ?? []) : body; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); } setState(() => _loading{$safe} = false); }\n";
+                $loaders .= "      _loadRel{$safe}();\n";
+
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
                 setState(() { _selected$safe = val['id']; _selected{$safe}Label = _getLabel(val); });
-              }, isLoading: _loading{$safe}),
+              }, isLoading: _loading{$safe}, onAdd: () async {
+                 final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => const {$rel['class']}FormScreen()));
+                 if(res == true) _loadRel{$safe}();
+              }),
               child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), _loading{$safe} ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.arrow_drop_down, size: 18)])),
             ), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _selected$safe;\n";
@@ -261,6 +268,12 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+// Importimet e QuickAdd
+DART;
+        foreach($this->meta['relations'] as $r) $stub .= "\nimport '{$r['snake']}_form_screen.dart';";
+
+        $stub .= <<<DART
+
 class {$this->className}FormScreen extends StatefulWidget {
   final Map<String, dynamic>? item;
   const {$this->className}FormScreen({super.key, this.item});
@@ -269,7 +282,7 @@ class {$this->className}FormScreen extends StatefulWidget {
 
 class _{$this->className}FormState extends State<{$this->className}FormScreen> {
   final _formKey = GlobalKey<FormState>(); bool _isSaving = false; bool _isLoading = true;
-  bool _canDelete = false;
+  bool _canDelete = false; String? _imagePath;
 $vars
   @override void initState() { super.initState(); _init(); }
   Future<void> _init() async { $init _canDelete = await ApiService.hasPermission('delete_{$permPrefix}'); _loadData(); }
@@ -282,14 +295,17 @@ $vars
     return label.toString();
   }
 
-  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect, {bool isLoading = false}) {
+  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect, {bool isLoading = false, VoidCallback? onAdd}) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (context) {
         List<dynamic> filtered = List.from(options);
         return StatefulBuilder(builder: (context, setModalState) {
           return Container(height: MediaQuery.of(context).size.height * 0.6, padding: const EdgeInsets.all(20), child: Column(children: [
-              Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                if(onAdd != null) TextButton.icon(onPressed: onAdd, icon: const Icon(Icons.add, size: 18), label: const Text('Shto të ri', style: TextStyle(fontSize: 12))),
+              ]),
               const SizedBox(height: 12),
-              TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], contentPadding: EdgeInsets.zero, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
+              TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
               onChanged: (q) { setModalState(() { filtered = options.where((e) { return _getLabel(e).toLowerCase().contains(q.toLowerCase()); }).toList(); }); }),
               const SizedBox(height: 12),
               Expanded(child: isLoading ? const Center(child: CircularProgressIndicator()) : filtered.isEmpty ? const Center(child: Text('Nuk u gjet asnjë rezultat.')) : ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
@@ -322,7 +338,7 @@ $vars
   Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumeric = false}) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _buildSectionTitle(label), const SizedBox(height: 4),
-      TextFormField(controller: controller, keyboardType: isNumeric ? TextInputType.number : TextInputType.text, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
+      TextFormField(controller: controller, keyboardType: isNumeric ? TextInputType.number : TextInputType.text, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
     ]);
   }
 
