@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin REFINED: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin ULTIMATE PRO: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me sukses!");
+            $this->info("✅ Moduli {$this->className} u përfundua me sukses maksimal!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -67,7 +67,8 @@ class MakeMobileProCommand extends Command
             'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
-            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture'])),
+            // Detektojme fushen e imazhit (perfshire logo)
+            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo'])),
             'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
             'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
             'update_action' => "{$domainPath}\\Actions\\Update{$this->className}Action",
@@ -119,7 +120,7 @@ class MakeMobileProCommand extends Command
             \$file->move(public_path('uploads'), \$name);
             \$validated['{$imageField}'] = 'uploads/' . \$name;
         } else {
-            // KRITIKE: Mos e prek fushen nese nuk ka file te ri ne request
+            // Mos e prek fushen nese nuk ka file te ri
             unset(\$validated['{$imageField}']);
         }";
         }
@@ -201,7 +202,7 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: _items.length,
         itemBuilder: (context, index) {
-          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'];
+          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'] ?? item['logo'];
           return Container(
             margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
             child: ListTile(
