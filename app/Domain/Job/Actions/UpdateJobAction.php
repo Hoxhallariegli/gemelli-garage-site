@@ -32,11 +32,20 @@ class UpdateJobAction
             $model->fill($dto->toArray());
             $model->save();
 
+            // If we have single service_id from mobile
+            if ($dto->service_id) {
+                JobService::create([
+                    'job_id' => $model->id,
+                    'service_id' => $dto->service_id,
+                    'price' => $dto->final_price,
+                ]);
+            }
+
             foreach ($dto->services as $s) {
                 JobService::create([
                     'job_id' => $model->id,
                     'service_id' => $s['id'],
-                    'price' => $s['sell_price'],
+                    'price' => $s['sell_price'] ?? 0,
                 ]);
             }
 
@@ -45,8 +54,8 @@ class UpdateJobAction
                     'job_id' => $model->id,
                     'material_id' => $m['id'],
                     'quantity' => $m['quantity'],
-                    'cost_price' => $m['cost_price'],
-                    'sell_price' => $m['sell_price'],
+                    'cost_price' => $m['cost_price'] ?? 0,
+                    'sell_price' => $m['sell_price'] ?? 0,
                 ]);
                 Material::where('id', $m['id'])->decrement('stock_meters', $m['quantity']);
             }
@@ -56,8 +65,8 @@ class UpdateJobAction
                     'job_id' => $model->id,
                     'part_id' => $p['id'],
                     'quantity' => $p['quantity'],
-                    'cost_price' => $p['cost_price'],
-                    'sell_price' => $p['sell_price'],
+                    'cost_price' => $p['cost_price'] ?? 0,
+                    'sell_price' => $p['sell_price'] ?? 0,
                 ]);
                 Part::where('id', $p['id'])->decrement('stock_quantity', $p['quantity']);
             }
