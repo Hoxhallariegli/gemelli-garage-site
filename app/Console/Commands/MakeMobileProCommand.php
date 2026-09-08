@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Armor-Plated" me Smart Loading dhe Full View Images';
+    protected $description = 'Gjeneron modulin Mobile "Armor-Plated" me Smart Relation Mapping dhe Full View Images';
 
     private string $className;
     private string $snakeName;
@@ -84,9 +84,11 @@ class MakeMobileProCommand extends Command
                 $instance = new $modelClass();
                 $return = $method->invoke($instance);
                 if ($return instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
+                    $relatedModel = get_class($return->getRelated());
                     $relations[$return->getForeignKeyName()] = [
                         'method' => $method->name,
-                        'endpoint' => Str::plural(Str::kebab($method->name)),
+                        // FIX: Marrim emrin e saktë të rrugës bazuar në modelin e lidhur
+                        'endpoint' => Str::plural(Str::kebab(class_basename($relatedModel))),
                     ];
                 }
             } catch (Throwable $e) {}
