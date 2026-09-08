@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Titanium" me Image Protection dhe Smart Endpoints';
+    protected $description = 'Gjeneron modulin Mobile "Nuclear" me Image Protection dhe Auto-Sync Relations';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin TITANIUM: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin NUCLEAR: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me sukses total!");
+            $this->info("✅ Moduli {$this->className} u përfundua me sukses!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -64,7 +64,7 @@ class MakeMobileProCommand extends Command
         $this->meta = [
             'class' => $this->className,
             'model_fqn' => $modelClass,
-            'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
+            'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at', 'public_token']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
             'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo'])),
@@ -119,7 +119,6 @@ class MakeMobileProCommand extends Command
             \$file->move(public_path('uploads'), \$name);
             \$validated['{$imageField}'] = 'uploads/' . \$name;
         } else {
-            // KRITIKE: Heqim nga array qe Laravel te mos e preke ne DB
             unset(\$validated['{$imageField}']);
         }";
         }
@@ -128,7 +127,7 @@ class MakeMobileProCommand extends Command
             $imports .= "use {$this->meta['dto_class']};\nuse {$this->meta['create_action']};\n";
             $storeLogic = "    public function store(Request \$request, Create{$this->className}Action \$action) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data \u003d \$request-\u003eall(); \$rules \u003d method_exists({$this->className}::class, \u0027rules\u0027) ? {$this->className}::rules() : []; \$validated \u003d validator(\$data, \$rules ?: [\u0027*\u0027\u003d\u003e\u0027nullable\u0027])-\u003evalidate(); if (\$request-\u003ehasFile(\u0027{$imageField}\u0027)) { \$file \u003d \$request-\u003efile(\u0027{$imageField}\u0027); \$name \u003d time() . \u0027_\u0027 . \$file-\u003egetClientOriginalName(); \$file-\u003emove(public_path(\u0027uploads\u0027), \$name); \$validated[\u0027{$imageField}\u0027] \u003d \u0027uploads/\u0027 . \$name; } \$item \u003d {$this->className}::create(\$validated); return response()-\u003ejson([\u0027success\u0027 \u003d\u003e true, \u0027data\u0027 \u003d\u003e \$this-\u003etransformItem(\$item)]); }";
+            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$request->all(); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules() : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); if(\$request->hasFile('{$imageField}')) { \$file = \$request->file('{$imageField}'); \$name = time().'_'.\$file->getClientOriginalName(); \$file->move(public_path('uploads'), \$name); \$validated['{$imageField}'] = 'uploads/'.\$name; } \$item = {$this->className}::create(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
         if (class_exists($this->meta['dto_class']) && class_exists($this->meta['update_action'])) {
@@ -223,7 +222,7 @@ DART;
 
     private function generateFlutterFormPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_form_screen.dart");
-        $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false;
+        $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false; $relCallers = "";
         $permPrefix = $this->pluralSnake;
         $imageField = $this->meta['image_field'];
 
@@ -242,7 +241,7 @@ DART;
                 $init .= "    _selected$safe = widget.item?['$f'];\n    if(widget.item?['{$rel['method']}'] != null) { _selected{$safe}Label = _getLabel(widget.item!['{$rel['method']}']); }\n";
 
                 $vars .= "  Future<void> _loadRel{$safe}() async { setState(() => _loading{$safe} = true); final r = await ApiService.get('/{$rel['endpoint']}'); if(r.statusCode==200) { var body = jsonDecode(r.body); var data = body is Map ? (body['data'] ?? []) : body; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); } setState(() => _loading{$safe} = false); }\n";
-                $loaders .= "      _loadRel{$safe}();\n";
+                $relCallers .= "      _loadRel{$safe}();\n";
 
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
@@ -305,8 +304,17 @@ class _{$this->className}FormState extends State<{$this->className}FormScreen> {
   bool _canDelete = false; String? _imagePath;
 $vars
   @override void initState() { super.initState(); _init(); }
-  Future<void> _init() async { $init _canDelete = await ApiService.hasPermission('delete_{$permPrefix}'); _loadData(); }
-  Future<void> _loadData() async { try {  } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
+  Future<void> _init() async {
+    $init
+    _canDelete = await ApiService.hasPermission('delete_{$permPrefix}');
+    await _loadData();
+  }
+  Future<void> _loadData() async {
+    try {
+$relCallers
+    } catch(_) {}
+    if(mounted) setState(()=>_isLoading=false);
+  }
 
   String _getLabel(dynamic e) {
     if (e == null) return 'Zgjidh...';
