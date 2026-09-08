@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Ultimate Pro" me Quick-Add, Image-Safety dhe Auto-Selection';
+    protected $description = 'Gjeneron modulin Mobile "Ultimate Pro" me Quick-Add, Image-Safety dhe Smart Headers';
 
     private string $className;
     private string $snakeName;
@@ -30,7 +30,7 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin ULTIMATE: {$this->className}");
+        $this->info("🚀 Duke gjeneruar modulin REFINED: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
 
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me sukses maksimal!");
+            $this->info("✅ Moduli {$this->className} u përfundua me sukses!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -119,7 +119,8 @@ class MakeMobileProCommand extends Command
             \$file->move(public_path('uploads'), \$name);
             \$validated['{$imageField}'] = 'uploads/' . \$name;
         } else {
-            unset(\$validated['{$imageField}']); // Mos e prek nese s'ka file te ri
+            // KRITIKE: Mos e prek fushen nese nuk ka file te ri ne request
+            unset(\$validated['{$imageField}']);
         }";
         }
 
@@ -135,7 +136,7 @@ class MakeMobileProCommand extends Command
             $imports .= "use {$this->meta['update_action']};\n";
             $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
-            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); \$item = {$this->className}::findOrFail(\$id); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
 
         $stub = "<?php\n\nnamespace App\Http\Controllers\Api\Mobile;\n\nuse App\Http\Controllers\Controller;\nuse {$this->meta['model_fqn']};\nuse Illuminate\Http\Request;\n{$imports}\n\nclass {$this->className}Controller extends Controller\n{\n    public function index() { abort_if_cannot('view_{$permPrefix}'); \$items = {$this->className}::query(){$relWith}->latest()->paginate(50); \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i)); return response()->json(\$items); }\n    {$storeLogic}\n    {$updateLogic}\n    public function destroy(\$id) { abort_if_cannot('delete_{$permPrefix}'); try { \$item = {$this->className}::findOrFail(\$id); \$item->delete(); return response()->json(['success' => true]); } catch (\Throwable \$e) { return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400); } }\n    private function transformItem(\$item) { foreach ({$jsonFields} as \$f) { \$val = \$item->getRawOriginal(\$f); \$item->setAttribute(\"{\$f}_raw\", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val); } return \$item; }\n    private function prepareData(Request \$request) { \$data = \$request->all(); foreach ({$jsonFields} as \$f) { if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true); } return \$data; }\n}";
@@ -390,7 +391,7 @@ $vars
 
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.white,
-    appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shtim' : 'Edito', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
+    appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shto {$this->className}' : 'Edito {$this->className}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
     body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : SingleChildScrollView(padding: const EdgeInsets.all(20), child: Form(key: _formKey, child: Column(children: [ $widgets const SizedBox(height: 20),
             Row(children: [
               Expanded(flex: 10, child: SizedBox(height: 48, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isSaving ? null : _save, child: _isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.save_outlined, size: 18), SizedBox(width: 8), Text('RUAJ', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14))])))),
