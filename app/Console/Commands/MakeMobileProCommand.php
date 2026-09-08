@@ -15,7 +15,7 @@ class MakeMobileProCommand extends Command
         {name : Emri i Modelit}
         {--force : Mbishkruaj skedarët}';
 
-    protected $description = 'Gjeneron modulin Mobile "Super Pro" me Smart Relations dhe Premium UI';
+    protected $description = 'Gjeneron modulin Mobile "Super Pro" me Auto-Loading Relations dhe Full Image View';
 
     private string $className;
     private string $snakeName;
@@ -42,7 +42,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me Super Pro UI!");
+            $this->info("✅ Moduli {$this->className} u përfundua saktë!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -81,7 +81,8 @@ class MakeMobileProCommand extends Command
         foreach ($methods as $method) {
             if ($method->class !== $modelClass || $method->getNumberOfParameters() > 0) continue;
             try {
-                $return = $method->invoke(new $modelClass());
+                $instance = new $modelClass();
+                $return = $method->invoke($instance);
                 if ($return instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
                     $relations[$return->getForeignKeyName()] = [
                         'method' => $method->name,
@@ -102,14 +103,12 @@ class MakeMobileProCommand extends Command
         $permPrefix = $this->pluralSnake;
 
         $imports = ""; $storeLogic = ""; $updateLogic = "";
-
         if (class_exists($this->meta['dto_class']) && class_exists($this->meta['create_action'])) {
             $imports .= "use {$this->meta['dto_class']};\nuse {$this->meta['create_action']};\n";
             $storeLogic = "    public function store(Request \$request, Create{$this->className}Action \$action) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         } else {
             $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$item = {$this->className}::create(\$data); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
         }
-
         if (class_exists($this->meta['dto_class']) && class_exists($this->meta['update_action'])) {
             if(!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
             $imports .= "use {$this->meta['update_action']};\n";
@@ -167,15 +166,8 @@ class {$this->className}ListPage extends StatefulWidget {
 
 class _{$this->className}ListPageState extends State<{$this->className}ListPage> {
   List<dynamic> _items = []; bool _loading = true;
-
   @override void initState() { super.initState(); _fetch(); }
-
-  Future<void> _fetch() async {
-    setState(() => _loading = true);
-    final res = await ApiService.get('/{$this->pluralKebab}');
-    if (res.statusCode == 200) { setState(() => _items = jsonDecode(res.body)['data']); }
-    setState(() => _loading = false);
-  }
+  Future<void> _fetch() async { setState(() => _loading = true); final res = await ApiService.get('/{$this->pluralKebab}'); if (res.statusCode == 200) { setState(() => _items = jsonDecode(res.body)['data']); } setState(() => _loading = false); }
 
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.white,
@@ -187,20 +179,12 @@ class _{$this->className}ListPageState extends State<{$this->className}ListPage>
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         itemCount: _items.length,
         itemBuilder: (context, index) {
-          final item = _items[index];
-          String name = $nameLogic;
-          String? photo = item['photo'] ?? item['image'];
-
+          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'];
           return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
+            margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
             child: ListTile(
               contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-              leading: Container(
-                width: 40, height: 40,
-                decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(10), image: photo != null ? DecorationImage(image: NetworkImage('\${ApiService.serverUrl}/\$photo'), fit: BoxFit.cover) : null),
-                child: photo == null ? Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54))) : null,
-              ),
+              leading: Container(width: 40, height: 40, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(10), image: photo != null ? DecorationImage(image: NetworkImage('\${ApiService.serverUrl}/\$photo'), fit: BoxFit.cover) : null), child: photo == null ? Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54))) : null),
               title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
               subtitle: Text('ID: \${item['id']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
               onTap: () async { final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => {$this->className}FormScreen(item: item))); if (res == true) _fetch(); },
@@ -227,13 +211,13 @@ DART;
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
               onTap: () async { final p = await ImagePicker().pickImage(source: ImageSource.gallery); if(p != null) setState(()=>_imagePath = p.path); },
-              child: Container(height: 120, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.file(File(_imagePath!), fit: BoxFit.cover)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.cover)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 30))),
+              child: Container(height: 140, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 30))),
             ), const SizedBox(height: 12),\n";
             } elseif (isset($this->meta['relations'][$f])) {
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
                 $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...';\n";
                 $init .= "    _selected$safe = widget.item?['$f'];\n";
-                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { setState(() { _{$rel['method']}Options = jsonDecode(r$safe.body)['data']; if(_selected$safe != null) { try { var found = _{$rel['method']}Options.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
+                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { var data = jsonDecode(r$safe.body)['data']; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); }\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
@@ -256,7 +240,7 @@ DART;
             } else {
                 $vars .= "  final _{$f}C = TextEditingController();\n";
                 $init .= "    _{$f}C.text = widget.item?['$f']?.toString() ?? '';\n";
-                $isNum = Str::contains($f, ['price', 'amount', 'km', 'year', 'qty', 'stock', 'rate', 'cost']);
+                $isNum = Str::contains($f, ['price', 'amount', 'km', 'year', 'qty', 'stock', 'rate', 'cost', '_id']);
                 $icon = $isNum ? 'Icons.euro_outlined' : 'Icons.edit_note_outlined';
                 $widgets .= "            _buildTextField(_{$f}C, '$label', $icon, isNumeric: " . ($isNum ? 'true' : 'false') . "), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _{$f}C.text;\n";
@@ -286,19 +270,14 @@ class _{$this->className}FormState extends State<{$this->className}FormScreen> {
   bool _canDelete = false;
 $vars
   @override void initState() { super.initState(); _init(); }
-
-  Future<void> _init() async {
-    $init
-    _canDelete = await ApiService.hasPermission('delete_{$permPrefix}');
-    _loadData();
-  }
-
+  Future<void> _init() async { $init _canDelete = await ApiService.hasPermission('delete_{$permPrefix}'); _loadData(); }
   Future<void> _loadData() async { try { $loaders } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
 
   String _getLabel(dynamic e) {
-    if (e == null) return 'N/A';
-    if (e['name'] is Map) return e['name']['sq'] ?? e['name']['en'] ?? 'N/A';
-    return e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? 'ID: \${e['id']}';
+    if (e == null) return 'Zgjidh...';
+    if (e['name'] is Map) return (e['name']['sq'] ?? e['name']['en'] ?? 'N/A').toString();
+    var label = e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? 'ID: \${e['id']}';
+    return label.toString();
   }
 
   void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect) {
@@ -309,10 +288,7 @@ $vars
               Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
               TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], contentPadding: EdgeInsets.zero, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
-              onChanged: (q) { setModalState(() { filtered = options.where((e) {
-                String name = _getLabel(e);
-                return name.toLowerCase().contains(q.toLowerCase());
-              }).toList(); }); }),
+              onChanged: (q) { setModalState(() { filtered = options.where((e) { return _getLabel(e).toLowerCase().contains(q.toLowerCase()); }).toList(); }); }),
               const SizedBox(height: 12),
               Expanded(child: ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
                   var e = filtered[i];
