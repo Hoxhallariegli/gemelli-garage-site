@@ -13,9 +13,10 @@ class MakeMobileProCommand extends Command
 {
     protected $signature = 'make:mobile-pro
         {name : Emri i Modelit}
-        {--force : Mbishkruaj skedarët}';
+        {--model= : FQN e plotë e modelit nëse zbulimi automatik dështon (p.sh. App\\Models\\Fleet\\Vehicle)}
+        {--force : Mbishkruaj skedarët pa pyetur}';
 
-    protected $description = 'Gjeneron modulin Mobile "Nuclear" me Image Protection dhe Auto-Sync Relations';
+    protected $description = 'Gjeneron modulin Mobile Pro duke përdorur DTOs dhe Actions (DDD Architecture)';
 
     private string $className;
     private string $snakeName;
@@ -30,9 +31,14 @@ class MakeMobileProCommand extends Command
         $this->pluralSnake = Str::plural($this->snakeName);
         $this->pluralKebab = Str::kebab(Str::plural($this->className));
 
-        $this->info("🚀 Duke gjeneruar modulin NUCLEAR: {$this->className}");
+        $this->info("🚀 Duke përpunuar modulin PREMIUM DDD: {$this->className}");
 
         if (!$this->resolveMeta()) return self::FAILURE;
+
+        if (!$this->confirmOverwrite()) {
+            $this->warn('Anulluar — përdor --force për të mbishkruar pa pyetje.');
+            return self::FAILURE;
+        }
 
         try {
             $this->generateController();
@@ -42,7 +48,7 @@ class MakeMobileProCommand extends Command
             $this->generateFlutterFormPage();
 
             $this->callSilently('route:clear');
-            $this->info("✅ Moduli {$this->className} u përfundua me sukses!");
+            $this->info("✅ Moduli {$this->className} u përfundua me DTO & Action Support!");
         } catch (Throwable $e) {
             $this->error("❌ Gabim: " . $e->getMessage());
             return self::FAILURE;
@@ -51,26 +57,99 @@ class MakeMobileProCommand extends Command
         return self::SUCCESS;
     }
 
+    /** Skedarët që ky komandë do të gjenerojë/mbishkruajë. */
+    private function targetPaths(): array
+    {
+        return [
+            app_path("Http/Controllers/Api/Mobile/{$this->className}Controller.php"),
+            base_path("mobile-gateway/lib/models/{$this->snakeName}.dart"),
+            base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart"),
+            base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_form_screen.dart"),
+        ];
+    }
+
+    /** Nëse skedarët ekzistojnë tashmë, kërko --force ose konfirmim interaktiv. */
+    private function confirmOverwrite(): bool
+    {
+        if ($this->option('force')) return true;
+
+        $existing = array_filter($this->targetPaths(), fn($p) => File::exists($p));
+        if (empty($existing)) return true;
+
+        $this->warn('Skedarët e mëposhtëm ekzistojnë tashmë:');
+        foreach ($existing as $p) $this->line("  - {$p}");
+
+        return $this->confirm('Dëshiron t\'i mbishkruash?', false);
+    }
+
+    /**
+     * Zbulon FQN-në e modelit.
+     * Radha: --model manual → kandidatë të zakonshëm → skanim rekursiv i app/Models.
+     * Kjo zëvendëson listën fikse me 3 rrugë, që thyhej sapo modeli ndodhej
+     * në një nënfolder tjetër nga BerberApp\.
+     */
+    private function discoverModelClass(): ?string
+    {
+        if ($manual = $this->option('model')) {
+            $manual = ltrim($manual, '\\');
+            return class_exists($manual) ? $manual : null;
+        }
+
+        $candidates = [
+            "App\\Models\\BerberApp\\{$this->className}",
+            "App\\Models\\{$this->className}",
+            "App\\{$this->className}",
+        ];
+        foreach ($candidates as $candidate) {
+            if (class_exists($candidate)) return $candidate;
+        }
+
+        $modelsPath = app_path('Models');
+        if (!File::isDirectory($modelsPath)) return null;
+
+        foreach (File::allFiles($modelsPath) as $file) {
+            if ($file->getFilenameWithoutExtension() !== $this->className) continue;
+            $relative = str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
+            $fqn = "App\\Models\\{$relative}";
+            if (class_exists($fqn)) return $fqn;
+        }
+
+        return null;
+    }
+
     private function resolveMeta(): bool
     {
-        $candidates = ["App\\Models\\BerberApp\\{$this->className}", "App\\Models\\{$this->className}", "App\\{$this->className}"];
-        $modelClass = null;
-        foreach ($candidates as $c) { if (class_exists($c)) { $modelClass = $c; break; } }
-        if (!$modelClass) { $this->error("Modeli {$this->className} s'u gjet."); return false; }
+        $modelClass = $this->discoverModelClass();
+
+        if (!$modelClass) {
+            $this->error("Modeli {$this->className} nuk u gjet automatikisht.");
+            $this->line("Provo: php artisan make:mobile-pro {$this->className} --model=App\\Models\\RrugaJote\\{$this->className}");
+            return false;
+        }
 
         $model = new $modelClass();
+
+        // Detektojme nese ka DTO, Action, Query dhe Event per kete domain
+        // Struktura reale e projektit: App\Domain\{Model}\{DTOs,Actions,Events,Queries}
+        // Konventa reale (verifikuar te CallLog): {Model}DTO, Create/Update/Delete{Model}Action, {Model}ListQuery
         $domainPath = "App\\Domain\\{$this->className}";
+        $dtoClass = "{$domainPath}\\DTOs\\{$this->className}DTO";
+        $createActionClass = "{$domainPath}\\Actions\\Create{$this->className}Action";
+        $updateActionClass = "{$domainPath}\\Actions\\Update{$this->className}Action";
+        $deleteActionClass = "{$domainPath}\\Actions\\Delete{$this->className}Action";
+        $listQueryClass = "{$domainPath}\\Queries\\{$this->className}ListQuery";
 
         $this->meta = [
             'class' => $this->className,
             'model_fqn' => $modelClass,
-            'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at', 'public_token']))),
+            'fields' => array_values(array_filter($model->getFillable(), fn($f) => !in_array($f, ['id', 'created_at', 'updated_at', 'deleted_at']))),
             'json_fields' => array_keys(array_filter($model->getCasts(), fn($c) => in_array($c, ['array', 'json', 'object', 'collection']))),
             'relations' => $this->discoverRelations($modelClass),
-            'image_field' => collect($model->getFillable())->first(fn($f) => Str::contains($f, ['photo', 'image', 'picture', 'logo'])),
-            'dto_class' => "{$domainPath}\\DTOs\\{$this->className}DTO",
-            'create_action' => "{$domainPath}\\Actions\\Create{$this->className}Action",
-            'update_action' => "{$domainPath}\\Actions\\Update{$this->className}Action",
+            'dto_class' => class_exists($dtoClass) ? $dtoClass : null,
+            'create_action' => class_exists($createActionClass) ? $createActionClass : null,
+            'update_action' => class_exists($updateActionClass) ? $updateActionClass : null,
+            'delete_action' => class_exists($deleteActionClass) ? $deleteActionClass : null,
+            'index_query' => class_exists($listQueryClass) ? $listQueryClass : null,
         ];
         return true;
     }
@@ -82,15 +161,11 @@ class MakeMobileProCommand extends Command
         foreach ($methods as $method) {
             if ($method->class !== $modelClass || $method->getNumberOfParameters() > 0) continue;
             try {
-                $instance = new $modelClass();
-                $return = $method->invoke($instance);
+                $return = $method->invoke(new $modelClass());
                 if ($return instanceof \Illuminate\Database\Eloquent\Relations\BelongsTo) {
-                    $relatedModel = get_class($return->getRelated());
                     $relations[$return->getForeignKeyName()] = [
                         'method' => $method->name,
-                        'class' => class_basename($relatedModel),
-                        'snake' => Str::snake(class_basename($relatedModel)),
-                        'endpoint' => Str::plural(Str::kebab(class_basename($relatedModel))),
+                        'endpoint' => Str::plural(Str::kebab($method->name)),
                     ];
                 }
             } catch (Throwable $e) {}
@@ -104,41 +179,170 @@ class MakeMobileProCommand extends Command
         File::ensureDirectoryExists(dirname($path));
         $relWith = !empty($this->meta['relations']) ? "->with(" . var_export(collect($this->meta['relations'])->pluck('method')->toArray(), true) . ")" : "";
         $jsonFields = var_export($this->meta['json_fields'], true);
+        $searchableFields = var_export(array_values(array_diff($this->meta['fields'], $this->meta['json_fields'])), true);
         $permPrefix = $this->pluralSnake;
-        $imageField = $this->meta['image_field'];
 
-        $imports = ""; $storeLogic = ""; $updateLogic = "";
+        // Fushat qe duken si imazh/foto - keto MOS preken ne update perpos nese vjen file i ri
+        $imageFields = array_values(array_filter($this->meta['fields'], function ($f) {
+            return preg_match('/^(image|photo|logo|avatar|picture)(_[a-z0-9_]+)?$/i', $f);
+        }));
+        $imageFieldsExport = var_export($imageFields, true);
 
-        $fileHandling = "";
-        if ($imageField) {
-            $fileHandling = "
-        if (\$request->hasFile('{$imageField}')) {
-            if (\$item->{$imageField} && file_exists(public_path(\$item->{$imageField}))) @unlink(public_path(\$item->{$imageField}));
-            \$file = \$request->file('{$imageField}');
-            \$name = time() . '_' . \$file->getClientOriginalName();
-            \$file->move(public_path('uploads'), \$name);
-            \$validated['{$imageField}'] = 'uploads/' . \$name;
+        // Logjika per DTO, Actions dhe Query
+        $imports = "";
+        $storeLogic = "";
+        $updateLogic = "";
+        $indexLogic = "";
+
+        if ($this->meta['index_query']) {
+            $imports .= "use {$this->meta['index_query']};\n";
+            $indexLogic = "
+    public function index(Request \$request, {$this->className}ListQuery \$query)
+    {
+        abort_if_cannot('view_{$permPrefix}');
+        \$items = \$query->execute(\$request);
+        \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i));
+        return response()->json(\$items);
+    }";
         } else {
-            unset(\$validated['{$imageField}']);
-        }";
+            $searchableFieldsInline = $searchableFields;
+            $indexLogic = "
+    public function index(Request \$request)
+    {
+        abort_if_cannot('view_{$permPrefix}');
+        \$searchable = {$searchableFieldsInline};
+        \$query = {$this->className}::query(){$relWith};
+        if (\$q = \$request->get('q')) {
+            \$query->where(function (\$w) use (\$q, \$searchable) {
+                foreach (\$searchable as \$field) \$w->orWhere(\$field, 'like', \"%{\$q}%\");
+            });
+        }
+        \$items = \$query->latest()->paginate(50);
+        \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i));
+        return response()->json(\$items);
+    }";
         }
 
-        if (class_exists($this->meta['dto_class']) && class_exists($this->meta['create_action'])) {
-            $imports .= "use {$this->meta['dto_class']};\nuse {$this->meta['create_action']};\n";
-            $storeLogic = "    public function store(Request \$request, Create{$this->className}Action \$action) { abort_if_cannot('add_{$permPrefix}'); \$data = \$this->prepareData(\$request); \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+        if ($this->meta['dto_class'] && $this->meta['create_action']) {
+            $imports .= "use {$this->meta['dto_class']};\n";
+            $imports .= "use {$this->meta['create_action']};\n";
+            $storeLogic = "
+    public function store(Request \$request, Create{$this->className}Action \$action)
+    {
+        abort_if_cannot('add_{$permPrefix}');
+        \$data = \$this->prepareData(\$request);
+        \$dto = {$this->className}DTO::fromArray(\$data);
+        \$item = \$action->execute(\$dto);
+        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
+    }";
         } else {
-            $storeLogic = "    public function store(Request \$request) { abort_if_cannot('add_{$permPrefix}'); \$data = \$request->all(); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules() : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); if(\$request->hasFile('{$imageField}')) { \$file = \$request->file('{$imageField}'); \$name = time().'_'.\$file->getClientOriginalName(); \$file->move(public_path('uploads'), \$name); \$validated['{$imageField}'] = 'uploads/'.\$name; } \$item = {$this->className}::create(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $storeLogic = "
+    public function store(Request \$request)
+    {
+        abort_if_cannot('add_{$permPrefix}');
+        \$data = \$this->prepareData(\$request);
+        \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules() : [];
+        \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate();
+        \$item = {$this->className}::create(\$validated);
+        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
+    }";
         }
 
-        if (class_exists($this->meta['dto_class']) && class_exists($this->meta['update_action'])) {
-            if(!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
+        if ($this->meta['dto_class'] && $this->meta['update_action']) {
+            if (!str_contains($imports, $this->meta['dto_class'])) $imports .= "use {$this->meta['dto_class']};\n";
             $imports .= "use {$this->meta['update_action']};\n";
-            $updateLogic = "    public function update(Request \$request, \$id, Update{$this->className}Action \$action) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$this->prepareData(\$request); if(!isset(\$data['{$imageField}'])) \$data['{$imageField}'] = \$item->{$imageField}; \$dto = {$this->className}DTO::fromArray(\$data); \$item = \$action->execute(\$item, \$dto); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $updateLogic = "
+    public function update(Request \$request, \$id, Update{$this->className}Action \$action)
+    {
+        abort_if_cannot('edit_{$permPrefix}');
+        \$item = {$this->className}::findOrFail(\$id);
+        \$data = \$this->prepareData(\$request);
+        \$dto = {$this->className}DTO::fromArray(\$data);
+        \$item = \$action->execute(\$item, \$dto);
+        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
+    }";
         } else {
-            $updateLogic = "    public function update(Request \$request, \$id) { abort_if_cannot('edit_{$permPrefix}'); \$item = {$this->className}::findOrFail(\$id); \$data = \$request->all(); \$rules = method_exists({$this->className}::class, 'rules') ? {$this->className}::rules(\$id) : []; \$validated = validator(\$data, \$rules ?: ['*'=>'nullable'])->validate(); {$fileHandling} \$item->update(\$validated); return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]); }";
+            $updateLogic = "
+    public function update(Request \$request, \$id)
+    {
+        abort_if_cannot('edit_{$permPrefix}');
+        \$item = {$this->className}::findOrFail(\$id);
+        \$data = \$this->prepareData(\$request);
+        \$item->update(\$data);
+        return response()->json(['success' => true, 'data' => \$this->transformItem(\$item)]);
+    }";
         }
 
-        $stub = "<?php\n\nnamespace App\Http\Controllers\Api\Mobile;\n\nuse App\Http\Controllers\Controller;\nuse {$this->meta['model_fqn']};\nuse Illuminate\Http\Request;\n{$imports}\n\nclass {$this->className}Controller extends Controller\n{\n    public function index() { abort_if_cannot('view_{$permPrefix}'); \$items = {$this->className}::query(){$relWith}->latest()->paginate(50); \$items->getCollection()->transform(fn(\$i) => \$this->transformItem(\$i)); return response()->json(\$items); }\n    {$storeLogic}\n    {$updateLogic}\n    public function destroy(\$id) { abort_if_cannot('delete_{$permPrefix}'); try { \$item = {$this->className}::findOrFail(\$id); \$item->delete(); return response()->json(['success' => true]); } catch (\Throwable \$e) { return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400); } }\n    private function transformItem(\$item) { foreach ({$jsonFields} as \$f) { \$val = \$item->getRawOriginal(\$f); \$item->setAttribute(\"{\$f}_raw\", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val); } return \$item; }\n    private function prepareData(Request \$request) { \$data = \$request->all(); foreach ({$jsonFields} as \$f) { if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true); } return \$data; }\n}";
+        if ($this->meta['delete_action']) {
+            $imports .= "use {$this->meta['delete_action']};\n";
+            $destroyLogic = "
+    public function destroy(\$id, Delete{$this->className}Action \$action)
+    {
+        abort_if_cannot('delete_{$permPrefix}');
+        try {
+            \$item = {$this->className}::findOrFail(\$id);
+            \$action->execute(\$item);
+            return response()->json(['success' => true]);
+        } catch (\Throwable \$e) {
+            return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400);
+        }
+    }";
+        } else {
+            $destroyLogic = "
+    public function destroy(\$id)
+    {
+        abort_if_cannot('delete_{$permPrefix}');
+        try {
+            \$item = {$this->className}::findOrFail(\$id);
+            \$item->delete();
+            return response()->json(['success' => true]);
+        } catch (\Throwable \$e) {
+            return response()->json(['success' => false, 'message' => 'Ky rekord është i lidhur me të dhëna të tjera.'], 400);
+        }
+    }";
+        }
+
+        $stub = <<<PHP
+<?php
+
+namespace App\Http\Controllers\Api\Mobile;
+
+use App\Http\Controllers\Controller;
+use {$this->meta['model_fqn']};
+use Illuminate\Http\Request;
+{$imports}
+
+class {$this->className}Controller extends Controller
+{
+    {$indexLogic}
+    {$storeLogic}
+    {$updateLogic}
+
+    {$destroyLogic}
+
+    private function transformItem(\$item) {
+        foreach ({$jsonFields} as \$f) {
+            \$val = \$item->getRawOriginal(\$f);
+            \$item->setAttribute("{\$f}_raw", is_string(\$val) && str_starts_with(\$val, '{') ? json_decode(\$val, true) : \$val);
+        }
+        return \$item;
+    }
+
+    private function prepareData(Request \$request) {
+        \$data = \$request->all();
+        foreach ({$jsonFields} as \$f) {
+            if (isset(\$data[\$f]) && is_string(\$data[\$f]) && str_starts_with(\$data[\$f], '{')) \$data[\$f] = json_decode(\$data[\$f], true);
+        }
+        // Mos e prek fushen e fotos/imazhit nese s'ka file te ri ne kete kerkese
+        foreach ({$imageFieldsExport} as \$f) {
+            if (!\$request->hasFile(\$f)) {
+                unset(\$data[\$f]);
+            }
+        }
+        return \$data;
+    }
+}
+PHP;
         File::put($path, $stub);
     }
 
@@ -160,24 +364,25 @@ class MakeMobileProCommand extends Command
         foreach ($this->meta['fields'] as $f) {
             $type = "dynamic";
             if (in_array($f, $this->meta['json_fields'])) $type = "Map<String, dynamic>";
-            elseif (Str::endsWith($f, '_id')) $type = "dynamic";
+            elseif (Str::endsWith($f, '_id')) $type = "int";
             $camel = Str::camel($f);
             $fields .= "  final $type? $camel;\n";
-            $fromJson .= "      $camel: json['" . (in_array($f, $this->meta['json_fields']) ? "{$f}_raw" : $f) . "'],\n";
+            $fromJson .= "      $camel: json['" . ($type == "Map<String, dynamic>" ? "{$f}_raw" : $f) . "'],\n";
             $toJson .= "      '$f': $camel,\n";
         }
-        $stub = "class {$this->className} {\n  final dynamic id;\n$fields\n  {$this->className}({this.id, " . collect($this->meta['fields'])->map(fn($f) => "this." . Str::camel($f))->implode(', ') . "});\n\n  factory {$this->className}.fromJson(Map<String, dynamic> json) => {$this->className}(\n      id: json['id'],\n$fromJson  );\n\n  Map<String, dynamic> toJson() => {\n      'id': id,\n$toJson  };\n}";
+        $stub = "class {$this->className} {\n  final int? id;\n$fields\n  {$this->className}({this.id, " . collect($this->meta['fields'])->map(fn($f) => "this." . Str::camel($f))->implode(', ') . "});\n\n  factory {$this->className}.fromJson(Map<String, dynamic> json) => {$this->className}(\n      id: json['id'],\n$fromJson  );\n\n  Map<String, dynamic> toJson() => {\n      'id': id,\n$toJson  };\n}";
         File::put($path, $stub);
     }
 
     private function generateFlutterListPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_list_page.dart");
-        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['license_plate'] ?? item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? item['model_name'] ?? 'ID: \${item['id']}')";
+        $nameLogic = "item['name'] is Map ? (item['name']['sq'] ?? item['name']['en'] ?? 'N/A') : (item['name'] ?? item['customer_name'] ?? item['title'] ?? item['type'] ?? 'ID: \${item['id']}')";
 
         $stub = <<<DART
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
 import 'dart:convert';
+import 'dart:async';
 import '{$this->snakeName}_form_screen.dart';
 
 class {$this->className}ListPage extends StatefulWidget {
@@ -186,34 +391,104 @@ class {$this->className}ListPage extends StatefulWidget {
 }
 
 class _{$this->className}ListPageState extends State<{$this->className}ListPage> {
-  List<dynamic> _items = []; bool _loading = true;
-  @override void initState() { super.initState(); _fetch(); }
-  Future<void> _fetch() async { setState(() => _loading = true); final res = await ApiService.get('/{$this->pluralKebab}'); if (res.statusCode == 200) { setState(() => _items = jsonDecode(res.body)['data']); } setState(() => _loading = false); }
+  final List<dynamic> _items = [];
+  final _scrollC = ScrollController();
+  final _searchC = TextEditingController();
+  Timer? _debounce;
+  bool _loading = true; bool _loadingMore = false; bool _hasMore = true;
+  int _page = 1; String _query = '';
+
+  @override void initState() {
+    super.initState();
+    _fetch(reset: true);
+    _scrollC.addListener(() {
+      if (_scrollC.position.pixels >= _scrollC.position.maxScrollExtent - 200 && !_loadingMore && _hasMore) {
+        _fetch();
+      }
+    });
+  }
+
+  @override void dispose() { _scrollC.dispose(); _searchC.dispose(); _debounce?.cancel(); super.dispose(); }
+
+  void _onSearchChanged(String q) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () { _query = q; _fetch(reset: true); });
+  }
+
+  Future<void> _fetch({bool reset = false}) async {
+    if (reset) { setState(() { _loading = true; _page = 1; _hasMore = true; _items.clear(); }); }
+    else { setState(() => _loadingMore = true); }
+
+    final qp = _query.isNotEmpty ? '&q=\${Uri.encodeQueryComponent(_query)}' : '';
+    final res = await ApiService.get('/{$this->pluralKebab}?page=\$_page\$qp');
+    if (res.statusCode == 200) {
+      final body = jsonDecode(res.body);
+      final data = (body['data'] ?? []) as List<dynamic>;
+      final lastPage = body['last_page'] ?? 1;
+      setState(() {
+        _items.addAll(data);
+        _hasMore = _page < lastPage;
+        if (_hasMore) _page++;
+      });
+    }
+    setState(() { _loading = false; _loadingMore = false; });
+  }
 
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.white,
     appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: const Text('{$this->className}', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 18)), iconTheme: const IconThemeData(color: Colors.black)),
-    floatingActionButton: FloatingActionButton(backgroundColor: Colors.black, mini: true, onPressed: () async { final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => const {$this->className}FormScreen())); if (res == true) _fetch(); }, child: const Icon(Icons.add, color: Colors.white, size: 20)),
-    body: _loading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : RefreshIndicator(
-      onRefresh: _fetch,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: _items.length,
-        itemBuilder: (context, index) {
-          final item = _items[index]; String name = $nameLogic; String? photo = item['photo'] ?? item['image'] ?? item['logo'];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-              leading: Container(width: 40, height: 40, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(10), image: photo != null ? DecorationImage(image: NetworkImage('\${ApiService.serverUrl}/\$photo'), fit: BoxFit.cover) : null), child: photo == null ? Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54))) : null),
-              title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-              subtitle: Text('ID: \${item['id']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
-              onTap: () async { final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => {$this->className}FormScreen(item: item))); if (res == true) _fetch(); },
-            ),
-          );
-        },
+    floatingActionButton: FloatingActionButton(backgroundColor: Colors.black, mini: true, onPressed: () async { final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => const {$this->className}FormScreen())); if (res == true) _fetch(reset: true); }, child: const Icon(Icons.add, color: Colors.white, size: 20)),
+    body: Column(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+        child: TextField(
+          controller: _searchC,
+          onChanged: _onSearchChanged,
+          style: const TextStyle(fontSize: 13),
+          decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[50], contentPadding: const EdgeInsets.symmetric(vertical: 0), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200))),
+        ),
       ),
-    ),
+      Expanded(
+        child: _loading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : _items.isEmpty
+          ? Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.inbox_outlined, size: 40, color: Colors.grey.shade300),
+              const SizedBox(height: 8),
+              Text('Asnjë rezultat', style: TextStyle(color: Colors.grey.shade500, fontSize: 13)),
+            ]))
+          : RefreshIndicator(
+              onRefresh: () => _fetch(reset: true),
+              child: ListView.builder(
+                controller: _scrollC,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                itemCount: _items.length + (_hasMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= _items.length) {
+                    return const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black26))));
+                  }
+                  final item = _items[index];
+                  String name = $nameLogic;
+                  String? photo = item['photo'];
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade100), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 4, offset: const Offset(0, 2))]),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                      leading: Container(
+                        width: 40, height: 40,
+                        decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(10), image: photo != null ? DecorationImage(image: NetworkImage('\${ApiService.serverUrl}/\$photo'), fit: BoxFit.cover) : null),
+                        child: photo == null ? Center(child: Text(name.isNotEmpty ? name[0].toUpperCase() : '?', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black54))) : null,
+                      ),
+                      title: Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                      subtitle: Text('ID: \${item['id']}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                      onTap: () async { final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => {$this->className}FormScreen(item: item))); if (res == true) _fetch(reset: true); },
+                    ),
+                  );
+                },
+              ),
+            ),
+      ),
+    ]),
   );
 }
 DART;
@@ -222,36 +497,29 @@ DART;
 
     private function generateFlutterFormPage() {
         $path = base_path("mobile-gateway/lib/modules/dashboard/{$this->snakeName}_form_screen.dart");
-        $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false; $relCallers = "";
+        $vars = ""; $init = ""; $widgets = ""; $payload = ""; $loaders = ""; $hasImage = false;
         $permPrefix = $this->pluralSnake;
-        $imageField = $this->meta['image_field'];
 
         foreach ($this->meta['fields'] as $f) {
             $label = Str::headline($f);
-            if ($f === $imageField) {
-                $hasImage = true;
+            if (Str::contains($f, ['photo', 'image'])) {
+                $hasImage = true; $vars .= "  String? _imagePath;\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             GestureDetector(
               onTap: () async { final p = await ImagePicker().pickImage(source: ImageSource.gallery); if(p != null) setState(()=>_imagePath = p.path); },
-              child: Container(height: 160, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.file(File(_imagePath!), fit: BoxFit.contain)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.contain)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 40))),
-            ), const SizedBox(height: 16),\n";
+              child: Container(height: 120, width: double.infinity, decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)), child: _imagePath != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.file(File(_imagePath!), fit: BoxFit.cover)) : (widget.item?['$f'] != null ? ClipRRect(borderRadius: BorderRadius.circular(16), child: Image.network('\${ApiService.serverUrl}/\${widget.item!['$f']}', fit: BoxFit.cover)) : const Icon(Icons.add_a_photo_outlined, color: Colors.grey, size: 30))),
+            ), const SizedBox(height: 12),\n";
             } elseif (isset($this->meta['relations'][$f])) {
                 $rel = $this->meta['relations'][$f]; $safe = Str::studly($f);
-                $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...'; bool _loading{$safe} = false;\n";
-                $init .= "    _selected$safe = widget.item?['$f'];\n    if(widget.item?['{$rel['method']}'] != null) { _selected{$safe}Label = _getLabel(widget.item!['{$rel['method']}']); }\n";
-
-                $vars .= "  Future<void> _loadRel{$safe}() async { setState(() => _loading{$safe} = true); final r = await ApiService.get('/{$rel['endpoint']}'); if(r.statusCode==200) { var body = jsonDecode(r.body); var data = body is Map ? (body['data'] ?? []) : body; setState(() { _{$rel['method']}Options = data; if(_selected$safe != null) { try { var found = data.firstWhere((e) => e['id'].toString() == _selected$safe.toString()); _selected{$safe}Label = _getLabel(found); } catch(_) {} } }); } setState(() => _loading{$safe} = false); }\n";
-                $relCallers .= "      _loadRel{$safe}();\n";
-
+                $vars .= "  List<dynamic> _{$rel['method']}Options = []; dynamic _selected$safe; String _selected{$safe}Label = 'Zgjidh...';\n";
+                $init .= "    _selected$safe = widget.item?['$f'];\n";
+                $loaders .= "      final r$safe = await ApiService.get('/{$rel['endpoint']}'); if(r$safe.statusCode==200) { setState(() { _{$rel['method']}Options = jsonDecode(r$safe.body)['data']; if(_selected$safe != null) { try { var found = _{$rel['method']}Options.firstWhere((e) => e['id'] == _selected$safe); _selected{$safe}Label = found['name'] is Map ? (found['name']['sq'] ?? found['name']['en']) : (found['name'] ?? found['customer_name'] ?? found['title'] ?? found['type'] ?? 'ID: \${found['id']}'); } catch(_) {} } }); }\n";
                 $widgets .= "            _buildSectionTitle('$label'), const SizedBox(height: 4),
             InkWell(
               onTap: () => _showSearchablePicker(context, '$label', _{$rel['method']}Options, (val) {
-                setState(() { _selected$safe = val['id']; _selected{$safe}Label = _getLabel(val); });
-              }, isLoading: _loading{$safe}, onAdd: () async {
-                 final res = await Navigator.push(context, MaterialPageRoute(builder: (c) => const {$rel['class']}FormScreen()));
-                 if(res == true) _loadRel{$safe}();
+                setState(() { _selected$safe = val['id']; _selected{$safe}Label = val['name'] is Map ? (val['name']['sq'] ?? val['name']['en']) : (val['name'] ?? val['customer_name'] ?? val['title'] ?? val['type'] ?? 'ID: \${val['id']}'); });
               }),
-              child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), _loading{$safe} ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.arrow_drop_down, size: 18)])),
+              child: Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey[50], borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.grey.shade200)), child: Row(children: [const Icon(Icons.search, size: 16, color: Colors.grey), const SizedBox(width: 8), Expanded(child: Text(_selected{$safe}Label, style: const TextStyle(fontSize: 13))), const Icon(Icons.arrow_drop_down, size: 18)])),
             ), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _selected$safe;\n";
             } elseif (Str::contains($f, ['_at', 'date', 'time'])) {
@@ -268,15 +536,13 @@ DART;
             } else {
                 $vars .= "  final _{$f}C = TextEditingController();\n";
                 $init .= "    _{$f}C.text = widget.item?['$f']?.toString() ?? '';\n";
-                $isNum = Str::contains($f, ['price', 'amount', 'km', 'year', 'qty', 'stock', 'rate', 'cost', '_id']);
-                $icon = $isNum ? 'Icons.euro_outlined' : 'Icons.edit_note_outlined';
-                $widgets .= "            _buildTextField(_{$f}C, '$label', $icon, isNumeric: " . ($isNum ? 'true' : 'false') . "), const SizedBox(height: 12),\n";
+                $widgets .= "            _buildTextField(_{$f}C, '$label', Icons.edit_note_outlined), const SizedBox(height: 12),\n";
                 $payload .= "    payload['$f'] = _{$f}C.text;\n";
             }
         }
 
         $saveCall = $hasImage
-            ? "await ApiService.postMultipart(widget.item == null ? '/{$this->pluralKebab}' : '/{$this->pluralKebab}/\${widget.item!['id']}', payload, filePath: _imagePath, fieldName: '$imageField')"
+            ? "await ApiService.postMultipart(widget.item == null ? '/{$this->pluralKebab}' : '/{$this->pluralKebab}/\${widget.item!['id']}', payload, filePath: _imagePath, fieldName: 'photo')"
             : "widget.item == null ? await ApiService.post('/{$this->pluralKebab}', payload) : await ApiService.put('/{$this->pluralKebab}/\${widget.item!['id']}', payload)";
 
         $stub = <<<DART
@@ -287,12 +553,6 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
-// Importimet e QuickAdd
-DART;
-        foreach($this->meta['relations'] as $r) $stub .= "\nimport '{$r['snake']}_form_screen.dart';";
-
-        $stub .= <<<DART
-
 class {$this->className}FormScreen extends StatefulWidget {
   final Map<String, dynamic>? item;
   const {$this->className}FormScreen({super.key, this.item});
@@ -301,44 +561,35 @@ class {$this->className}FormScreen extends StatefulWidget {
 
 class _{$this->className}FormState extends State<{$this->className}FormScreen> {
   final _formKey = GlobalKey<FormState>(); bool _isSaving = false; bool _isLoading = true;
-  bool _canDelete = false; String? _imagePath;
+  bool _canDelete = false;
 $vars
   @override void initState() { super.initState(); _init(); }
+
   Future<void> _init() async {
     $init
     _canDelete = await ApiService.hasPermission('delete_{$permPrefix}');
-    await _loadData();
-  }
-  Future<void> _loadData() async {
-    try {
-$relCallers
-    } catch(_) {}
-    if(mounted) setState(()=>_isLoading=false);
+    _loadData();
   }
 
-  String _getLabel(dynamic e) {
-    if (e == null) return 'Zgjidh...';
-    if (e['name'] is Map) return (e['name']['sq'] ?? e['name']['en'] ?? 'N/A').toString();
-    var label = e['license_plate'] ?? e['name'] ?? e['title'] ?? e['type'] ?? e['model_name'] ?? e['brand_name'] ?? e['customer_name'] ?? 'ID: \${e['id']}';
-    return label.toString();
-  }
+  Future<void> _loadData() async { try { $loaders } catch(_) {} if(mounted) setState(()=>_isLoading=false); }
 
-  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect, {bool isLoading = false, VoidCallback? onAdd}) {
+  void _showSearchablePicker(BuildContext context, String title, List<dynamic> options, Function(dynamic) onSelect) {
     showModalBottomSheet(context: context, isScrollControlled: true, shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))), builder: (context) {
         List<dynamic> filtered = List.from(options);
         return StatefulBuilder(builder: (context, setModalState) {
           return Container(height: MediaQuery.of(context).size.height * 0.6, padding: const EdgeInsets.all(20), child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                if(onAdd != null) TextButton.icon(onPressed: onAdd, icon: const Icon(Icons.add, size: 18), label: const Text('Shto të ri', style: TextStyle(fontSize: 12))),
-              ]),
+              Text('Zgjidh \$title', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
-              TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
-              onChanged: (q) { setModalState(() { filtered = options.where((e) { return _getLabel(e).toLowerCase().contains(q.toLowerCase()); }).toList(); }); }),
+              TextField(decoration: InputDecoration(hintText: 'Kërko...', prefixIcon: const Icon(Icons.search, size: 18), filled: true, fillColor: Colors.grey[100], contentPadding: EdgeInsets.zero, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none)),
+              onChanged: (q) { setModalState(() { filtered = options.where((e) {
+                String name = e['name'] is Map ? (e['name']['sq'] ?? e['name']['en'] ?? '') : (e['name'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? '');
+                return name.toLowerCase().contains(q.toLowerCase());
+              }).toList(); }); }),
               const SizedBox(height: 12),
-              Expanded(child: isLoading ? const Center(child: CircularProgressIndicator()) : filtered.isEmpty ? const Center(child: Text('Nuk u gjet asnjë rezultat.')) : ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
+              Expanded(child: ListView.builder(itemCount: filtered.length, itemBuilder: (c, i) {
                   var e = filtered[i];
-                  return ListTile(title: Text(_getLabel(e), style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
+                  String name = e['name'] is Map ? (e['name']['sq'] ?? e['name']['en'] ?? '') : (e['name'] ?? e['customer_name'] ?? e['title'] ?? e['type'] ?? 'ID: \${e['id']}');
+                  return ListTile(title: Text(name, style: const TextStyle(fontSize: 13)), dense: true, leading: const Icon(Icons.check_circle_outline, size: 18), onTap: () { onSelect(e); Navigator.pop(context); });
               }))
           ]));
         });
@@ -363,10 +614,10 @@ $relCallers
     ]);
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumeric = false}) {
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       _buildSectionTitle(label), const SizedBox(height: 4),
-      TextFormField(controller: controller, keyboardType: isNumeric ? TextInputType.number : TextInputType.text, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
+      TextFormField(controller: controller, style: const TextStyle(fontSize: 13), decoration: InputDecoration(prefixIcon: Icon(icon, size: 16, color: Colors.black54), filled: true, fillColor: Colors.grey[50], border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
     ]);
   }
 
@@ -389,10 +640,6 @@ $relCallers
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
     final payload = <String, dynamic>{}; $payload
-
-    // KRITIKE: Heqim imazhin nese eshte null qe te mos behet null ne DB
-    if(_imagePath == null) payload.remove('$imageField');
-
     try {
       final res = $saveCall;
       if (res.statusCode >= 200 && res.statusCode < 300) { ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('U ruajt! ✅'), backgroundColor: Colors.green)); Navigator.pop(context, true); }
@@ -403,7 +650,7 @@ $relCallers
 
   @override Widget build(BuildContext context) => Scaffold(
     backgroundColor: Colors.white,
-    appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shto {$this->className}' : 'Edito {$this->className}', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
+    appBar: AppBar(elevation: 0, backgroundColor: Colors.white, title: Text(widget.item == null ? 'Shtim' : 'Edito', style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 16)), iconTheme: const IconThemeData(color: Colors.black)),
     body: _isLoading ? const Center(child: CircularProgressIndicator(color: Colors.black)) : SingleChildScrollView(padding: const EdgeInsets.all(20), child: Form(key: _formKey, child: Column(children: [ $widgets const SizedBox(height: 20),
             Row(children: [
               Expanded(flex: 10, child: SizedBox(height: 48, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: Colors.black, foregroundColor: Colors.white, elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), onPressed: _isSaving ? null : _save, child: _isSaving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.save_outlined, size: 18), SizedBox(width: 8), Text('RUAJ', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 14))])))),
