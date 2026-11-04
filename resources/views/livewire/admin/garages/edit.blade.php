@@ -42,14 +42,22 @@
             </div>
         </div>
 
-        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 space-y-3">
+        <div class="pt-4 border-t border-gray-100 dark:border-gray-700 space-y-4">
             <div class="flex items-center gap-3">
                 <input type="checkbox" wire:model="sms_enabled" id="sms_enabled" class="w-5 h-5 rounded text-blue-600">
                 <label for="sms_enabled" class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktivizo SMS Gateway për këtë garazh</label>
             </div>
-            <div class="flex items-center gap-3">
-                <input type="checkbox" wire:model="whatsapp_enabled" id="whatsapp_enabled" class="w-5 h-5 rounded text-blue-600">
-                <label for="whatsapp_enabled" class="text-sm font-bold text-gray-700 dark:text-gray-300">Aktivizo WhatsApp Gateway për këtë garazh</label>
+            <div class="flex items-center justify-between p-4 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" wire:model="whatsapp_enabled" id="whatsapp_enabled" class="w-5 h-5 rounded text-emerald-600">
+                    <div>
+                        <label for="whatsapp_enabled" class="text-sm font-bold text-gray-800 dark:text-gray-200">Aktivizo WhatsApp Gateway</label>
+                        <p class="text-xs text-gray-500">Çiftimi me numrin e telefonit bëhet me seancën <span class="font-mono font-bold text-emerald-600">tenant_{{ $garage->id }}</span></p>
+                    </div>
+                </div>
+                <a href="{{ str_replace('/send', '/qr', config('services.whatsapp.gateway_url', 'http://127.0.0.1:3000/api/whatsapp/send')) }}?session_key=tenant_{{ $garage->id }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs transition-all shadow-sm">
+                    <x-heroicon-o-qr-code class="size-4" /> Skano QR Code
+                </a>
             </div>
         </div>
 
