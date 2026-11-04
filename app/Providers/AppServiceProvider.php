@@ -36,6 +36,11 @@ class AppServiceProvider extends ServiceProvider
         $this->configureHttp();
         $this->configureGlobalSettings(); // New helper to load settings
         $this->configureRateLimiting();
+
+        \Illuminate\Support\Facades\Event::listen(
+            \App\Events\FirebaseNotificationRequested::class,
+            \App\Listeners\SendFirebaseNotificationListener::class
+        );
     }
 
     private function configureGlobalSettings(): void

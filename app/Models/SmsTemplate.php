@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SmsTemplate extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
     protected $fillable = [
+        'tenant_id',
         'type',
         'body',
         'is_active',

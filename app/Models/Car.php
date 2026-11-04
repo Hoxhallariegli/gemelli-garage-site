@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Car extends Model
 {
-    use HasFactory;
-    protected $fillable = ['client_id', 'brand_id', 'model_id', 'year', 'license_plate', 'color'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'client_id', 'brand_id', 'model_id', 'year', 'license_plate', 'color'];
     protected function casts(): array { return [
         ]; }
     public static function rules($id = null): array { return [

@@ -32,6 +32,27 @@ class Row extends Component
         }
     }
 
+    public function sendWhatsApp($id)
+    {
+        $job = Job::with('car.client')->find($id);
+        if (!$job) {
+            $this->dispatch('toast', message: 'Puna nuk u gjet.', type: 'error');
+            return;
+        }
+
+        $sent = $job->sendWhatsAppNotification();
+
+        if ($sent) {
+            $this->item->whatsapp_sent_at = now();
+            $this->dispatch('toast', message: 'Mesazhi u dërgua me sukses në WhatsApp!', type: 'success');
+        } else {
+            $this->dispatch('open-url', url: $job->whatsapp_url);
+            $job->update(['whatsapp_sent_at' => now()]);
+            $this->item->whatsapp_sent_at = now();
+            $this->dispatch('toast', message: 'WhatsApp Gateway offline. Po hapet lidhja direkte...', type: 'warning');
+        }
+    }
+
     public function markWhatsAppSent($id)
     {
         $job = Job::find($id);

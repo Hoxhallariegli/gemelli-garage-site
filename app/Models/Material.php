@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Material extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'material_brand_id', 'purchase_price', 'sell_price', 'stock_meters', 'image'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'name', 'material_brand_id', 'purchase_price', 'sell_price', 'stock_meters', 'image'];
     protected function casts(): array { return [
             'purchase_price' => 'decimal:2',
             'sell_price' => 'decimal:2',

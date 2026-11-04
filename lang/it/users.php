@@ -9,6 +9,7 @@ return [
   'Email' => 'Email',
   'Role' => 'Ruolo',
   'Roles' => 'Ruoli',
+  'Garages' => 'Garage',
   'Status' => 'Stato',
   'Action' => 'Azione',
   'created' => 'Utente creato con successo.',

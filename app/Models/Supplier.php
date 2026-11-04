@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Supplier extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'contact_person', 'phone', 'email'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'name', 'contact_person', 'phone', 'email'];
     protected function casts(): array { return [
         ]; }
     public static function rules($id = null): array { return [

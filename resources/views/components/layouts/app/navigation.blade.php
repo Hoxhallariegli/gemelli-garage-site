@@ -8,6 +8,10 @@
 
 <x-nav.divider>{{ __('admin.Modules') }}</x-nav.divider>
 
+<x-nav.link route="admin.garages.index" icon="building-office-2">{{ __('admin.Garages') }}</x-nav.link>
+<x-nav.link route="admin.plans.index" icon="sparkles">{{ __('admin.Subscription Plans') }}</x-nav.link>
+<x-nav.link route="admin.subscriptions.index" icon="credit-card">{{ __('admin.Active Subscriptions') }}</x-nav.link>
+
 @can('view_jobs')
     <x-nav.link route="admin.jobs.index" icon="clipboard-document-list">{{ __('jobs.Jobs') }}</x-nav.link>
 @endcan
@@ -66,9 +70,6 @@
         <x-nav.group-item route="admin.sms.logs">Logs</x-nav.group-item>
         <x-nav.group-item route="admin.sms.devices">Devices</x-nav.group-item>
         <x-nav.group-item route="admin.sms.templates">Templates</x-nav.group-item>
-  @can('view_call_logs')
-            <x-nav.group-item route="admin.sms.call-logs.index">Call Logs</x-nav.group-item>
-        @endcan
     </x-nav.group>
 @endcan
 

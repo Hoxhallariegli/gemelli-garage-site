@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Part extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'purchase_price', 'sell_price', 'stock_quantity', 'image'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'name', 'purchase_price', 'sell_price', 'stock_quantity', 'image'];
     protected function casts(): array { return [
             'purchase_price' => 'decimal:2',
             'sell_price' => 'decimal:2',

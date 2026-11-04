@@ -44,6 +44,7 @@
             <tr>
                 <th><a href="#" wire:click="sortBy('name')">{{ __('users.Name') }}</a></th>
                 <th><a href="#" wire:click="sortBy('email')">{{ __('users.Email') }}</a></th>
+                <th>{{ __('users.Garages') }}</th>
                 <th>{{ __('users.Joined') }}</th>
                 <th>{{ __('users.Roles') }}</th>
                 <th>{{ __('users.Action') }}</th>
@@ -61,6 +62,11 @@
                         <div class="pl-1 pt-1">{{ $user->name }}</div>
                     </td>
                     <td>{{ $user->email }}</td>
+                    <td>
+                        @foreach($user->garages as $g)
+                            <x-badge variant="amber">{{ $g->name }}</x-badge>
+                        @endforeach
+                    </td>
                     <td>
                         @if (! empty($user->invite_token))
                             <small class="dark:text-gray-300">{{ __('users.Invited by') }} {{ $user->invite->name }}<br> {{ date('jS M Y H:i', strtotime($user->invited_at)) }}</small>

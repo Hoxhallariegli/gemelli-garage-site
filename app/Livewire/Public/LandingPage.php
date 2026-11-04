@@ -168,6 +168,27 @@ class LandingPage extends Component
             }
         }
 
+        if ($item->phone) {
+            try {
+                $whatsapp = app(\App\Services\WhatsAppService::class);
+                $brandStr = $item->brand ?? '';
+                $modelStr = $item->model ?? '';
+                $msg = "--- GEMELLI GARAGE ---\n\n" .
+                       "Përshëndetje *" . $item->name . "*,\n\n" .
+                       "Aplikimi juaj për rezervim të mjetit (" . trim("$brandStr $modelStr") . ") u realizua me sukses!\n\n" .
+                       "Ekipi ynë po e shqyrton kërkesën dhe do t'ju kontaktojë së shpejti për konfirmimin përfundimtar.\n\n" .
+                       "Faleminderit!";
+
+                $whatsapp->send(
+                    phone: $item->phone,
+                    message: $msg,
+                    tenantId: $item->tenant_id ?? 1
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('WhatsApp booking notification error: ' . $e->getMessage());
+            }
+        }
+
         $this->success = true;
         $this->reset(['name', 'email', 'phone', 'message', 'brand', 'model', 'body_type_id', 'selected_services', 'material_id', 'step']);
     }

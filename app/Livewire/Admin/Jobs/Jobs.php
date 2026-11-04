@@ -76,6 +76,22 @@ class Jobs extends Component
         }
     }
 
+    public function sendWhatsApp($id)
+    {
+        $job = Job::with('car.client')->find($id);
+        if (!$job) return;
+
+        $sent = $job->sendWhatsAppNotification();
+
+        if ($sent) {
+            $this->dispatch('toast', message: 'Mesazhi u dërgua me sukses në WhatsApp!', type: 'success');
+        } else {
+            $this->dispatch('open-url', url: $job->whatsapp_url);
+            $job->update(['whatsapp_sent_at' => now()]);
+            $this->dispatch('toast', message: 'WhatsApp Gateway offline. Po hapet lidhja direkte...', type: 'warning');
+        }
+    }
+
     public function markWhatsAppSent($id)
     {
         Job::where('id', $id)->update(['whatsapp_sent_at' => now()]);

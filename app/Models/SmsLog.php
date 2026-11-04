@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SmsLog extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
     protected $fillable = [
+        'tenant_id',
         'phone_number',
         'body',
         'status',

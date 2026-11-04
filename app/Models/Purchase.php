@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\DB;
 
 class Purchase extends Model
 {
-    use HasFactory;
-    protected $fillable = ['supplier_id', 'purchase_date', 'reference_number', 'status', 'total_amount'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'supplier_id', 'purchase_date', 'reference_number', 'status', 'total_amount'];
     protected function casts(): array { return [
             'purchase_date' => 'date',
             'total_amount' => 'decimal:2',

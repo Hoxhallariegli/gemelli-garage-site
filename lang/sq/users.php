@@ -9,6 +9,7 @@ return [
   'Email' => 'Email',
   'Role' => 'Roli',
   'Roles' => 'Rolet',
+  'Garages' => 'Garazhet',
   'Status' => 'Statusi',
   'Action' => 'Veprim',
   'created' => 'Përdoruesi u krijua me sukses.',

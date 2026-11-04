@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Job extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
-    protected $fillable = ['public_token', 'car_id', 'service_id', 'material_id', 'meters_used', 'final_price', 'status', 'job_date', 'notes', 'email_sent_at', 'whatsapp_sent_at'];
+    protected $fillable = ['tenant_id', 'public_token', 'car_id', 'service_id', 'material_id', 'meters_used', 'final_price', 'status', 'job_date', 'notes', 'email_sent_at', 'whatsapp_sent_at'];
 
     protected static function booted()
     {
@@ -130,12 +130,49 @@ class Job extends Model
 
         $docType = $this->status === 'pending' ? __('jobs.quote') : __('jobs.invoice');
 
-        $message = "--- GEMELLI GARAGE ---\n\n" .
-                  __('jobs.whatsapp_greeting') . " *" . ($client->name ?? __('workdesk.Client')) . "*,\n\n" .
-                  __('jobs.Click the link below to view the :doc and your vehicle details:', ['doc' => $docType]) . "\n\n" .
-                  $url;
+        $message = $this->generateWhatsappMessage();
 
         return 'https://wa.me/' . $phone . '?' . http_build_query(['text' => $message], '', '&', PHP_QUERY_RFC3986);
     }
 
+    public function generateWhatsappMessage(): string
+    {
+        $client = $this->car?->client;
+        $url = route('public.job.view', [
+            'token' => $this->public_token,
+            'lang' => app()->getLocale(),
+            'v' => time()
+        ]);
+
+        $docType = $this->status === 'pending' ? __('jobs.quote') : __('jobs.invoice');
+
+        return "--- GEMELLI GARAGE ---\n\n" .
+               __('jobs.whatsapp_greeting') . " *" . ($client->name ?? __('workdesk.Client')) . "*,\n\n" .
+               __('jobs.Click the link below to view the :doc and your vehicle details:', ['doc' => $docType]) . "\n\n" .
+               $url;
+    }
+
+    public function sendWhatsAppNotification(): bool
+    {
+        $client = $this->car?->client;
+        if (!$client?->phone) return false;
+
+        /** @var \App\Services\WhatsAppService $service */
+        $service = app(\App\Services\WhatsAppService::class);
+        $message = $this->generateWhatsappMessage();
+
+        $sent = $service->send(
+            phone: $client->phone,
+            message: $message,
+            tenantId: $this->tenant_id ?? auth()->user()?->tenant_id ?? 1,
+            clientId: $client->id,
+            templateType: 'job_view'
+        );
+
+        if ($sent) {
+            $this->update(['whatsapp_sent_at' => now()]);
+        }
+
+        return $sent;
+    }
 }

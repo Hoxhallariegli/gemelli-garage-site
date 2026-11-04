@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\CallLogController;
-use App\Http\Controllers\Api\CallJobController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,18 +15,24 @@ Route::prefix('sms')->group(function () {
     Route::post('/status-update', [App\Http\Controllers\Api\SmsController::class, 'statusUpdate']);
 });
 
-Route::post('/calls/log', [CallLogController::class, 'log']);
-Route::apiResource('call-logs', CallLogController::class);
+// WhatsApp Gateway Cloud Session Persistence & Webhook Endpoints
+Route::middleware(['throttle:120,1'])->group(function () {
+    Route::post('whatsapp-cloud-sessions/save', [\App\Http\Controllers\Api\WhatsappSessionCloudController::class, 'saveSession']);
+    Route::get('whatsapp-cloud-sessions/load', [\App\Http\Controllers\Api\WhatsappSessionCloudController::class, 'loadSessions']);
+    Route::post('whatsapp-cloud-sessions/delete', [\App\Http\Controllers\Api\WhatsappSessionCloudController::class, 'deleteSession']);
+    Route::post('whatsapp-cloud-sessions/webhook', [\App\Http\Controllers\Api\WhatsappWebhookController::class, 'handle']);
+    Route::post('whatsapp/webhook', [\App\Http\Controllers\Api\WhatsappWebhookController::class, 'handle']);
+});
 
-Route::post('/call-jobs', [CallJobController::class, 'store']);
-Route::get('/call-jobs/next', [CallJobController::class, 'getNext']);
-Route::post('/call-jobs/{id}/status', [CallJobController::class, 'updateStatus']);
-
-// Mobile Auth
+// Mobile Auth & Device Token Registration
 Route::post('/mobile/login', [App\Http\Controllers\Api\Mobile\AuthController::class, 'login']);
+Route::post('/mobile/device-tokens/save-web-token', [App\Http\Controllers\Api\Mobile\DeviceTokenController::class, 'saveWebToken']);
+Route::post('/mobile/device-tokens/set-primary-gateway', [App\Http\Controllers\Api\Mobile\DeviceTokenController::class, 'setPrimaryGateway']);
 
 // Mobile PRO Group
 Route::middleware('auth:sanctum')->prefix('mobile')->group(function () {
+    Route::post('/device-tokens/save-token', [App\Http\Controllers\Api\Mobile\DeviceTokenController::class, 'saveWebToken']);
+    Route::post('/device-tokens/set-gateway', [App\Http\Controllers\Api\Mobile\DeviceTokenController::class, 'setPrimaryGateway']);
     Route::apiResource('sms-templates', \App\Http\Controllers\Api\Mobile\SmsTemplateController::class);
     Route::post('/logout', [App\Http\Controllers\Api\Mobile\AuthController::class, 'logout']);
     Route::get('/dashboard', [App\Http\Controllers\Api\Mobile\MobileDashboardController::class, 'dashboard']);
@@ -47,6 +51,9 @@ Route::middleware('auth:sanctum')->prefix('mobile')->group(function () {
     Route::apiResource('purchases', \App\Http\Controllers\Api\Mobile\PurchaseController::class);
     Route::apiResource('services', \App\Http\Controllers\Api\Mobile\ServiceController::class);
     Route::apiResource('suppliers', \App\Http\Controllers\Api\Mobile\SupplierController::class);
+    Route::get('/subscription/current', [\App\Http\Controllers\Api\Mobile\SubscriptionController::class, 'current']);
+    Route::get('/plans', [\App\Http\Controllers\Api\Mobile\PlanController::class, 'index']);
+    Route::apiResource('subscription-renewals', \App\Http\Controllers\Api\Mobile\SubscriptionRenewalController::class);
     Route::apiResource('vehicle-brands', \App\Http\Controllers\Api\Mobile\VehicleBrandController::class);
     Route::apiResource('vehicle-models', \App\Http\Controllers\Api\Mobile\VehicleModelController::class);
 });

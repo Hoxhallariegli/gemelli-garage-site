@@ -44,12 +44,30 @@ class AuthController extends Controller
 
         Log::info("Login successful for user {$request->email} on device {$request->device_name}");
 
+        // FCM Token Registration on Login
+        if ($request->filled('fcm_token')) {
+            try {
+                \App\Models\DeviceToken::where('fcm_token', $request->fcm_token)->delete();
+                \App\Models\DeviceToken::create([
+                    'fcm_token' => $request->fcm_token,
+                    'user_id' => $user->id,
+                    'tenant_id' => $user->tenant_id ?? null,
+                    'platform' => $request->input('platform', 'android'),
+                    'device_name' => $request->device_name,
+                    'last_used_at' => now(),
+                ]);
+            } catch (\Throwable $e) {
+                Log::warning("FCM Token save error during login: " . $e->getMessage());
+            }
+        }
+
         return response()->json([
             'token' => $user->createToken($request->device_name)->plainTextToken,
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'tenant_id' => $user->tenant_id ?? null,
                 'permissions' => $user->getAllPermissions()->pluck('name'),
             ],
         ]);

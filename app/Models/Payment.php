@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    use HasFactory;
-    protected $fillable = ['job_id', 'amount', 'method', 'payment_date'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'job_id', 'amount', 'method', 'payment_date'];
     protected function casts(): array { return [
             'amount' => 'decimal:2',
             'payment_date' => 'datetime',

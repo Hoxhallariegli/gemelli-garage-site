@@ -3,69 +3,52 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Models\DeviceToken;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class FirebaseService
 {
-    protected function getFirebaseConfig(): array
+    public function sendNotification(string $title, string $body, string $topic = 'all', array $customData = []): bool
     {
-        $projectId = env('FIREBASE_PROJECT_ID', Setting::where('key', 'firebase_project_id')->value('value'));
-        $credentialsSource = env('FIREBASE_CREDENTIALS', Setting::where('key', 'firebase_credentials')->value('value'));
+        $dbEnabled = Setting::where('key', 'firebase_enabled')->value('value');
+        $enabled = filter_var(env('FIREBASE_ENABLED', $dbEnabled), FILTER_VALIDATE_BOOLEAN) || filter_var($dbEnabled, FILTER_VALIDATE_BOOLEAN);
 
-        $credentials = null;
-        if ($credentialsSource && str_ends_with($credentialsSource, '.json')) {
-            $path = base_path($credentialsSource);
-            if (file_exists($path)) {
-                $credentials = json_decode(file_get_contents($path), true);
-            }
-        } elseif ($credentialsSource) {
-            $credentials = json_decode($credentialsSource, true);
+        if (!$enabled) {
+            Log::warning('Firebase notification skipped: Firebase is disabled in Settings.');
+            return false;
         }
 
-        return [
-            'project_id' => $projectId,
-            'credentials' => $credentials
-        ];
-    }
+        $projectId = env('FIREBASE_PROJECT_ID') ?: Setting::where('key', 'firebase_project_id')->value('value');
+        $credentialsJson = env('FIREBASE_CREDENTIALS') ?: Setting::where('key', 'firebase_credentials')->value('value');
+        $credentials = is_string($credentialsJson) ? json_decode($credentialsJson, true) : null;
 
-    public function sendNotification(string $title, string $body, string $topic = 'all', array $extraData = []): ?string
-    {
-        // Prioritizohet .env, nese jo merret nga databaza
-        $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
-        if (!$enabled) return null;
-
-        $config = $this->getFirebaseConfig();
-        $projectId = $config['project_id'];
-        $credentials = $config['credentials'];
-
-        if (!$projectId || !$credentials) {
-            Log::warning('Firebase config is missing or invalid.');
-            return null;
+        if (!$projectId || !$credentials || empty($credentials['client_email']) || empty($credentials['private_key'])) {
+            Log::warning('Firebase config missing or invalid credentials JSON in Settings UI or .env.');
+            return false;
         }
 
         try {
             $token = $this->getAccessToken($credentials);
-            if (!$token) return null;
+            if (!$token) {
+                Log::error('Firebase OAuth2 token generation failed.');
+                return false;
+            }
 
-            $dataPayload = array_merge([
+            $payloadData = array_merge([
                 'title' => $title,
                 'body' => $body,
-            ], $extraData);
+            ], $customData);
 
             $message = [
                 'notification' => [
                     'title' => $title,
                     'body' => $body,
                 ],
-                'data' => array_map('strval', $dataPayload),
-                'android' => [
-                    'priority' => 'high'
-                ]
+                'data' => array_map('strval', $payloadData),
             ];
 
-            // Nëse inputi 'topic' është në fakt një Token pajisjeje (i gjatë), përdor 'token'
-            if (strlen($topic) > 50) {
+            if (strlen($topic) > 30) {
                 $message['token'] = $topic;
             } else {
                 $message['topic'] = $topic;
@@ -75,87 +58,147 @@ class FirebaseService
                 'message' => $message
             ]);
 
-            if ($response->successful()) {
-                $name = $response->json()['name'] ?? '';
-                return str_contains($name, 'messages/') ? explode('messages/', $name)[1] : $name;
+            if (!$response->successful()) {
+                Log::error('Firebase API Error Response: ' . $response->body());
+                if (str_contains($response->body(), 'UNREGISTERED') || str_contains($response->body(), 'NotRegistered')) {
+                    if (strlen($topic) > 30) {
+                        DeviceToken::where('fcm_token', $topic)->delete();
+                        Log::warning("🧹 Deleted unregistered/stale FCM token [{$topic}] from DB.");
+                    }
+                }
+                return false;
             }
 
-            Log::error('Firebase API Response: ' . $response->body());
-            return null;
+            return true;
         } catch (\Exception $e) {
-            Log::error('Firebase Notification Error: ' . $e->getMessage());
-            return null;
+            Log::error('Firebase Notification Exception: ' . $e->getMessage());
+            return false;
         }
     }
 
-    public function sendData(string $token, array $data): ?string
+    public function sendDataMessage(string $token, array $customData = []): bool
     {
-        $enabled = env('FIREBASE_ENABLED', Setting::where('key', 'firebase_enabled')->value('value') ?? true);
-        if (!$enabled) return null;
+        $dbEnabled = Setting::where('key', 'firebase_enabled')->value('value');
+        $enabled = filter_var(env('FIREBASE_ENABLED', $dbEnabled), FILTER_VALIDATE_BOOLEAN) || filter_var($dbEnabled, FILTER_VALIDATE_BOOLEAN);
 
-        $config = $this->getFirebaseConfig();
-        $projectId = $config['project_id'];
-        $credentials = $config['credentials'];
+        if (!$enabled) return false;
 
-        if (!$projectId || !$credentials) return null;
+        $projectId = env('FIREBASE_PROJECT_ID') ?: Setting::where('key', 'firebase_project_id')->value('value');
+        $credentialsJson = env('FIREBASE_CREDENTIALS') ?: Setting::where('key', 'firebase_credentials')->value('value');
+        $credentials = is_string($credentialsJson) ? json_decode($credentialsJson, true) : null;
+
+        if (!$projectId || !$credentials || empty($credentials['client_email']) || empty($credentials['private_key'])) {
+            return false;
+        }
 
         try {
             $accessToken = $this->getAccessToken($credentials);
-            if (!$accessToken) return null;
+            if (!$accessToken) return false;
+
+            $message = [
+                'token' => $token,
+                'data' => array_map('strval', $customData),
+                'android' => [
+                    'priority' => 'high',
+                    'ttl' => '0s',
+                ],
+            ];
 
             $response = Http::withToken($accessToken)->post("https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send", [
-                'message' => [
-                    'token' => $token,
-                    'data' => array_map('strval', $data),
-                    'android' => [
-                        'priority' => 'high'
-                    ]
-                ]
+                'message' => $message
             ]);
 
-            if ($response->successful()) {
-                $name = $response->json()['name'] ?? '';
-                // Emri kthehet ne formatin "projects/my-project/messages/0:12345..."
-                // Ne na duhet vetem pjesa pas "messages/"
-                return str_contains($name, 'messages/') ? explode('messages/', $name)[1] : $name;
+            if (!$response->successful()) {
+                Log::error('Firebase Data Message Error: ' . $response->body());
+                if (str_contains($response->body(), 'UNREGISTERED') || str_contains($response->body(), 'NotRegistered')) {
+                    DeviceToken::where('fcm_token', $token)->delete();
+                    Log::warning("🧹 Deleted unregistered/stale FCM token [{$token}] from DB.");
+                }
+                return false;
             }
 
-            return null;
+            return true;
         } catch (\Exception $e) {
-            Log::error('Firebase Data Error: ' . $e->getMessage());
-            return null;
+            Log::error('Firebase Data Message Exception: ' . $e->getMessage());
+            return false;
         }
     }
 
-    /**
-     * Gjeneron OAuth2 Token manualisht duke përdorur OpenSSL (pa pasur nevojë për librari të rënda).
-     */
+    public function sendToCompany(?int $tenantId, string $title, string $body, array $customData = []): int
+    {
+        $query = DeviceToken::whereNotNull('fcm_token');
+        if ($tenantId) {
+            $query->where('tenant_id', $tenantId);
+        }
+
+        $tokens = $query->orderByDesc('last_used_at')
+            ->get()
+            ->unique(fn($d) => $d->user_id ? "user_{$d->user_id}" : "token_{$d->fcm_token}")
+            ->pluck('fcm_token')
+            ->filter()
+            ->values();
+
+        Log::info("🔍 [FirebaseService::sendToCompany] Found " . $tokens->count() . " device token(s) for Tenant #{$tenantId}: ", $tokens->toArray());
+
+        $successCount = 0;
+        foreach ($tokens as $token) {
+            $shortToken = strlen($token) > 15 ? substr($token, 0, 15) . '...' : $token;
+            $res = $this->sendNotification($title, $body, $token, $customData);
+            Log::info("  └─ FCM Push to [{$shortToken}] Status: " . ($res ? 'SUCCESS' : 'FAILED'));
+            if ($res) {
+                $successCount++;
+            }
+        }
+
+        return $successCount;
+    }
+
+    public function sendToAllDevices(string $title, string $body): int
+    {
+        $tokens = DeviceToken::pluck('fcm_token')->filter()->unique();
+        $successCount = 0;
+
+        foreach ($tokens as $token) {
+            if ($this->sendNotification($title, $body, $token)) {
+                $successCount++;
+            }
+        }
+
+        return $successCount;
+    }
+
     protected function getAccessToken(array $credentials): ?string
     {
-        $header = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
-        $now = time();
-        $payload = json_encode([
-            'iss' => $credentials['client_email'],
-            'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
-            'aud' => 'https://oauth2.googleapis.com/token',
-            'exp' => $now + 3600,
-            'iat' => $now,
-        ]);
+        try {
+            $header = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
+            $now = time();
+            $payload = json_encode([
+                'iss' => $credentials['client_email'],
+                'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+                'aud' => 'https://oauth2.googleapis.com/token',
+                'exp' => $now + 3600,
+                'iat' => $now,
+            ]);
 
-        $base64UrlHeader = $this->base64UrlEncode($header);
-        $base64UrlPayload = $this->base64UrlEncode($payload);
+            $base64UrlHeader = $this->base64UrlEncode($header);
+            $base64UrlPayload = $this->base64UrlEncode($payload);
 
-        openssl_sign($base64UrlHeader . "." . $base64UrlPayload, $signature, $credentials['private_key'], 'SHA256');
-        $base64UrlSignature = $this->base64UrlEncode($signature);
+            $key = $credentials['private_key'];
+            openssl_sign($base64UrlHeader . "." . $base64UrlPayload, $signature, $key, 'SHA256');
+            $base64UrlSignature = $this->base64UrlEncode($signature);
 
-        $jwt = $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
+            $jwt = $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
 
-        $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
-            'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-            'assertion' => $jwt,
-        ]);
+            $response = Http::asForm()->post('https://oauth2.googleapis.com/token', [
+                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                'assertion' => $jwt,
+            ]);
 
-        return $response->json()['access_token'] ?? null;
+            return $response->json()['access_token'] ?? null;
+        } catch (\Exception $e) {
+            Log::error('Firebase AccessToken Error: ' . $e->getMessage());
+            return null;
+        }
     }
 
     protected function base64UrlEncode($data): string

@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class CallLog extends Model
 {
-    use HasFactory;
-    protected $fillable = ['phone_number', 'caller_name', 'type', 'call_time', 'is_client'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'phone_number', 'caller_name', 'type', 'call_time', 'is_client'];
     protected function casts(): array { return [
             'call_time' => 'datetime',
             'is_client' => 'boolean',

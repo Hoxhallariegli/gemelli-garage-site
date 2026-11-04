@@ -147,6 +147,8 @@
       </div>
 
       <div class="flex items-center gap-3">
+          <livewire:admin.garage-switcher />
+
           <button id="theme-toggle">
               <x-heroicon-o-sun id="theme-toggle-light" class="size-5 -mt-1 text-yellow-500" />
               <x-heroicon-o-moon id="theme-toggle-dark" class="size-5 -mt-1 text-gray-900 dark:text-white" />

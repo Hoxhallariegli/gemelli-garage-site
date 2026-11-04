@@ -375,7 +375,7 @@
                                         </span>
                                     @endif
                                 </button>
-                                <a href="{{ $job->whatsapp_url }}" target="_blank" wire:click="markWhatsAppSent({{ $job->id }})" title="{{ __('workdesk.Send via WhatsApp') }}" class="relative p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition-all">
+                                <button wire:click="sendWhatsApp({{ $job->id }})" title="{{ __('workdesk.Send via WhatsApp') }}" class="relative p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-xl transition-all">
                                     <x-heroicon-o-chat-bubble-left-right class="size-5" />
                                     @if($job->whatsapp_sent_at)
                                         <span class="absolute top-1 right-1 flex h-2 w-2">
@@ -383,7 +383,7 @@
                                             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                                         </span>
                                     @endif
-                                </a>
+                                </button>
                                 <a href="{{ route('admin.jobs.print', $job) }}" target="_blank" title="{{ __('workdesk.Print Invoice') }}" class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl transition-all">
                                     <x-heroicon-o-printer class="size-5" />
                                 </a>

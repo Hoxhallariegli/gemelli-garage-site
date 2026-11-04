@@ -93,7 +93,7 @@
                     </span>
                 @endif
             </button>
-            <a href="{{ $item->whatsapp_url }}" target="_blank" wire:click="markWhatsAppSent('{{ $item->id }}')" class="relative inline-flex items-center justify-center !rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 px-3 py-1 text-[9px] font-black uppercase border-none hover:bg-emerald-100 transition-colors">
+            <button wire:click="sendWhatsApp('{{ $item->id }}')" class="relative inline-flex items-center justify-center !rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 px-3 py-1 text-[9px] font-black uppercase border-none hover:bg-emerald-100 transition-colors">
                 <x-heroicon-o-chat-bubble-left-right class="size-3 mr-1" /> WhatsApp
                 @if($item->whatsapp_sent_at)
                     <span class="absolute -top-1 -right-1 flex h-2 w-2">
@@ -101,7 +101,7 @@
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
                 @endif
-            </a>
+            </button>
             </a>
             <a href="{{ route('admin.jobs.print', $item) }}" target="_blank" class="inline-flex items-center justify-center !rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-3 py-1 text-[9px] font-black uppercase border-none hover:bg-gray-200 transition-colors">
                 <x-heroicon-o-printer class="size-3 mr-1" /> {{ __('jobs.Print') ?? 'Print' }}

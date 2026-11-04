@@ -13,6 +13,9 @@
 <td class="px-6 py-5 text-gray-600 dark:text-gray-300">{{ $item->status }}</td>
     <td class="px-6 py-5 text-right !transition-none">
         <div class="flex justify-end gap-3 !transition-none">
+            <button wire:click="sendWhatsApp" title="Send WhatsApp" class="inline-flex items-center justify-center !rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 px-3 py-1.5 text-[10px] font-black uppercase border-none hover:bg-emerald-100 transition-colors">
+                <x-heroicon-o-chat-bubble-left-right class="size-3 mr-1" /> WhatsApp
+            </button>
             @can('edit_job_requests')
                 <livewire:admin.job-requests.convert-action :job-request="$item" :wire:key="'convert-'.$item->id" />
                 <x-a href="{{ route('admin.job-requests.edit', $item) }}" class="!rounded-xl !bg-blue-50 dark:!bg-blue-900/30 !text-blue-600 dark:!text-blue-400 !px-4 !py-1.5 !text-[10px] !font-black !uppercase !border-none">Edit</x-a>

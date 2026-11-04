@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Service extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'description', 'base_price', 'active', 'image'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'name', 'description', 'base_price', 'active', 'image'];
     protected function casts(): array { return [
             'base_price' => 'decimal:2',
             'active' => 'boolean',

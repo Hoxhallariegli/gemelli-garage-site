@@ -29,6 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use SoftDeletes;
 
     protected $fillable = [
+        'tenant_id',
         'name',
         'slug',
         'email',
@@ -55,6 +56,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function route(string $id): string
     {
         return route('admin.users.show', ['user' => $id]);
+    }
+
+    public function garages()
+    {
+        return $this->belongsToMany(Garage::class, 'garage_user');
+    }
+
+    public function garage()
+    {
+        return $this->belongsTo(Garage::class, 'tenant_id');
     }
 
     /**

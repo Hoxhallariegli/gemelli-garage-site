@@ -17,8 +17,34 @@ class JobRequestController extends Controller
   1 => 'service',
   2 => 'material',
 ))->latest()->paginate(50); $items->getCollection()->transform(fn($i) => $this->transformItem($i)); return response()->json($items); }
-        public function store(Request $request, CreateJobRequestAction $action) { abort_if_cannot('add_job_requests'); $data = $this->prepareData($request); $dto = JobRequestDTO::fromArray($data); $item = $action->execute($dto); return response()->json(['success' => true, 'data' => $this->transformItem($item)]); }
-    
+        public function store(Request $request, CreateJobRequestAction $action) {
+        abort_if_cannot('add_job_requests');
+        $data = $this->prepareData($request);
+        $dto = JobRequestDTO::fromArray($data);
+        $item = $action->execute($dto);
+
+        if ($item->phone) {
+            try {
+                $whatsapp = app(\App\Services\WhatsAppService::class);
+                $brandStr = $item->brand ?? '';
+                $modelStr = $item->model ?? '';
+                $msg = "--- GEMELLI GARAGE ---\n\n" .
+                       "Përshëndetje *" . $item->name . "*,\n\n" .
+                       "Kërkesa juaj e re për servis mjeti (" . trim("$brandStr $modelStr") . ") u regjistrua me sukses!\n\n" .
+                       "Faleminderit!";
+                $whatsapp->send(
+                    phone: $item->phone,
+                    message: $msg,
+                    tenantId: $item->tenant_id ?? 1
+                );
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('WhatsApp API notification error: ' . $e->getMessage());
+            }
+        }
+
+        return response()->json(['success' => true, 'data' => $this->transformItem($item)]);
+    }
+
     public function update(Request $request, $id, UpdateJobRequestAction $action)
     {
         abort_if_cannot('edit_job_requests');

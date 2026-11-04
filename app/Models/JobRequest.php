@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class JobRequest extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'email', 'phone', 'brand', 'model', 'body_type_id', 'service_id', 'material_id', 'estimated_price', 'message', 'status'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'name', 'email', 'phone', 'brand', 'model', 'body_type_id', 'service_id', 'material_id', 'estimated_price', 'message', 'status'];
     protected function casts(): array { return [
             'estimated_price' => 'decimal:2',
         ]; }

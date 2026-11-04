@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Client extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'phone', 'email', 'notes'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    protected $fillable = ['tenant_id', 'name', 'phone', 'email', 'notes'];
     protected function casts(): array { return [
         ]; }
     public static function rules($id = null): array { return [

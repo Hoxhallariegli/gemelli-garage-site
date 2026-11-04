@@ -11,6 +11,7 @@
     <livewire:admin.users.edit.two-factor-authentication :user="$user"/>
 
     @can('edit_roles')
+        <livewire:admin.users.edit.garages :user="$user"/>
         <livewire:admin.users.edit.admin-settings :user="$user"/>
         <livewire:admin.users.edit.roles :user="$user"/>
     @endcan

@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
-    protected $fillable = ['title', 'amount', 'date', 'category', 'job_id', 'notes'];
+    protected $fillable = ['tenant_id', 'title', 'amount', 'date', 'category', 'job_id', 'notes'];
 
     protected function casts(): array {
         return [
