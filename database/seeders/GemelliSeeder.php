@@ -32,12 +32,15 @@ class GemelliSeeder extends Seeder
             ['name' => 'Porsche'],
         ];
 
+        $sedan = \App\Models\BodyType::firstOrCreate(['name' => 'Sedan', 'wrap_meters' => 15]);
+        $suv = \App\Models\BodyType::firstOrCreate(['name' => 'SUV', 'wrap_meters' => 20]);
+
         foreach ($brands as $brand) {
             $b = VehicleBrand::create($brand);
 
-            VehicleModel::create(['brand_id' => $b->id, 'name' => 'Series 3', 'body_type' => 'Sedan', 'wrap_meters_needed' => 15]);
-            VehicleModel::create(['brand_id' => $b->id, 'name' => 'Series 5', 'body_type' => 'Sedan', 'wrap_meters_needed' => 18]);
-            VehicleModel::create(['brand_id' => $b->id, 'name' => 'X5', 'body_type' => 'SUV', 'wrap_meters_needed' => 22]);
+            VehicleModel::create(['brand_id' => $b->id, 'name' => 'Series 3', 'body_type_id' => $sedan->id, 'wrap_meters_needed' => 15]);
+            VehicleModel::create(['brand_id' => $b->id, 'name' => 'Series 5', 'body_type_id' => $sedan->id, 'wrap_meters_needed' => 18]);
+            VehicleModel::create(['brand_id' => $b->id, 'name' => 'X5', 'body_type_id' => $suv->id, 'wrap_meters_needed' => 22]);
         }
 
         Service::create(['name' => 'Oscuramento Vetri', 'base_price' => 100, 'active' => true]);

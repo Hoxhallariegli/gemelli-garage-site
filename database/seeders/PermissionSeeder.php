@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -67,32 +66,24 @@ class PermissionSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'view_users_activity', 'label' => 'View Users Activity', 'module' => 'Users']);
         Permission::firstOrCreate(['name' => 'edit_own_account', 'label' => 'Edit Own Account', 'module' => 'Users']);
 
-        // 2. Create Global Roles
+        // 2. Create Global Roles with tenant_id = 0 explicitly
         $adminRole = Role::firstOrCreate(
             ['name' => 'admin'],
-            ['guard_name' => 'web', 'label' => 'Administrator']
+            ['guard_name' => 'web', 'label' => 'Administrator', 'tenant_id' => 0]
         );
 
         Role::firstOrCreate(
             ['name' => 'manager'],
-            ['guard_name' => 'web', 'label' => 'Manager']
+            ['guard_name' => 'web', 'label' => 'Manager', 'tenant_id' => 0]
         );
 
         Role::firstOrCreate(
             ['name' => 'staff'],
-            ['guard_name' => 'web', 'label' => 'Staff / Mechanist']
+            ['guard_name' => 'web', 'label' => 'Staff / Mechanist', 'tenant_id' => 0]
         );
 
         // Assign ALL permissions to Global Admin role
         $allPermissions = Permission::all();
         $adminRole->syncPermissions($allPermissions);
-
-        // Assign Admin role to existing users if they don't have it
-        $users = User::all();
-        foreach ($users as $user) {
-            if (!$user->hasRole('admin')) {
-                $user->assignRole($adminRole);
-            }
-        }
     }
 }
