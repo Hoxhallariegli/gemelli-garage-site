@@ -44,10 +44,20 @@ trait BelongsToGarage
 
             $tableName = $model->getTable();
 
-            $isGlobalAdmin = \Illuminate\Support\Facades\DB::table('model_has_roles')
-                ->where('model_id', $user->id)
-                ->where('tenant_id', 0)
-                ->exists();
+            $isGlobalAdmin = false;
+
+            try {
+                if (\Illuminate\Support\Facades\Schema::hasColumn('model_has_roles', 'tenant_id')) {
+                    $isGlobalAdmin = \Illuminate\Support\Facades\DB::table('model_has_roles')
+                        ->where('model_id', $user->id)
+                        ->where('tenant_id', 0)
+                        ->exists();
+                }
+            } catch (\Throwable $e) {}
+
+            if (!$isGlobalAdmin && ($user->hasRole('admin') || $user->hasRole('super-admin'))) {
+                $isGlobalAdmin = true;
+            }
 
             if ($isGlobalAdmin) {
                 return;
