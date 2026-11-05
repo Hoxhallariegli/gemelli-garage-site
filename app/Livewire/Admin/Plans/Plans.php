@@ -29,6 +29,7 @@ class Plans extends Component
 
     public function render()
     {
+        abort_if_cannot('view_plans');
         $query = (new PlanListQuery())->handle(['search' => $this->search], $this->sortField, $this->sortAsc ? 'asc' : 'desc');
 
         return view('livewire.admin.plans.index', [
@@ -46,6 +47,7 @@ class Plans extends Component
 
     public function deletePlan($id, DeletePlanAction $action)
     {
+        abort_if_cannot('delete_plans');
         $item = Plan::find($id);
         if (!$item) return;
         $action->execute($item);

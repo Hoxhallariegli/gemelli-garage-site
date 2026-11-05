@@ -22,6 +22,7 @@ class Subscriptions extends Component
 
     public function render()
     {
+        abort_if_cannot('view_subscriptions');
         $query = (new SubscriptionListQuery())->handle(['search' => $this->search], $this->sortField, $this->sortAsc ? 'asc' : 'desc');
 
         return view('livewire.admin.subscriptions.index', [
@@ -31,6 +32,7 @@ class Subscriptions extends Component
 
     public function deleteSubscription($id, DeleteSubscriptionAction $action)
     {
+        abort_if_cannot('delete_subscriptions');
         $item = Subscription::find($id);
         if (!$item) return;
         $action->execute($item);

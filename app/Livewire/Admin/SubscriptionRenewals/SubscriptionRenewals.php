@@ -25,6 +25,7 @@ class SubscriptionRenewals extends Component
 
     public function approveRenewal($id, UpdateSubscriptionRenewalAction $action)
     {
+        abort_if_cannot('edit_subscription_renewals');
         $item = SubscriptionRenewal::find($id);
         if (!$item) return;
 
@@ -44,6 +45,7 @@ class SubscriptionRenewals extends Component
 
     public function rejectRenewal($id, UpdateSubscriptionRenewalAction $action)
     {
+        abort_if_cannot('edit_subscription_renewals');
         $item = SubscriptionRenewal::find($id);
         if (!$item) return;
 
@@ -63,6 +65,7 @@ class SubscriptionRenewals extends Component
 
     public function render()
     {
+        abort_if_cannot('view_subscription_renewals');
         $query = (new SubscriptionRenewalListQuery())->handle(['search' => $this->search], $this->sortField, $this->sortAsc ? 'asc' : 'desc');
 
         return view('livewire.admin.subscription-renewals.index', [

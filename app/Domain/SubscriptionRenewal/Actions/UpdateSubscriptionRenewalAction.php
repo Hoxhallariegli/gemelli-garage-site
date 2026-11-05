@@ -4,6 +4,7 @@ namespace App\Domain\SubscriptionRenewal\Actions;
 
 use App\Models\SubscriptionRenewal;
 use App\Models\Subscription;
+use App\Models\AuditTrail;
 use App\Domain\SubscriptionRenewal\DTOs\SubscriptionRenewalDTO;
 
 class UpdateSubscriptionRenewalAction
@@ -12,6 +13,8 @@ class UpdateSubscriptionRenewalAction
     {
         $oldStatus = $model->status;
         $model->update($dto->toArray());
+
+        AuditTrail::log($model, 'update', 'SubscriptionRenewals');
 
         // If approved, extend or activate the tenant's subscription
         if ($oldStatus !== 'approved' && $model->status === 'approved') {
