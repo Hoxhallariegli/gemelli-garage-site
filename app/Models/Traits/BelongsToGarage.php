@@ -12,7 +12,8 @@ trait BelongsToGarage
     {
         static::creating(function ($model) {
             if (!($model instanceof Garage) && !$model->tenant_id && Auth::check()) {
-                $model->tenant_id = Auth::user()->tenant_id;
+                $userTenantId = Auth::user()?->getAttribute('tenant_id') ?: 1;
+                $model->tenant_id = $userTenantId;
             }
         });
 
@@ -63,27 +64,30 @@ trait BelongsToGarage
                 return;
             }
 
-            if (!$user->tenant_id && !($model instanceof Garage)) {
-                $builder->whereRaw('1 = 0');
-                return;
-            }
+            $activeTenantId = $user->getAttribute('tenant_id') ?: 1;
 
             if ($model instanceof Garage) {
-                $builder->where(function ($q) use ($user, $tableName) {
-                    $q->where($tableName . '.owner_id', $user->id)
+                $builder->where(function ($q) use ($user, $tableName, $activeTenantId) {
+                    $q->where($tableName . '.id', $activeTenantId)
+                      ->orWhere($tableName . '.owner_id', $user->id)
                       ->orWhereHas('users', fn($qu) => $qu->where('users.id', $user->id));
                 });
             } elseif ($model instanceof \App\Models\User) {
                 if ($user->id !== null) {
-                    $builder->whereIn($tableName . '.id', function($q) use ($user) {
+                    $builder->whereIn($tableName . '.id', function($q) use ($activeTenantId) {
                         $q->select('user_id')
                           ->from('garage_user')
-                          ->where('garage_id', $user->tenant_id);
-                    })->orWhere($tableName . '.id', $user->id);
+                          ->where('garage_id', $activeTenantId);
+                    })->orWhere($tableName . '.id', $user->id)
+                      ->orWhere($tableName . '.tenant_id', $activeTenantId);
                 }
             } else {
                 if (\Illuminate\Support\Facades\Schema::hasColumn($tableName, 'tenant_id')) {
-                    $builder->where($tableName . '.tenant_id', $user->tenant_id);
+                    $builder->where(function ($q) use ($tableName, $activeTenantId) {
+                        $q->where($tableName . '.tenant_id', $activeTenantId)
+                          ->orWhereNull($tableName . '.tenant_id')
+                          ->orWhere($tableName . '.tenant_id', 0);
+                    });
                 }
             }
         });
