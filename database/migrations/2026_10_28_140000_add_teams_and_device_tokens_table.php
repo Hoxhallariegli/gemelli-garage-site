@@ -42,7 +42,7 @@ return new class extends Migration
         if (!Schema::hasTable('device_tokens')) {
             Schema::create('device_tokens', function (Blueprint $table) use ($teamsKey) {
                 $table->id();
-                $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+                $table->foreignUuid('user_id')->nullable()->constrained('users')->onDelete('cascade');
                 $table->unsignedBigInteger($teamsKey)->nullable()->index();
                 $table->text('fcm_token');
                 $table->string('device_name')->nullable();
