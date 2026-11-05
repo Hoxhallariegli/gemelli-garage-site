@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class BodyType extends Model
 {
-    use HasFactory;
-    protected $fillable = ['name', 'wrap_meters', 'image'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+
+    protected $fillable = ['tenant_id', 'name', 'wrap_meters', 'image'];
+
     protected function casts(): array { return [
             'wrap_meters' => 'decimal:2',
         ]; }
@@ -18,5 +20,4 @@ class BodyType extends Model
             'image' => ['nullable', 'string', 'max:255'],
         ]; }
     public static function sortable(): array { return ['id', 'name', 'wrap_meters', 'image']; }
-
 }

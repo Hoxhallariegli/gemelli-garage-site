@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DeviceToken extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
     protected $fillable = [
         'user_id',

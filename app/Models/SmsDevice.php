@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class SmsDevice extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
     protected $fillable = [
+        'tenant_id',
         'fcm_token',
         'device_name',
         'api_key',

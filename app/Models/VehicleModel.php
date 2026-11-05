@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class VehicleModel extends Model
 {
-    use HasFactory;
-    protected $fillable = ['brand_id', 'body_type_id', 'name', 'wrap_meters_needed', 'model_3d_path'];
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
+
+    protected $fillable = ['tenant_id', 'brand_id', 'body_type_id', 'name', 'wrap_meters_needed', 'model_3d_path'];
 
     protected function casts(): array { return [
             'wrap_meters_needed' => 'decimal:2',
@@ -29,5 +30,4 @@ class VehicleModel extends Model
     {
         return $this->model_3d_path;
     }
-
 }
