@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubscriptionRenewal extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Models\Traits\BelongsToGarage;
 
     protected $fillable = [
         'tenant_id',

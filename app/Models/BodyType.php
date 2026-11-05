@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BodyType extends Model
 {
-    use HasFactory, \App\Models\Traits\BelongsToGarage;
+    use HasFactory;
 
     protected $fillable = ['tenant_id', 'name', 'wrap_meters', 'image'];
 
