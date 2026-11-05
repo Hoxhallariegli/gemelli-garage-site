@@ -15,12 +15,12 @@ class Role extends SpatieRole
 
     protected $primaryKey = 'id';
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'id' => 'string',
     ];
+
+    public function garage()
+    {
+        return $this->belongsTo(Garage::class, 'tenant_id');
+    }
 }

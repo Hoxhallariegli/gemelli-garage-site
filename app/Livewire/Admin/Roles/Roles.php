@@ -34,7 +34,7 @@ class Roles extends Component
 
     public function builder(): mixed
     {
-        return Role::orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc');
+        return Role::withCount('permissions')->with('garage')->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc');
     }
 
     public function sortBy(string $field): void
@@ -52,7 +52,7 @@ class Roles extends Component
     public function roles(): LengthAwarePaginator
     {
         return $this->builder()
-            ->when($this->name, fn (Builder $query) => $query->where('name', 'like', '%'.$this->name.'%'))
+            ->when($this->name, fn (Builder $query) => $query->where('name', 'like', '%'.$this->name.'%')->orWhere('label', 'like', '%'.$this->name.'%'))
             ->paginate($this->paginate);
     }
 
