@@ -26,7 +26,7 @@ class GarageSwitcher extends Component
             $this->garages = collect([]);
         }
 
-        $this->activeGarageId = $user?->tenant_id;
+        $this->activeGarageId = $user ? $user->getAttribute('tenant_id') : null;
     }
 
     public function switchGarage($garageId)

@@ -16,7 +16,7 @@ return new class extends Migration
                 $table->id();
                 $table->string('name');
                 $table->string('slug')->unique();
-                $table->foreignId('owner_id')->nullable()->constrained('users')->onDelete('cascade');
+                $table->foreignUuid('owner_id')->nullable()->constrained('users')->onDelete('cascade');
                 $table->string('phone')->nullable();
                 $table->string('email')->nullable();
                 $table->string('address')->nullable();
@@ -35,7 +35,7 @@ return new class extends Migration
             Schema::create('garage_user', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('garage_id')->constrained('garages')->onDelete('cascade');
-                $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+                $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
                 $table->timestamps();
             });
         }
