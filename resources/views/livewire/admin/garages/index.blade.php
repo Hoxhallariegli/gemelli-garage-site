@@ -4,9 +4,11 @@
             <x-h1>Garazhet / Serviset</x-h1>
             <x-short-description class="dark:text-gray-400">Menaxhimi i kompanive, serviseve dhe garazhet aktive në sistem</x-short-description>
         </div>
-        <div class="flex items-center gap-3">
-            <x-btn :href="route('admin.garages.create')" icon="plus">Shto Garazh të Ri</x-btn>
-        </div>
+        @can('add_garages')
+            <div class="flex items-center gap-3">
+                <x-btn :href="route('admin.garages.create')" icon="plus">Shto Garazh të Ri</x-btn>
+            </div>
+        @endcan
     </div>
 
     @include('errors.messages')

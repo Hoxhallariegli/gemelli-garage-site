@@ -18,10 +18,14 @@ class Garages extends Component
 
     public function render()
     {
+        abort_if_cannot('view_garages');
+
         $query = Garage::query();
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%')
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . $this->search . '%')
                   ->orWhere('city', 'like', '%' . $this->search . '%');
+            });
         }
 
         return view('livewire.admin.garages.index', [
@@ -31,6 +35,8 @@ class Garages extends Component
 
     public function deleteGarage($id)
     {
+        abort_if_cannot('delete_garages');
+
         $garage = Garage::find($id);
         if ($garage) {
             $garage->delete();

@@ -15,7 +15,7 @@ class GarageSwitcher extends Component
     {
         $user = Auth::user();
 
-        if ($user && $user->hasRole('admin')) {
+        if ($user && $user->is_global_admin) {
             $this->garages = Garage::all();
         } elseif ($user) {
             $this->garages = Garage::where('owner_id', $user->id)
@@ -35,7 +35,7 @@ class GarageSwitcher extends Component
         if (!$user) return;
 
         $hasAccess = false;
-        if ($user->hasRole('admin')) {
+        if ($user->is_global_admin) {
             $hasAccess = true;
         } else {
             $hasAccess = Garage::where('id', $garageId)

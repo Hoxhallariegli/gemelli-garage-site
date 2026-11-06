@@ -31,7 +31,7 @@ trait BelongsToGarage
 
         // Global Scope: Automatic Multi-Tenancy Filtering
         static::addGlobalScope('garage_access', function (Builder $builder) {
-            if (app()->runningInConsole() || !Auth::check()) {
+            if (!Auth::check()) {
                 return;
             }
 
@@ -56,7 +56,7 @@ trait BelongsToGarage
                 }
             } catch (\Throwable $e) {}
 
-            if (!$isGlobalAdmin && ($user->hasRole('admin') || $user->hasRole('super-admin'))) {
+            if (!$isGlobalAdmin && $user->is_global_admin) {
                 $isGlobalAdmin = true;
             }
 
@@ -81,13 +81,9 @@ trait BelongsToGarage
                     })->orWhere($tableName . '.id', $user->id)
                       ->orWhere($tableName . '.tenant_id', $activeTenantId);
                 }
-            } else {
+             } else {
                 if (\Illuminate\Support\Facades\Schema::hasColumn($tableName, 'tenant_id')) {
-                    $builder->where(function ($q) use ($tableName, $activeTenantId) {
-                        $q->where($tableName . '.tenant_id', $activeTenantId)
-                          ->orWhereNull($tableName . '.tenant_id')
-                          ->orWhere($tableName . '.tenant_id', 0);
-                    });
+                    $builder->where($tableName . '.tenant_id', $activeTenantId);
                 }
             }
         });

@@ -62,8 +62,28 @@ class AppServiceProvider extends ServiceProvider
 
     private function configureAuth(): void
     {
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Auth\Events\Authenticated::class, function ($event) {
+            if (function_exists('setPermissionsTeamId') && isset($event->user)) {
+                $teamId = $event->user->tenant_id ?: 1;
+                setPermissionsTeamId($teamId);
+                $event->user->unsetRelation('roles');
+                $event->user->unsetRelation('permissions');
+            }
+        });
+
         Gate::before(function (?User $user) {
-            return $user?->hasRole('admin') ? true : null;
+            if (!$user) return null;
+
+            if (function_exists('setPermissionsTeamId')) {
+                $teamId = $user->getAttribute('tenant_id') ?: 1;
+                setPermissionsTeamId($teamId);
+            }
+
+            if ($user->is_global_admin) {
+                return true;
+            }
+
+            return null;
         });
     }
 

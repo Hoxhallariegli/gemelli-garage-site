@@ -19,7 +19,7 @@ class AuditTrails extends Component
 {
     use WithPagination;
 
-    public string $paginate = '';
+    public string $paginate = '15';
 
     /**
      * @var array<string>
@@ -46,9 +46,9 @@ class AuditTrails extends Component
     {
         abort_if_cannot('view_audit_trails');
 
-        $types = AuditTrail::groupby('type')->pluck('type');
-        $sections = AuditTrail::groupby('section')->pluck('section');
-        $users = User::isActive()->orderby('name')->get();
+        $types = AuditTrail::whereNotNull('type')->where('type', '!=', '')->distinct()->pluck('type');
+        $sections = AuditTrail::whereNotNull('section')->where('section', '!=', '')->distinct()->pluck('section');
+        $users = User::orderby('name')->get();
 
         return view('livewire.admin.audit-trails', compact('sections', 'types', 'users'));
     }
@@ -58,7 +58,19 @@ class AuditTrails extends Component
      */
     public function builder(): Builder
     {
-        return AuditTrail::with('user')->orderBy($this->sortField, $this->sortAsc ? 'asc' : 'desc');
+        $user = auth()->user();
+        $query = AuditTrail::with('user');
+
+        if ($user && !$user->is_global_admin) {
+            $activeTenantId = $user->tenant_id ?: 1;
+            $query->where(function ($q) use ($activeTenantId) {
+                $q->where('tenant_id', $activeTenantId)
+                  ->orWhereNull('tenant_id')
+                  ->orWhere('tenant_id', 0);
+            });
+        }
+
+        return $query->orderBy($this->sortField ?: 'created_at', $this->sortAsc ? 'asc' : 'desc');
     }
 
     public function sortBy(string $field): void
@@ -105,11 +117,13 @@ class AuditTrails extends Component
             }
         }
 
-        return $query->paginate((int) $this->paginate);
+        $perPage = (int) ($this->paginate ?: 15);
+        return $query->paginate($perPage > 0 ? $perPage : 15);
     }
 
     public function resetFilters(): void
     {
-        $this->reset();
+        $this->reset(['title', 'user_id', 'section', 'type', 'created_at', 'openFilter']);
+        $this->resetPage();
     }
 }

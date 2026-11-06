@@ -1,22 +1,60 @@
 @section('title', __('Join'))
 
 <x-layouts.guest>
-    <x-auth-card>
+    <section class="jarallax">
+        <img src="{{ asset('assets/front/gemelli-garage/images/background/4.webp') }}" class="jarallax-img" alt="">
+        <div class="sw-overlay"></div>
+        <div class="container relative z-3">
+            <div class="spacer-double"></div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-5">
+                    <div class="p-40 bg-dark-2 rounded-1 relative overflow-hidden text-light shadow-2xl">
+                        <div class="text-center mb-4">
+                            <h3 class="text-2xl font-bold text-white uppercase tracking-tight">{{ __('Complete Invitation') }}</h3>
+                            <p class="text-gray-400">{{ $user->invite->name ?? 'Admin' }} {{ __('has invited you to join') }} {{ config('app.name') }}.</p>
+                        </div>
 
-        @include('errors.success')
+                        @include('errors.success')
 
-        <p>{{ $user->invite->name }} {{ __('has invited you to join') }} {{ config('app.name') }}.</p>
+                        <form method="POST" action="{{ route('join.update', ['id' => $user->id]) }}" class="form-border">
+                            @csrf
+                            @method('PUT')
 
-        <x-form action="{{ route('join.update', ['id' => $user->id]) }}" method="put">
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">{{ __('Name') }}</label>
+                                <input type="text" name="name" value="{{ old('name', $user->name) }}" class="form-control" placeholder="{{ __('Name') }}" required>
+                                @error('name')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-            <x-form.input type="text" :label="__('Name')" name="name">{{ $user->name }}</x-form.input>
-            <x-form.input type="text" :label="__('Email')" disabled>{{ $user->email }}</x-form.input>
-            <x-form.input type="password" :label="__('Password')" name='newPassword'></x-form.input>
-            <x-form.input type="password" :label="__('Confirm Password')" name='confirmPassword'></x-form.input>
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">{{ __('Email') }}</label>
+                                <input type="email" value="{{ $user->email }}" class="form-control" disabled readonly style="opacity: 0.7; cursor: not-allowed;">
+                            </div>
 
-            <x-button>{{ __('Save Password') }}</x-button>
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">{{ __('Password') }}</label>
+                                <input type="password" name="newPassword" class="form-control" placeholder="{{ __('Password') }}" required autofocus>
+                                @error('newPassword')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-        </x-form>
+                            <div class="mb-4">
+                                <label class="text-white text-xs font-bold uppercase tracking-widest mb-2 block">{{ __('Confirm Password') }}</label>
+                                <input type="password" name="confirmPassword" class="form-control" placeholder="{{ __('Confirm Password') }}" required>
+                                @error('confirmPassword')
+                                    <span class="red text-xs mt-1 block">{{ $message }}</span>
+                                @enderror
+                            </div>
 
-    </x-auth-card>
+                            <button type="submit" class="btn-main w-100 py-3">{{ __('Save Password & Join') }}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="spacer-double"></div>
+        </div>
+    </section>
 </x-layouts.guest>

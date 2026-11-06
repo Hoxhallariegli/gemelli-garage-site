@@ -20,8 +20,14 @@ class Edit extends Component
     public bool $whatsapp_enabled = true;
     public int $reminder_hours_before = 2;
 
+    public bool $wa_connected = false;
+    public ?string $wa_qr = null;
+    public ?string $wa_phone = null;
+
     public function mount(Garage $garage)
     {
+        abort_if_cannot('edit_garages');
+
         $this->garage = $garage;
         $this->name = $garage->name;
         $this->slug = $garage->slug;
@@ -29,13 +35,74 @@ class Edit extends Component
         $this->email = $garage->email ?? '';
         $this->city = $garage->city ?? '';
         $this->address = $garage->address ?? '';
-        $this->sms_enabled = $garage->sms_enabled;
-        $this->whatsapp_enabled = $garage->whatsapp_enabled;
-        $this->reminder_hours_before = $garage->reminder_hours_before;
+        $this->sms_enabled = (bool) $garage->sms_enabled;
+        $this->whatsapp_enabled = (bool) $garage->whatsapp_enabled;
+        $this->reminder_hours_before = (int) ($garage->reminder_hours_before ?? 2);
+
+        $this->checkWhatsAppStatus();
+    }
+
+    public function checkWhatsAppStatus()
+    {
+        try {
+            $garageId = $this->garage->id;
+            $gatewayUrl = config('services.whatsapp.gateway_url', 'http://127.0.0.1:3000/api/whatsapp/send');
+            $baseUrl = str_replace('/send', '', $gatewayUrl);
+
+            $res = \Illuminate\Support\Facades\Http::withHeaders([
+                'X-API-KEY' => config('services.whatsapp.secret', 'E4ProTech_Secret_Key_2026_Secure')
+            ])->timeout(5)->get("{$baseUrl}/status?session_key=tenant_{$garageId}");
+
+            if ($res->successful()) {
+                $this->wa_connected = (bool) $res->json('connected');
+                $this->wa_phone = $res->json('phone');
+                if ($this->wa_connected) {
+                    $this->wa_qr = null;
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->wa_connected = false;
+        }
+    }
+
+    public function generateWhatsAppQr()
+    {
+        try {
+            $garageId = $this->garage->id;
+            $gatewayUrl = config('services.whatsapp.gateway_url', 'http://127.0.0.1:3000/api/whatsapp/send');
+            $baseUrl = str_replace('/send', '', $gatewayUrl);
+
+            for ($i = 0; $i < 3; $i++) {
+                $res = \Illuminate\Support\Facades\Http::withHeaders([
+                    'X-API-KEY' => config('services.whatsapp.secret', 'E4ProTech_Secret_Key_2026_Secure')
+                ])->timeout(10)->get("{$baseUrl}/qr?session_key=tenant_{$garageId}");
+
+                if ($res->successful()) {
+                    $this->wa_connected = (bool) $res->json('connected');
+                    $this->wa_qr = $res->json('qr');
+                    if ($this->wa_connected || $this->wa_qr) {
+                        break;
+                    }
+                }
+                sleep(1);
+            }
+
+            if ($this->wa_connected) {
+                $this->dispatch('toast', message: 'WhatsApp është tashmë i lidhur!', type: 'success');
+            } elseif ($this->wa_qr) {
+                $this->dispatch('toast', message: 'QR Code u gjenerua me sukses! Skanojeni me telefon.', type: 'success');
+            } else {
+                $this->dispatch('toast', message: 'Duke inicializuar QR Code-in... Klikoni përsëri pas disa sekondash.', type: 'info');
+            }
+        } catch (\Throwable $e) {
+            $this->dispatch('toast', message: 'WhatsApp Gateway nuk i përgjigjet në server.', type: 'error');
+        }
     }
 
     public function save()
     {
+        abort_if_cannot('edit_garages');
+
         $this->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:garages,slug,' . $this->garage->id,
@@ -59,6 +126,8 @@ class Edit extends Component
 
     public function render()
     {
+        abort_if_cannot('edit_garages');
+
         return view('livewire.admin.garages.edit')->layout('components.layouts.app');
     }
 }

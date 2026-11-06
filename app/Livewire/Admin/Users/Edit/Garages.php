@@ -20,7 +20,7 @@ class Garages extends Component
         $this->primaryGarageId = $this->user->tenant_id;
 
         $currentUser = auth()->user();
-        if ($currentUser && $currentUser->hasRole('admin')) {
+        if ($currentUser && $currentUser->is_global_admin) {
             $allGarages = Garage::all();
         } else {
             $allGarages = Garage::where('id', $currentUser?->tenant_id)->get();
@@ -43,6 +43,11 @@ class Garages extends Component
         }
     }
 
+    public function updatedGarageRoles()
+    {
+        $this->updateAccess();
+    }
+
     public function updateAccess()
     {
         $currentUser = auth()->user();
@@ -61,7 +66,7 @@ class Garages extends Component
             }
         }
 
-        $editableGarageIds = ($currentUser && $currentUser->hasRole('admin'))
+        $editableGarageIds = ($currentUser && $currentUser->is_global_admin)
             ? Garage::pluck('id')->toArray()
             : [$currentUser?->tenant_id];
 
@@ -83,7 +88,7 @@ class Garages extends Component
             }
         }
 
-        if ($currentUser && $currentUser->hasRole('admin')) {
+        if ($currentUser && $currentUser->is_global_admin) {
             $this->user->garages()->sync($selectedIds);
         } else {
             if (!empty($selectedIds)) {
@@ -105,7 +110,7 @@ class Garages extends Component
     public function render()
     {
         $currentUser = auth()->user();
-        if ($currentUser && $currentUser->hasRole('admin')) {
+        if ($currentUser && $currentUser->is_global_admin) {
             $allGarages = Garage::all();
         } else {
             $allGarages = Garage::where('id', $currentUser?->tenant_id)->get();

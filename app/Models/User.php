@@ -58,6 +58,31 @@ class User extends Authenticatable implements MustVerifyEmail
         return route('admin.users.show', ['user' => $id]);
     }
 
+    public function getIsGlobalAdminAttribute(): bool
+    {
+        if ($this->is_admin ?? $this->is_super_admin ?? false) {
+            return true;
+        }
+
+        try {
+            return \Illuminate\Support\Facades\DB::table('model_has_roles')
+                ->where('model_id', $this->id)
+                ->where('tenant_id', 0)
+                ->exists();
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
+    public function getPermissionsFlattened(): \Illuminate\Support\Collection
+    {
+        try {
+            return $this->getAllPermissions()->pluck('name');
+        } catch (\Throwable $e) {
+            return collect([]);
+        }
+    }
+
     public function garages()
     {
         return $this->belongsToMany(Garage::class, 'garage_user');

@@ -27,6 +27,8 @@ class Create extends Component
 
     public function save()
     {
+        abort_if_cannot('add_garages');
+
         $this->validate([
             'name' => 'required|string|max:255',
             'slug' => 'required|string|unique:garages,slug',
@@ -60,6 +62,8 @@ class Create extends Component
 
     public function render()
     {
+        abort_if_cannot('add_garages');
+
         return view('livewire.admin.garages.create')->layout('components.layouts.app');
     }
 }

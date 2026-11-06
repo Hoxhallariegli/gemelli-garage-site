@@ -16,8 +16,12 @@
     </td>
     <td class="px-6 py-5 text-right">
         <div class="flex justify-end gap-3">
-            <x-a href="{{ route('admin.garages.edit', $item) }}" class="!rounded-xl !bg-blue-50 dark:!bg-blue-900/30 !text-blue-600 dark:!text-blue-400 !px-4 !py-1.5 !text-[10px] !font-black !uppercase !border-none">Edit</x-a>
-            <button wire:click="$parent.deleteGarage({{ $item->id }})" class="text-[10px] font-black uppercase text-red-400 hover:text-red-600">Delete</button>
+            @can('edit_garages')
+                <x-a href="{{ route('admin.garages.edit', $item) }}" class="!rounded-xl !bg-blue-50 dark:!bg-blue-900/30 !text-blue-600 dark:!text-blue-400 !px-4 !py-1.5 !text-[10px] !font-black !uppercase !border-none">Edit</x-a>
+            @endcan
+            @can('delete_garages')
+                <button wire:click="$parent.deleteGarage({{ $item->id }})" class="text-[10px] font-black uppercase text-red-400 hover:text-red-600">Delete</button>
+            @endcan
         </div>
     </td>
 </tr>

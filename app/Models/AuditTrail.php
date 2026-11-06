@@ -18,9 +18,11 @@ class AuditTrail extends Model
 
     use HasUuid;
     use SoftDeletes;
+    use \App\Models\Traits\BelongsToGarage;
 
     protected $fillable = [
         'user_id',
+        'tenant_id',
         'title',
         'link',
         'reference_id',
@@ -41,26 +43,73 @@ class AuditTrail extends Model
     public function user(): BelongsTo
     {
         /** @var BelongsTo<User, AuditTrail> */
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id', 'id')->withDefault(['name' => 'Sistemi / Mobil']);
     }
 
     public static function log($model, string $type, string $section): void
     {
-        if (!auth()->check()) {
-            return;
+        $dirty = $model->getDirty();
+        $original = $model->getOriginal();
+
+        if ($type === 'update' && empty($dirty)) {
+            $dirty = $model->getChanges();
         }
 
-        $oldValues = $type === 'update' ? array_intersect_key($model->getOriginal(), $model->getDirty()) : null;
-        $newValues = $type === 'update' ? $model->getDirty() : ($type === 'create' ? $model->toArray() : null);
+        $oldValues = $type === 'update' ? array_intersect_key($original, $dirty) : ($type === 'delete' ? $model->toArray() : null);
+        $newValues = $type === 'update' ? $dirty : ($type === 'create' ? $model->toArray() : null);
+
+        $userId = auth()->id() ?: (auth('sanctum')->check() ? auth('sanctum')->id() : ($model instanceof User ? $model->id : null));
+        $tenantId = $model->tenant_id ?? (auth()->user()?->tenant_id ?? 1);
 
         self::create([
-            'user_id' => auth()->id(),
+            'user_id' => $userId,
+            'tenant_id' => $tenantId,
             'title' => ucfirst($type) . " " . class_basename($model),
-            'reference_id' => (string)$model->id,
+            'reference_id' => (string) ($model ? $model->id : '0'),
             'section' => $section,
             'type' => $type,
             'old_values' => $oldValues,
             'new_values' => $newValues,
+        ]);
+    }
+
+    public static function logAi($model, string $type, string $section): void
+    {
+        $dirty = $model->getDirty();
+        $original = $model->getOriginal();
+
+        $oldValues = $type === 'update' ? array_intersect_key($original, $dirty) : ($type === 'delete' ? $model->toArray() : null);
+        $newValues = $type === 'update' ? $dirty : ($type === 'create' ? $model->toArray() : null);
+
+        $userId = auth()->id() ?: (auth('sanctum')->check() ? auth('sanctum')->id() : ($model instanceof User ? $model->id : null));
+        $tenantId = $model->tenant_id ?? (auth()->user()?->tenant_id ?? 1);
+
+        self::create([
+            'user_id' => $userId,
+            'tenant_id' => $tenantId,
+            'title' => "🤖 [AI Assistant] " . ucfirst($type) . " " . class_basename($model),
+            'reference_id' => (string) ($model ? $model->id : '0'),
+            'section' => $section,
+            'type' => $type,
+            'old_values' => $oldValues,
+            'new_values' => $newValues,
+        ]);
+    }
+
+    public static function logCustom($model, string $type, string $section, string $title, ?array $newValues = null): void
+    {
+        $userId = auth()->id() ?: (auth('sanctum')->check() ? auth('sanctum')->id() : ($model instanceof User ? $model->id : null));
+        $tenantId = $model?->tenant_id ?? (auth()->user()?->tenant_id ?? 1);
+
+        self::create([
+            'user_id' => $userId,
+            'tenant_id' => $tenantId,
+            'title' => $title,
+            'reference_id' => (string) ($model ? $model->id : '0'),
+            'section' => $section,
+            'type' => $type,
+            'old_values' => null,
+            'new_values' => $newValues ?? ($model ? $model->toArray() : null),
         ]);
     }
 

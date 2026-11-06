@@ -27,6 +27,9 @@ class Roles extends Component
     public function mount(): void
     {
         $this->roles = Role::orderby('name')->get();
+        if (function_exists('setPermissionsTeamId')) {
+            setPermissionsTeamId($this->user->tenant_id ?: 1);
+        }
         $this->roleSelections = $this->user->roles->pluck('id')->toArray();
     }
 
@@ -65,16 +68,27 @@ class Roles extends Component
 
     protected function syncRoles(): void
     {
-        // @phpstan-ignore-next-line
-        $rolesWithTenant = collect($this->roleSelections)->map(function (string $roleId) {
+        $adminRole = Role::where('name', 'admin')->first();
+        $adminRoleId = $adminRole ? $adminRole->id : null;
+
+        $tenantId = $this->user->tenant_id ?: 1;
+
+        $rolesWithPivot = collect($this->roleSelections)->mapWithKeys(function (string $roleId) use ($tenantId, $adminRoleId) {
+            $tId = ($adminRoleId && $roleId === $adminRoleId) ? 0 : $tenantId;
             return [
-                'role_id' => $roleId,
-                'model_type' => User::class,
-                'model_id' => $this->user->id,
+                $roleId => ['tenant_id' => $tId]
             ];
         })->toArray();
 
-        $this->user->roles()->sync($rolesWithTenant);
+        $this->user->roles()->sync($rolesWithPivot);
+
+        if ($tenantId) {
+            $this->user->garages()->syncWithoutDetaching([$tenantId]);
+        }
+
+        if (function_exists('app')) {
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        }
 
         add_user_log([
             'title' => 'updated '.$this->user->name."'s roles",

@@ -76,7 +76,10 @@ class Invite extends Component
     {
         $this->validate();
 
+        $activeTenantId = auth()->user()?->tenant_id ?: 1;
+
         $user = User::create([
+            'tenant_id' => $activeTenantId,
             'name' => $this->name,
             'slug' => Str::slug($this->name),
             'email' => $this->email,
@@ -86,6 +89,8 @@ class Invite extends Component
             'invited_by' => auth()->id(),
             'invited_at' => now(),
         ]);
+
+        $user->garages()->syncWithoutDetaching([$activeTenantId]);
 
         // generate image
         $name = $getInitialsAction($user->name);
@@ -97,8 +102,18 @@ class Invite extends Component
         $user->image = $imagePath;
         $user->save();
 
-        foreach ($this->rolesSelected as $role) {
-            $user->assignRole($role);
+        foreach ($this->rolesSelected as $roleId) {
+            $roleModel = Role::find($roleId);
+            if (! $roleModel && is_string($roleId)) {
+                $roleModel = Role::where('name', $roleId)->first();
+            }
+
+            if ($roleModel) {
+                if (function_exists('setPermissionsTeamId')) {
+                    setPermissionsTeamId($activeTenantId);
+                }
+                $user->assignRole($roleModel);
+            }
         }
 
         Mail::send(new SendInviteMail($user));

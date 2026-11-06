@@ -31,7 +31,7 @@
                                 @foreach($availableRoles as $role)
                                     <label wire:key="role-label-{{ $garage->id }}-{{ $role->id }}" class="flex items-center gap-2 cursor-pointer group">
                                         <input type="checkbox"
-                                               wire:model="garageRoles.{{ $garage->id }}"
+                                               wire:model.live="garageRoles.{{ $garage->id }}"
                                                value="{{ $role->id }}"
                                                class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 size-4">
                                         <span class="text-xs font-bold text-gray-500 group-hover:text-blue-600 transition-colors uppercase tracking-tighter">{{ $role->name }}</span>

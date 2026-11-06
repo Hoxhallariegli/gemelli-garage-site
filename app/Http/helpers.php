@@ -42,6 +42,7 @@ if (! function_exists('add_user_log')) {
     {
         AuditTrail::create([
             'user_id' => auth()->id(),
+            'tenant_id' => auth()->user()?->tenant_id ?? 1,
             'title' => $data['title'] ?? '',
             'link' => $data['link'] ?? '',
             'reference_id' => $data['id'] ?? 0,
