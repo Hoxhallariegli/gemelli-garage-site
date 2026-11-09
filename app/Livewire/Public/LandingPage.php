@@ -26,16 +26,19 @@ class LandingPage extends Component
     // UI State
     public $step = 1; // 1: Vehicle, 2: Configurator, 3: Contact
     public $success = false;
+    public $validationError = null;
 
     public function selectBodyType($id)
     {
         $this->body_type_id = $id;
+        $this->validationError = null;
         $this->step = 2;
         $this->dispatch('scroll-to-configurator');
     }
 
     public function toggleService($id)
     {
+        $this->validationError = null;
         if (in_array($id, $this->selected_services)) {
             $this->selected_services = array_diff($this->selected_services, [$id]);
         } else {
@@ -45,6 +48,7 @@ class LandingPage extends Component
 
     public function addServiceAndScroll($id)
     {
+        $this->validationError = null;
         if (!in_array($id, $this->selected_services)) {
             $this->selected_services[] = $id;
         }
@@ -54,6 +58,7 @@ class LandingPage extends Component
 
     public function selectMaterial($id)
     {
+        $this->validationError = null;
         if ($this->material_id == $id) {
             $this->material_id = null;
         } else {
@@ -63,15 +68,19 @@ class LandingPage extends Component
 
     public function goToStep($step)
     {
+        $this->validationError = null;
+
         // Validation before going to Step 3
         if ($step == 3) {
             if (empty($this->selected_services) && !$this->material_id) {
-                $this->dispatch('notify', ['type' => 'error', 'message' => __('front.select_at_least_one')]);
+                $this->validationError = __('front.select_at_least_one');
+                $this->dispatch('scroll-to-configurator');
                 return;
             }
 
             if ($this->isWrapSelected && !$this->material_id) {
-                $this->dispatch('notify', ['type' => 'error', 'message' => __('front.material_required') ?? 'Ju lutem zgjidhni materialin për Wrapping.']);
+                $this->validationError = __('front.material_required') ?? 'Ju lutem zgjidhni materialin për Wrapping.';
+                $this->dispatch('scroll-to-configurator');
                 return;
             }
         }
@@ -215,4 +224,3 @@ class LandingPage extends Component
         ])->layout('components.layouts.guest');
     }
 }
-

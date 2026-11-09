@@ -601,6 +601,18 @@
                 {{-- STEP 2: SERVICES & MATERIALS --}}
                 @if($step == 2)
                 <div class="row g-4 animate-fadeIn mt-0">
+                    @if($validationError)
+                    <div class="col-12">
+                        <div class="alert alert-danger d-flex align-items-center justify-content-between p-3 mb-2 rounded-1 border-2 text-danger font-bold text-uppercase fs-11 shadow-lg animate-fadeIn" style="background: rgba(220, 53, 69, 0.2) !important; border-color: #dc3545 !important; color: #ff6b6b !important; box-shadow: 0 0 20px rgba(220, 53, 69, 0.4) !important;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa fa-exclamation-triangle fs-16 text-danger me-2"></i>
+                                <span class="fw-bold">{{ $validationError }}</span>
+                            </div>
+                            <button type="button" wire:click="$set('validationError', null)" class="btn-close btn-close-white" style="font-size: 10px;"></button>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="{{ $this->isWrapSelected ? 'col-lg-7' : 'col-lg-12' }}">
                         <h5 class="text-white text-uppercase tracking-widest fs-10 mb-3 border-l-2 border-[#28a745] pl-3">{{ __('front.detailing_services') }}</h5>
                         <div class="row g-2">
@@ -620,12 +632,17 @@
 
                     @if($this->isWrapSelected)
                     <div class="col-lg-5 animate-fadeIn">
-                        <div class="p-4 bg-dark-2 rounded-1 shadow-2xl" style="border: 1px solid #28a745 !important;">
-                            <h5 class="text-white text-uppercase tracking-widest fs-10 mb-4">{{ __('front.choose_wrap') }}</h5>
+                        <div class="p-4 bg-dark-2 rounded-1 shadow-2xl transition-all" style="border: 2px solid {{ ($validationError && !$material_id) ? '#dc3545' : '#28a745' }} !important; {{ ($validationError && !$material_id) ? 'box-shadow: 0 0 25px rgba(220, 53, 69, 0.5) !important;' : '' }}">
+                            <h5 class="{{ ($validationError && !$material_id) ? 'text-danger' : 'text-white' }} text-uppercase tracking-widest fs-10 mb-4 flex align-items-center gap-2">
+                                @if($validationError && !$material_id)
+                                    <i class="fa fa-exclamation-circle text-danger me-1"></i>
+                                @endif
+                                {{ __('front.choose_wrap') }}
+                            </h5>
                             <div class="row g-2">
                                 @foreach($materials as $mat)
                                 <div class="col-6">
-                                    <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-2 {{ $material_id == $mat->id ? 'active' : '' }}" style="min-height: 50px;">
+                                    <div wire:click="selectMaterial({{ $mat->id }})" class="wizard-card p-2 {{ $material_id == $mat->id ? 'active' : '' }}" style="min-height: 50px; {{ ($validationError && !$material_id) ? 'border-color: rgba(220, 53, 69, 0.5) !important;' : '' }}">
                                         <h4 class="fs-10 mb-1 text-white">{{ $mat->name }}</h4>
                                         <span class="text-[#28a745] font-black fs-9" style="color: #28a745 !important;">+€{{ number_format($mat->sell_price, 0) }}/m</span>
                                     </div>
