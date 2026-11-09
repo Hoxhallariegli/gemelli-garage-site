@@ -28,18 +28,14 @@ class LanguageMiddleware
             );
 
             if (in_array($country, ['AL', 'XK', 'MK'])) {
+                // Albanian for visitors from Albania, Kosovo, North Macedonia
                 $locale = 'sq';
-            } elseif (in_array($country, ['IT', 'CH'])) {
-                $locale = 'it';
             } elseif (str_contains($acceptLang, 'sq') || str_contains($acceptLang, 'al')) {
-                // 2. If browser accepts Albanian anywhere in preference
+                // Albanian if visitor browser explicitly requests Albanian
                 $locale = 'sq';
-            } elseif (str_contains($acceptLang, 'it')) {
-                // 3. If browser accepts Italian
-                $locale = 'it';
             } else {
-                // 4. Default fallback locale for local/test
-                $locale = 'sq';
+                // Default locale for ALL other countries & visitors -> ITALIAN (it)
+                $locale = 'it';
             }
 
             session()->put('locale', $locale);
