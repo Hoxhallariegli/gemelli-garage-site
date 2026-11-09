@@ -45,6 +45,43 @@
     <link href="{{ asset('assets/front/gemelli-garage/css/custom-swiper-1.css') }}" rel="stylesheet" type="text/css" >
 
     <style>
+        #de-loader {
+            position: fixed;
+            z-index: 20000;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0d0d0d !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .loader-logo {
+            height: 75px;
+            width: auto;
+            animation: pulseLogo 1.2s ease-in-out infinite alternate;
+        }
+        .loader-spinner {
+            width: 32px;
+            height: 32px;
+            border: 3px solid rgba(40, 167, 69, 0.15);
+            border-top: 3px solid #28a745;
+            border-radius: 50%;
+            animation: spinLoader 0.7s linear infinite;
+        }
+        @keyframes pulseLogo {
+            0% { transform: scale(0.96); opacity: 0.75; filter: drop-shadow(0 0 5px rgba(40, 167, 69, 0.2)); }
+            100% { transform: scale(1.04); opacity: 1; filter: drop-shadow(0 0 20px rgba(40, 167, 69, 0.7)); }
+        }
+        @keyframes spinLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         #topbar a.lang-flag {
             opacity: .5;
             transition: all .25s ease;
@@ -87,7 +124,32 @@
         <a href="#" id="back-to-top"></a>
 
         <!-- preloader begin -->
-        <div id="de-loader"></div>
+        <div id="de-loader">
+            <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="Gemelli Car Garage" class="loader-logo">
+            <div class="loader-spinner"></div>
+        </div>
+        <!-- preloader end -->
+
+        <script>
+            (function() {
+                function hideLoader() {
+                    var loader = document.getElementById('de-loader');
+                    if (loader) {
+                        loader.style.opacity = '0';
+                        loader.style.visibility = 'hidden';
+                        setTimeout(function() { if(loader) loader.remove(); }, 300);
+                    }
+                }
+                if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                    setTimeout(hideLoader, 350);
+                } else {
+                    document.addEventListener('DOMContentLoaded', function() {
+                        setTimeout(hideLoader, 350);
+                    });
+                }
+                setTimeout(hideLoader, 1500);
+            })();
+        </script>
         <!-- preloader end -->
 
         <!-- header begin -->
