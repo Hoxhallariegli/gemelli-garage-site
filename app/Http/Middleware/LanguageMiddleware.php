@@ -17,7 +17,9 @@ class LanguageMiddleware
         if (session()->has('locale')) {
             App::setLocale(session()->get('locale'));
         } else {
-            // 1. Detect Country Code from Cloudflare or Proxy headers
+            $acceptLang = strtolower($request->header('Accept-Language') ?? $request->server('HTTP_ACCEPT_LANGUAGE') ?? '');
+
+            // 1. Check Country Code from Cloudflare or Web Server Proxy
             $country = strtoupper(
                 $request->header('CF-IPCountry')
                 ?? $request->header('X-Country-Code')
@@ -25,14 +27,19 @@ class LanguageMiddleware
                 ?? ''
             );
 
-            if ($country === 'IT') {
-                $locale = 'it';
-            } elseif (in_array($country, ['AL', 'XK', 'MK'])) {
+            if (in_array($country, ['AL', 'XK', 'MK'])) {
                 $locale = 'sq';
+            } elseif (in_array($country, ['IT', 'CH'])) {
+                $locale = 'it';
+            } elseif (str_contains($acceptLang, 'sq') || str_contains($acceptLang, 'al')) {
+                // 2. If browser accepts Albanian anywhere in preference
+                $locale = 'sq';
+            } elseif (str_contains($acceptLang, 'it')) {
+                // 3. If browser accepts Italian
+                $locale = 'it';
             } else {
-                // 2. Detect preferred language from Browser HTTP_ACCEPT_LANGUAGE header
-                $preferred = $request->getPreferredLanguage(['it', 'sq', 'en']);
-                $locale = $preferred ?: 'it'; // Default to Italian for Gemelli Garage
+                // 4. Default fallback locale for local/test
+                $locale = 'sq';
             }
 
             session()->put('locale', $locale);
