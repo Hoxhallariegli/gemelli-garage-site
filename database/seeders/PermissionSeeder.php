@@ -72,12 +72,12 @@ class PermissionSeeder extends Seeder
             ['guard_name' => 'web', 'label' => 'Administrator', 'tenant_id' => 0]
         );
 
-        Role::firstOrCreate(
+        $managerRole = Role::firstOrCreate(
             ['name' => 'manager'],
             ['guard_name' => 'web', 'label' => 'Manager', 'tenant_id' => 0]
         );
 
-        Role::firstOrCreate(
+        $staffRole = Role::firstOrCreate(
             ['name' => 'staff'],
             ['guard_name' => 'web', 'label' => 'Staff / Mechanist', 'tenant_id' => 0]
         );
@@ -85,5 +85,19 @@ class PermissionSeeder extends Seeder
         // Assign ALL permissions to Global Admin role
         $allPermissions = Permission::all();
         $adminRole->syncPermissions($allPermissions);
+
+        // Assign standard operational permissions to Manager (excluding sensitive Admin settings)
+        $managerPermissions = Permission::whereNotIn('module', ['Roles', 'SystemSettings', 'AuditTrails'])->get();
+        $managerRole->syncPermissions($managerPermissions);
+
+        // Assign view & add permissions to Staff
+        $staffPermissions = Permission::whereIn('name', [
+            'view_dashboard', 'view_workdesk', 'view_jobs', 'add_jobs', 'view_cars', 'add_cars', 'view_clients', 'add_clients', 'view_services', 'view_materials', 'view_parts'
+        ])->get();
+        $staffRole->syncPermissions($staffPermissions);
+
+        if (function_exists('app')) {
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+        }
     }
 }
