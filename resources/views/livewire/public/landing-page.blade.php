@@ -602,13 +602,13 @@
                 @if($step == 2)
                 <div class="row g-4 animate-fadeIn mt-0">
                     @if($validationError)
-                    <div class="col-12">
+                    <div class="col-12" x-data="{ show: true }" x-show="show" x-init="setTimeout(() => { show = false; $wire.set('validationError', null); }, 5000)" x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
                         <div class="alert alert-danger d-flex align-items-center justify-content-between p-3 mb-2 rounded-1 border-2 text-danger font-bold text-uppercase fs-11 shadow-lg animate-fadeIn" style="background: rgba(220, 53, 69, 0.2) !important; border-color: #dc3545 !important; color: #ff6b6b !important; box-shadow: 0 0 20px rgba(220, 53, 69, 0.4) !important;">
                             <div class="d-flex align-items-center gap-2">
                                 <i class="fa fa-exclamation-triangle fs-16 text-danger me-2"></i>
                                 <span class="fw-bold">{{ $validationError }}</span>
                             </div>
-                            <button type="button" wire:click="$set('validationError', null)" class="btn-close btn-close-white" style="font-size: 10px;"></button>
+                            <button type="button" @click="show = false; $wire.set('validationError', null)" class="btn-close btn-close-white" style="font-size: 10px;"></button>
                         </div>
                     </div>
                     @endif
