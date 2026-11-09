@@ -618,12 +618,18 @@
                         <div class="row g-2">
                             @foreach($services as $s)
                             <div class="{{ $this->isWrapSelected ? 'col-md-6' : 'col-md-4' }}">
-                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row justify-content-between p-2 {{ in_array($s->id, $selected_services) ? 'active' : '' }}" style="min-height: 50px;">
-                                    <div class="text-start">
-                                        <h4 class="mb-0 text-white fs-11">{{ $s->name }}</h4>
-                                        <span class="text-[#28a745] font-bold fs-10">€{{ number_format($s->base_price, 0) }}</span>
+                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row align-items-center gap-3 p-2.5 {{ in_array($s->id, $selected_services) ? 'active' : '' }}" style="min-height: 85px;">
+                                    <img src="{{ $s->resolved_image }}" alt="{{ $s->name }}" class="rounded-1 object-cover shrink-0" style="width: 65px; height: 55px; border-radius: 4px;">
+                                    <div class="text-start flex-grow-1">
+                                        <div class="d-flex align-items-center justify-content-between gap-1">
+                                            <h4 class="mb-0 text-white fs-11 font-bold">{{ $s->name }}</h4>
+                                            <span class="text-[#28a745] font-black fs-10" style="color: #28a745 !important;">€{{ number_format($s->base_price, 0) }}</span>
+                                        </div>
+                                        <p class="text-gray-400 fs-9 mb-0 mt-1 line-clamp-2" style="font-size: 9px; line-height: 1.25; opacity: 0.8;">{{ $s->resolved_description }}</p>
                                     </div>
-                                    @if(in_array($s->id, $selected_services)) <i class="fa fa-check-circle text-[#28a745] fs-12"></i> @endif
+                                    @if(in_array($s->id, $selected_services))
+                                        <i class="fa fa-check-circle text-[#28a745] fs-14 shrink-0 ms-1" style="color: #28a745 !important;"></i>
+                                    @endif
                                 </div>
                             </div>
                             @endforeach
