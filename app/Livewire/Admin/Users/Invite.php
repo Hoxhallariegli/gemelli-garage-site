@@ -6,9 +6,11 @@ namespace App\Livewire\Admin\Users;
 
 use App\Actions\GetInitialsAction;
 use App\Mail\Users\SendInviteMail;
+use App\Models\Garage;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -24,13 +26,10 @@ class Invite extends Component
     public string $email = '';
 
     /**
-     * @var array<int>
+     * Structure: [garage_id => [role_id1, role_id2]]
      */
-    public array $rolesSelected = [];
+    public array $garageRoles = [];
 
-    /**
-     * @var array<string, array<int, string>>
-     */
     protected array $rules = [
         'name' => [
             'required',
@@ -42,20 +41,26 @@ class Invite extends Component
             'email',
             'unique:users,email',
         ],
-        'rolesSelected' => [
-            'required',
-            'min:1',
-        ],
     ];
 
-    /**
-     * @var array<string, string>
-     */
     protected array $messages = [
         'name.required' => 'Name is required',
         'email.required' => 'Email is required',
-        'rolesSelected.required' => 'A role is required',
     ];
+
+    public function mount(): void
+    {
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->is_global_admin) {
+            $allGarages = Garage::all();
+        } else {
+            $allGarages = Garage::where('id', $currentUser?->tenant_id)->get();
+        }
+
+        foreach ($allGarages as $garage) {
+            $this->garageRoles[(int)$garage->id] = [];
+        }
+    }
 
     /**
      * @throws ValidationException
@@ -67,19 +72,34 @@ class Invite extends Component
 
     public function render(): View
     {
-        $roles = Role::orderby('name')->get();
+        $currentUser = auth()->user();
+        if ($currentUser && $currentUser->is_global_admin) {
+            $allGarages = Garage::all();
+        } else {
+            $allGarages = Garage::where('id', $currentUser?->tenant_id)->get();
+        }
 
-        return view('livewire.admin.users.invite', compact('roles'));
+        $availableRoles = Role::where('name', '!=', 'admin')->orderby('name')->get();
+
+        return view('livewire.admin.users.invite', compact('allGarages', 'availableRoles'));
     }
 
     public function store(GetInitialsAction $getInitialsAction): void
     {
         $this->validate();
 
-        $activeTenantId = auth()->user()?->tenant_id ?: 1;
+        $selectedGarageIds = collect($this->garageRoles)
+            ->filter(fn($roles) => !empty($roles))
+            ->keys()
+            ->map(fn($id) => (int)$id)
+            ->toArray();
+
+        $primaryGarageId = !empty($selectedGarageIds)
+            ? $selectedGarageIds[0]
+            : (auth()->user()?->tenant_id ?: 1);
 
         $user = User::create([
-            'tenant_id' => $activeTenantId,
+            'tenant_id' => $primaryGarageId,
             'name' => $this->name,
             'slug' => Str::slug($this->name),
             'email' => $this->email,
@@ -90,30 +110,37 @@ class Invite extends Component
             'invited_at' => now(),
         ]);
 
-        $user->garages()->syncWithoutDetaching([$activeTenantId]);
+        if (!empty($selectedGarageIds)) {
+            $user->garages()->syncWithoutDetaching($selectedGarageIds);
+        } else {
+            $user->garages()->syncWithoutDetaching([$primaryGarageId]);
+        }
 
-        // generate image
-        $name = $getInitialsAction($user->name);
+        // generate avatar image
+        $initialsName = $getInitialsAction($user->name);
         $id = $user->id.'.png';
         $path = 'users/';
-        $imagePath = create_avatar($name, $id, $path);
+        $imagePath = create_avatar($initialsName, $id, $path);
 
-        // save image
         $user->image = $imagePath;
         $user->save();
 
-        foreach ($this->rolesSelected as $roleId) {
-            $roleModel = Role::find($roleId);
-            if (! $roleModel && is_string($roleId)) {
-                $roleModel = Role::where('name', $roleId)->first();
-            }
-
-            if ($roleModel) {
-                if (function_exists('setPermissionsTeamId')) {
-                    setPermissionsTeamId($activeTenantId);
+        // Assign per-garage roles
+        foreach ($this->garageRoles as $garageId => $roleIds) {
+            if (!empty($roleIds)) {
+                foreach ($roleIds as $roleId) {
+                    DB::table('model_has_roles')->insertOrIgnore([
+                        'role_id' => $roleId,
+                        'model_id' => $user->id,
+                        'model_type' => 'App\Models\User',
+                        'tenant_id' => (int)$garageId
+                    ]);
                 }
-                $user->assignRole($roleModel);
             }
+        }
+
+        if (function_exists('app')) {
+            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         }
 
         Mail::send(new SendInviteMail($user));
@@ -127,13 +154,16 @@ class Invite extends Component
 
         flash('User invited')->success();
 
+        $this->reset(['name', 'email']);
+        $this->mount();
         $this->dispatch('refreshUsers');
         $this->dispatch('close-modal');
     }
 
     public function cancel(): void
     {
-        $this->reset();
+        $this->reset(['name', 'email']);
+        $this->mount();
         $this->dispatch('close-modal');
     }
 }

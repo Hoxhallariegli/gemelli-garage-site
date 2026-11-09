@@ -58,10 +58,15 @@
         <div class="relative z-10">
             <div class="flex justify-between items-start gap-4">
                 <div class="flex items-center gap-4 sm:gap-6">
-                    <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" class="h-16 sm:h-32 w-auto grayscale-0 shadow-none print:h-36">
+                    @if($job->garage?->logo)
+                        <img src="{{ asset(ltrim($job->garage->logo, '/')) }}" class="h-16 sm:h-24 w-auto grayscale-0 shadow-none print:h-28 rounded-xl object-contain">
+                    @else
+                        <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" class="h-16 sm:h-32 w-auto grayscale-0 shadow-none print:h-36">
+                    @endif
                     <div class="h-16 sm:h-24 w-px bg-gray-200 hidden sm:block"></div>
                     <div class="hidden sm:block">
-                        <p class="text-xs font-black uppercase tracking-[0.4em] text-[#28a745]/60 leading-none">Detailing & Wrap Studio</p>
+                        <p class="text-sm font-black uppercase tracking-[0.2em] text-[#28a745] leading-none mb-1">{{ $job->garage?->name ?? 'Gemelli Garage' }}</p>
+                        <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400 leading-none">Detailing & Wrap Studio</p>
                     </div>
                 </div>
 
@@ -79,13 +84,15 @@
             </div>
 
             <div class="mt-6 sm:mt-8 space-y-2 border-l-4 border-[#28a745]/20 pl-4 max-w-md">
-                <p class="text-xs sm:text-sm font-black text-gray-800 italic leading-tight uppercase tracking-tight">Viale della repubblica 30, Melegnano 20077</p>
+                <p class="text-xs sm:text-sm font-black text-gray-800 italic leading-tight uppercase tracking-tight">
+                    {{ $job->garage?->address ? ($job->garage->city . ' - ' . $job->garage->address) : 'Viale della repubblica 30, Melegnano 20077' }}
+                </p>
                 <div class="flex flex-col sm:flex-row gap-2 sm:gap-6">
                     <p class="text-[10px] sm:text-xs font-black text-gray-900 tracking-tighter flex items-center gap-1.5 whitespace-nowrap">
-                        <span class="text-[#28a745] font-black">TEL.</span> +39 324 801 9211
+                        <span class="text-[#28a745] font-black">TEL.</span> {{ $job->garage?->phone ?? '+39 324 801 9211' }}
                     </p>
                     <p class="text-[10px] sm:text-xs font-black text-gray-900 tracking-tighter flex items-center gap-1.5">
-                        <span class="text-[#28a745] font-black">MAIL.</span> gemellicargarage@gmail.com
+                        <span class="text-[#28a745] font-black">MAIL.</span> {{ $job->garage?->email ?? 'gemellicargarage@gmail.com' }}
                     </p>
                 </div>
             </div>

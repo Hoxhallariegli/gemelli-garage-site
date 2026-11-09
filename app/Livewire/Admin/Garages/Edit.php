@@ -46,7 +46,7 @@ class Edit extends Component
     {
         try {
             $garageId = $this->garage->id;
-            $gatewayUrl = config('services.whatsapp.gateway_url', 'http://127.0.0.1:3000/api/whatsapp/send');
+            $gatewayUrl = config('services.whatsapp.gateway_url', 'https://whatsapp-gateway-k6vv.onrender.com/api/whatsapp/send');
             $baseUrl = str_replace('/send', '', $gatewayUrl);
 
             $res = \Illuminate\Support\Facades\Http::withHeaders([
@@ -69,7 +69,7 @@ class Edit extends Component
     {
         try {
             $garageId = $this->garage->id;
-            $gatewayUrl = config('services.whatsapp.gateway_url', 'http://127.0.0.1:3000/api/whatsapp/send');
+            $gatewayUrl = config('services.whatsapp.gateway_url', 'https://whatsapp-gateway-k6vv.onrender.com/api/whatsapp/send');
             $baseUrl = str_replace('/send', '', $gatewayUrl);
 
             for ($i = 0; $i < 3; $i++) {

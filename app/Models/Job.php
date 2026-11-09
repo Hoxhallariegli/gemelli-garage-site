@@ -144,9 +144,10 @@ class Job extends Model
             'v' => time()
         ]);
 
+        $garageName = mb_strtoupper($this->garage?->name ?? 'GEMELLI GARAGE');
         $docType = $this->status === 'pending' ? __('jobs.quote') : __('jobs.invoice');
 
-        return "--- GEMELLI GARAGE ---\n\n" .
+        return "--- {$garageName} ---\n\n" .
                __('jobs.whatsapp_greeting') . " *" . ($client->name ?? __('workdesk.Client')) . "*,\n\n" .
                __('jobs.Click the link below to view the :doc and your vehicle details:', ['doc' => $docType]) . "\n\n" .
                $url;

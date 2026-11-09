@@ -83,7 +83,15 @@ trait BelongsToGarage
                 }
              } else {
                 if (\Illuminate\Support\Facades\Schema::hasColumn($tableName, 'tenant_id')) {
-                    $builder->where($tableName . '.tenant_id', $activeTenantId);
+                    if (in_array($tableName, ['vehicle_brands', 'vehicle_models', 'body_types', 'sms_templates'])) {
+                        $builder->where(function ($q) use ($tableName, $activeTenantId) {
+                            $q->where($tableName . '.tenant_id', $activeTenantId)
+                              ->orWhereNull($tableName . '.tenant_id')
+                              ->orWhere($tableName . '.tenant_id', 0);
+                        });
+                    } else {
+                        $builder->where($tableName . '.tenant_id', $activeTenantId);
+                    }
                 }
             }
         });

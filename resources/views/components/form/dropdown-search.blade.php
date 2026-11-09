@@ -15,14 +15,13 @@
     }
 @endphp
 
-<div {{ $attributes->merge(['class' => 'relative w-full space-y-1 mb-6']) }}
+<div class="relative w-full"
      data-list="{{ json_encode($list) }}"
      x-data="{
          search: '',
          isOpen: false,
          selectedId: @entangle($attributes->wire('model')),
 
-         // VËMENDJE: $el pa 'this.' — 'this' s'është i lidhur ende këtu.
          options: JSON.parse($el.getAttribute('data-list') || '[]'),
 
          get selectedLabel() {
@@ -46,6 +45,7 @@
 
              const observer = new MutationObserver(() => {
                  this.options = JSON.parse(this.$el.getAttribute('data-list') || '[]');
+                 this.search = this.selectedLabel;
              });
              observer.observe(this.$el, { attributes: true, attributeFilter: ['data-list'] });
          },
@@ -58,11 +58,13 @@
      }"
      @click.away="isOpen = false; search = selectedLabel">
 
-    @if($label != 'none' && $label != '')
-        <x-form.label :$label :$required :name="$modelName" />
+    @if($label)
+        <label class="block text-[10px] font-black text-gray-900 dark:text-gray-100 uppercase tracking-widest mb-1.5 ml-1">
+            {{ $label }} @if($required)<span class="text-red-500">*</span>@endif
+        </label>
     @endif
 
-    <div class="relative" wire:ignore>
+    <div class="relative">
         <input type="text"
                x-model="search"
                @focus="if (!{{ $disabled ? 'true' : 'false' }}) { isOpen = true; search = ''; }"
@@ -95,4 +97,7 @@
             </ul>
         </div>
     </div>
+    @error($modelName)
+        <p class="text-xs text-red-500 font-bold mt-1 ml-1">{{ $message }}</p>
+    @enderror
 </div>
