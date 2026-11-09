@@ -374,9 +374,8 @@
                         <div class="subtitle">{{ __('front.about') }}</div>
                         <h2 class="fs-40">{{ __('front.about_title') }}</h2>
                         <p class="lead font-bold text-emerald-400 mb-3">{{ __('front.about_subtitle') }}</p>
-                        <p class="lead text-gray-200">{{ __('front.about_desc_1') }}</p>
+                        <p class="lead text-gray-200 mb-3">{{ __('front.about_desc_1') }}</p>
                         <p class="text-gray-300">{{ __('front.about_desc_2') }}</p>
-                        <p class="text-gray-300">{{ __('front.about_desc_3') }}</p>
                         <div class="spacer-10"></div>
                         <a class="btn-main fx-slide" href="#configurator" x-on:click.prevent="scrollToConfigurator()"><span>{{ __('front.make_appointment') }}</span></a>
                     </div>
