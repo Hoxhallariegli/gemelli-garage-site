@@ -27,10 +27,38 @@
     <link href="{{ asset('assets/front/gemelli-garage/css/custom-swiper-1.css') }}" rel="stylesheet" type="text/css" >
 
     <style>
-        .lang-flag-img { width: 22px; height: 15px; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.5); display: block; }
-        .lang-flag { opacity: .5; transition: all .25s ease; display: inline-flex; align-items: center; padding: 2px; border-radius: 5px; text-decoration: none !important; }
-        .lang-flag:hover { opacity: 0.9; transform: translateY(-1px); }
-        .lang-flag.active { opacity: 1; border: 1.5px solid #28a745; box-shadow: 0 0 10px rgba(40,167,69,0.6); }
+        #topbar a.lang-flag {
+            opacity: .5;
+            transition: all .25s ease;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            padding: 2px !important;
+            margin: 0 !important;
+            width: auto !important;
+            height: auto !important;
+            border-radius: 4px;
+            text-decoration: none !important;
+            line-height: 1 !important;
+        }
+        #topbar a.lang-flag:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        #topbar a.lang-flag.active {
+            opacity: 1;
+            border: 1.5px solid #28a745 !important;
+            box-shadow: 0 0 8px rgba(40, 167, 69, 0.6);
+        }
+        .lang-flag-img {
+            width: 22px !important;
+            height: 15px !important;
+            border-radius: 2px;
+            object-fit: cover;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
     </style>
 
     @livewireStyles
