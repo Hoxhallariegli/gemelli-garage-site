@@ -479,7 +479,7 @@
         <div class="container">
             <div class="row text-center">
                 <div class="col-lg-12">
-                    <span class="text-xs uppercase tracking-widest text-gray-500 mb-4 d-block">{{ __('front.brands_title') }}</span>
+                    <h3 class="text-white text-uppercase tracking-widest mb-4 d-block font-bold" style="color: #ffffff !important; font-size: 18px !important; letter-spacing: 2px;">{{ __('front.brands_title') }}</h3>
 
                     <div class="row g-3 justify-content-center">
                         @foreach($materialBrands as $brand)
@@ -618,17 +618,17 @@
                         <div class="row g-2">
                             @foreach($services as $s)
                             <div class="{{ $this->isWrapSelected ? 'col-md-6' : 'col-md-4' }}">
-                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row align-items-center gap-3 p-2.5 {{ in_array($s->id, $selected_services) ? 'active' : '' }}" style="min-height: 85px;">
-                                    <img src="{{ $s->resolved_image }}" alt="{{ $s->name }}" class="rounded-1 object-cover shrink-0" style="width: 65px; height: 55px; border-radius: 4px;">
+                                <div wire:click="toggleService({{ $s->id }})" class="wizard-card flex-row align-items-center gap-3 p-3 {{ in_array($s->id, $selected_services) ? 'active' : '' }}" style="min-height: 95px;">
+                                    <img src="{{ $s->resolved_image }}" alt="{{ $s->name }}" class="rounded-1 object-cover shrink-0" style="width: 75px; height: 65px; border-radius: 6px;">
                                     <div class="text-start flex-grow-1">
-                                        <div class="d-flex align-items-center justify-content-between gap-1">
-                                            <h4 class="mb-0 text-white fs-11 font-bold">{{ $s->name }}</h4>
-                                            <span class="text-[#28a745] font-black fs-10" style="color: #28a745 !important;">€{{ number_format($s->base_price, 0) }}</span>
+                                        <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
+                                            <h4 class="mb-0 text-white font-bold" style="font-size: 13px !important; color: #ffffff !important;">{{ $s->name }}</h4>
+                                            <span class="text-[#28a745] font-black" style="color: #28a745 !important; font-size: 12px !important;">€{{ number_format($s->base_price, 0) }}</span>
                                         </div>
-                                        <p class="text-gray-400 fs-9 mb-0 mt-1 line-clamp-2" style="font-size: 9px; line-height: 1.25; opacity: 0.8;">{{ $s->resolved_description }}</p>
+                                        <p class="mb-0 line-clamp-2" style="font-size: 11px !important; line-height: 1.35 !important; color: #d1d5db !important; opacity: 1 !important; font-weight: 500 !important;">{{ $s->resolved_description }}</p>
                                     </div>
                                     @if(in_array($s->id, $selected_services))
-                                        <i class="fa fa-check-circle text-[#28a745] fs-14 shrink-0 ms-1" style="color: #28a745 !important;"></i>
+                                        <i class="fa fa-check-circle text-[#28a745] fs-16 shrink-0 ms-1" style="color: #28a745 !important;"></i>
                                     @endif
                                 </div>
                             </div>
