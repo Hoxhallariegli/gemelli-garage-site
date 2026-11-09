@@ -7,9 +7,14 @@
 
     <!-- WhatsApp & OpenGraph Preview -->
     <meta property="og:site_name" content="{{ $garage->name }}">
-    <meta property="og:title" content="{{ $garage->name }} - Studio Management">
+    <meta property="og:title" content="{{ $garage->name }} - Detailing & Wrap Studio">
     <meta property="og:description" content="Detailing, Wrap & Car Care Services at {{ $garage->name }}">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ $garage->logo ? asset(ltrim($garage->logo, '/')) : asset('assets/front/gemelli-garage/images/og-share.png') }}">
+    <meta property="og:image:secure_url" content="{{ $garage->logo ? asset(ltrim($garage->logo, '/')) : asset('assets/front/gemelli-garage/images/og-share.png') }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{{ $garage->logo ? asset(ltrim($garage->logo, '/')) : asset('assets/front/gemelli-garage/images/og-share.png') }}">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
