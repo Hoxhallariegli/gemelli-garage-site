@@ -29,6 +29,7 @@ class RegisteredUserController extends Controller
         $validated = $request->validated();
 
         $user = User::create([
+            'tenant_id' => 1,
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
             'email' => $validated['email'],
@@ -37,26 +38,30 @@ class RegisteredUserController extends Controller
             'is_office_login_only' => 0,
         ]);
 
+        $user->garages()->syncWithoutDetaching([1]);
+
         $user->image = $this->generateImage($user);
         $user->save();
 
         Role::firstOrCreate([
             'name' => 'admin',
             'label' => 'Admin',
+            'tenant_id' => 0,
         ]);
 
-        Role::firstOrCreate([
-            'name' => 'user',
-            'label' => 'User',
-        ]);
+        if (function_exists('setPermissionsTeamId')) {
+            setPermissionsTeamId(0);
+        }
 
         $user->assignRole('admin');
 
         event(new Registered($user));
 
+        auth()->login($user);
+
         flash(__('auth.verification_link_sent'))->info();
 
-        return redirect()->back();
+        return redirect()->route('dashboard');
     }
 
     public function generateImage(User $user): string
