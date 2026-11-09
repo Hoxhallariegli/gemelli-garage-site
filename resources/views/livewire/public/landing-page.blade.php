@@ -761,29 +761,30 @@
                 <div class="col-lg-10">
                     <div class="row g-4">
                         <div class="col-md-4">
-                            <div class="feature-box f-boxed style-3 text-center p-4">
-                                <i class="bg-color i-circle fa fa-location-dot"></i>
+                            <div class="feature-box f-boxed style-3 text-center p-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
+                                <i class="bg-color i-circle fa fa-location-dot mb-3"></i>
                                 <div class="text">
-                                    <h4>{{ __('front.visit_us') }}</h4>
-                                    Viale della repubblica 30,<br>Melegnano 20077
+                                    <h4 class="text-white font-bold mb-2" style="color: #ffffff !important; font-size: 16px !important; font-weight: 800 !important;">{{ __('front.visit_us') }}</h4>
+                                    <p class="text-white mb-0" style="color: #ffffff !important; font-size: 15px !important; font-weight: 700 !important; opacity: 1 !important; line-height: 1.4;">Viale della repubblica 30,<br>Melegnano 20077</p>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="feature-box f-boxed style-3 text-center p-4">
-                                <i class="bg-color i-circle fa fa-phone"></i>
+                            <div class="feature-box f-boxed style-3 text-center p-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
+                                <i class="bg-color i-circle fa fa-phone mb-3"></i>
                                 <div class="text">
-                                    <h4>{{ __('front.call_us') }}</h4>
-                                    +39 324 801 9211<br>
+                                    <h4 class="text-white font-bold mb-2" style="color: #ffffff !important; font-size: 16px !important; font-weight: 800 !important;">{{ __('front.call_us') }}</h4>
+                                    <a href="tel:+393248019211" class="text-white text-decoration-none" style="color: #ffffff !important; font-size: 15px !important; font-weight: 700 !important; opacity: 1 !important;">+39 324 801 9211</a>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="feature-box f-boxed style-3 text-center p-4">
-                                <i class="bg-color i-circle fa fa-envelope"></i>
+                            <div class="feature-box f-boxed style-3 text-center p-4" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
+                                <i class="bg-color i-circle fa fa-envelope mb-3"></i>
                                 <div class="text">
-                                    <h4>{{ __('front.message_us') }}</h4>
-                                    gemellicargarage@gmail.com<br>info@gemellicargarage.it
+                                    <h4 class="text-white font-bold mb-2" style="color: #ffffff !important; font-size: 16px !important; font-weight: 800 !important;">{{ __('front.message_us') }}</h4>
+                                    <a href="mailto:gemellicargarage@gmail.com" class="text-white text-decoration-none block mb-1" style="color: #ffffff !important; font-size: 14px !important; font-weight: 700 !important; opacity: 1 !important;">gemellicargarage@gmail.com</a>
+                                    <a href="mailto:info@gemellicargarage.it" class="text-white text-decoration-none block" style="color: #ffffff !important; font-size: 14px !important; font-weight: 700 !important; opacity: 1 !important;">info@gemellicargarage.it</a>
                                 </div>
                             </div>
                         </div>
