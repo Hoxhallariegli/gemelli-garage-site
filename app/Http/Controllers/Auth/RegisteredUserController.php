@@ -44,22 +44,22 @@ class RegisteredUserController extends Controller
         $user->save();
 
         Role::firstOrCreate([
-            'name' => 'admin',
-            'label' => 'Admin',
+            'name' => 'user',
+            'label' => 'User',
             'tenant_id' => 0,
         ]);
 
         if (function_exists('setPermissionsTeamId')) {
-            setPermissionsTeamId(0);
+            setPermissionsTeamId(1);
         }
 
-        $user->assignRole('admin');
+        $user->assignRole('user');
 
         event(new Registered($user));
 
         auth()->login($user);
 
-        flash(__('auth.verification_link_sent'))->info();
+        flash('Llogaria juaj u krijua me sukses!').info();
 
         return redirect()->route('dashboard');
     }
