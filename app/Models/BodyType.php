@@ -11,13 +11,54 @@ class BodyType extends Model
 
     protected $fillable = ['tenant_id', 'name', 'wrap_meters', 'image'];
 
-    protected function casts(): array { return [
+    protected function casts(): array {
+        return [
             'wrap_meters' => 'decimal:2',
-        ]; }
-    public static function rules($id = null): array { return [
+        ];
+    }
+
+    public static function rules($id = null): array {
+        return [
             'name' => ['required', 'string', 'max:255'],
             'wrap_meters' => ['required', 'numeric'],
             'image' => ['nullable', 'string', 'max:255'],
-        ]; }
-    public static function sortable(): array { return ['id', 'name', 'wrap_meters', 'image']; }
+        ];
+    }
+
+    public static function sortable(): array {
+        return ['id', 'name', 'wrap_meters', 'image'];
+    }
+
+    public function getResolvedImageAttribute(): string
+    {
+        if (!empty($this->image) && file_exists(public_path($this->image))) {
+            return asset($this->image);
+        }
+
+        $name = strtolower($this->name);
+
+        if (str_contains($name, 'convertible') || str_contains($name, 'cabrio')) {
+            return asset('body_types/convertible.webp');
+        }
+        if (str_contains($name, 'coupe') || str_contains($name, 'sports') || str_contains($name, 'supercar') || str_contains($name, 'hypercar') || str_contains($name, 'targa') || str_contains($name, 'liftback') || str_contains($name, 'fastback') || str_contains($name, 'roadster') || str_contains($name, 'shooting')) {
+            return asset('body_types/coupe.webp');
+        }
+        if (str_contains($name, 'hatchback') || str_contains($name, 'city') || str_contains($name, 'micro')) {
+            return asset('body_types/hatchback.webp');
+        }
+        if (str_contains($name, 'suv') || str_contains($name, 'crossover') || str_contains($name, 'off-road')) {
+            return asset('body_types/small_suv.webp');
+        }
+        if (str_contains($name, 'pickup') || str_contains($name, 'pick-up')) {
+            return asset('body_types/pickup_truck.webp');
+        }
+        if (str_contains($name, 'mpv') || str_contains($name, 'minivan')) {
+            return asset('body_types/mpv.webp');
+        }
+        if (str_contains($name, 'van') || str_contains($name, 'camper') || str_contains($name, 'motorhome') || str_contains($name, 'truck')) {
+            return asset('body_types/large_van.webp');
+        }
+
+        return asset('body_types/sedan_reference.webp');
+    }
 }

@@ -590,7 +590,7 @@
                     @foreach($bodyTypes as $bt)
                     <div class="col-lg-2 col-md-3 col-6">
                         <div wire:click="selectBodyType({{ $bt->id }})" class="wizard-card {{ $body_type_id == $bt->id ? 'active' : '' }}" style="padding: 10px;">
-                            <img src="{{ asset($bt->image) }}" alt="{{ $bt->name }}" class="img-fluid" style="max-width: 100px;">
+                            <img src="{{ $bt->resolved_image }}" alt="{{ $bt->name }}" class="img-fluid" style="max-width: 100px;">
                             <h4 class="fs-10">{{ $bt->name }}</h4>
                         </div>
                     </div>
