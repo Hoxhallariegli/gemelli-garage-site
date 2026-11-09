@@ -3,7 +3,7 @@
 return [
     // Hero & Services
     'subtitle' => 'Dove ogni dettaglio conta davvero',
-    'description' => 'Gemelli Garage offre un detailing efficiente e affidabile che restituisce lucentezza e preserva il tuo veicolo.',
+    'description' => 'Gemelli Car Garage offre un detailing efficiente e affidabile che restituisce lucentezza e preserva il tuo veicolo.',
     'configure_now' => 'Configura Ora',
     'our_services' => 'I Nostri Servizi',
     'premium_detailing' => 'Detailing Premium & Wrapping',
@@ -44,9 +44,16 @@ return [
     'name_placeholder' => 'Nome Completo',
     'phone_placeholder' => 'Telefono',
     'email_placeholder' => 'Email',
-    'notes_placeholder' => 'Note',
+    'notes_placeholder' => 'Note (es. includi anche il numero di telefono o richieste specifiche)',
     'send_request' => 'Invia Richiesta',
     'chosen_services' => 'Servizi Scelti',
+
+    // Detailed Service Descriptions
+    'tinting_desc' => 'Il nostro servizio di oscuramento vetri offre non solo un tocco di stile al tuo veicolo, ma fornisce anche protezione dai raggi UV e maggior privacy durante la guida quotidiana.',
+    'light_tinting_desc' => 'Per un look distintivo e un tocco di personalità, il nostro servizio di oscuramento fari è progettato per aggiungere un tocco di eleganza e stile alla tua auto.',
+    'wrapping_desc' => 'Trasforma completamente l\'aspetto del tuo veicolo con il nostro servizio di wrapping. Dai sfogo alla creatività e proteggi contemporaneamente la carrozzeria originale del tuo veicolo.',
+    'polishing_desc' => 'Ridona alla tua auto il suo splendore originale. La nostra lucidatura professionale elimina graffi leggeri e segni d\'usura, donando un aspetto impeccabile al veicolo.',
+    'detailing_desc' => 'Il nostro servizio di detailing è progettato per portare l\'interno ed esterno della tua auto al massimo splendore. Dai sedili alla carrozzeria, ogni dettaglio viene curato per garantire un\'esperienza di guida superiore.',
 
     // Why Wrap?
     'why_wrap_title' => 'Perché scegliere il Car Wrap?',
@@ -69,17 +76,19 @@ return [
     'brands_title' => 'Marchi di cui ci fidiamo',
 
     // Header & Footer
-    'meta_title' => 'Gemelli Car Garage - Car Detailing & Riparazioni',
-    'meta_description' => 'Gemelli Car Garage - Detailing Professionale e Wrapping',
+    'meta_title' => 'Gemelli Car Garage - Car Detailing, Wrapping & Oscuramento Vetri',
+    'meta_description' => 'Gemelli Car Garage - Benvenuti dove ridefiniamo stile, comfort e protezione per la tua auto.',
     'topbar_promo' => 'Ottieni il 50% di Sconto per i Nuovi Membri',
     'call_us' => 'Chiamaci',
     'message_us' => 'Inviaci un messaggio',
     'home' => 'Home',
     'services' => 'Servizi',
     'about' => 'Chi Siamo',
-    'about_title' => 'Esperienza & Passione',
-    'about_desc_1' => 'Presso Gemelli Car Garage, non lavoriamo solo con le auto, ce ne prendiamo cura come se fossero nostre. Con anni di esperienza nel settore del Detailing e del Wrapping, il nostro staff certificato garantisce un servizio d\'élite.',
-    'about_desc_2' => 'Utilizziamo le ultime tecnologie e i migliori materiali sul mercato (3M, Avery Dennison, KPMF) per dare al tuo veicolo la protezione e lo stile che merita.',
+    'about_title' => 'Benvenuti in Gemelli Car Garage',
+    'about_subtitle' => 'Dove ridefiniamo stile, comfort e protezione per la tua auto',
+    'about_desc_1' => 'Benvenuti in Gemelli Car Garage! Dove ridefiniamo stile, comfort e protezione per la tua auto. Con una passione per l\'eccellenza, siamo specializzati in servizi di oscuramento vetri professionale, wrapping e car detailing che migliorano la tua esperienza di guida.',
+    'about_desc_2' => 'Da Gemelli, comprendiamo l\'importanza della qualità e della precisione. I nostri tecnici esperti utilizzano tecniche all\'avanguardia e materiali premium (3M, Avery Dennison, KPMF) per garantire una finitura impeccabile che migliora l\'estetica della tua auto, offrendo nel contempo una protezione superiore dai raggi UV e la massima privacy.',
+    'about_desc_3' => 'Siamo orgogliosi di offrire soluzioni personalizzabili per soddisfare le tue esigenze specifiche, che si tratti di ridurre il riverbero, aumentare la privacy o proteggere gli interni della tua auto dai dannosi raggi solari. Il nostro impegno è una dedizione alla soddisfazione del cliente e al superamento delle aspettative.',
     'years_experience' => 'Anni di Esperienza',
     'contact' => 'Contatti',
     'contact_title' => 'Trovaci Qui',
@@ -88,11 +97,12 @@ return [
     'make_appointment' => 'Fissa un Appuntamento',
     'footer_about' => 'Presso Gemelli Car Garage, ridefiniamo lo stile e la protezione per la tua auto. Specializzati in oscuramento vetri, wrapping e detailing.',
     'company' => 'Azienda',
+    'our_services_title' => 'I Nostri Servizi - Cosa Possiamo Fare',
     'tinting' => 'Oscuramento Vetri',
     'light_tinting' => 'Oscuramento Fari',
     'wrapping' => 'Wrapping',
     'polishing' => 'Lucidatura Auto',
-    'detailing' => 'Detailing Interno/Esterno',
+    'detailing' => 'Detailing Interno ed Esterno',
     'legal_office' => 'Sede Legale',
     'terms' => 'Termini e Condizioni',
     'terms_content' => '
