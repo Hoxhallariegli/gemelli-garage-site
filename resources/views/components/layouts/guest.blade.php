@@ -27,10 +27,10 @@
     <link href="{{ asset('assets/front/gemelli-garage/css/custom-swiper-1.css') }}" rel="stylesheet" type="text/css" >
 
     <style>
-        .size-20px { width: 20px; height: auto; border-radius: 2px; }
-        .lang-flag { opacity: .4; transition: all .3s ease; display: flex; align-items: center; }
-        .lang-flag:hover, .lang-flag.active { opacity: 1; transform: scale(1.1); }
-        .lang-flag.active { border-bottom: 2px solid #28a745; padding-bottom: 2px; }
+        .lang-flag-icon { width: 22px; height: 15px; border-radius: 3px; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.4); display: block; }
+        .lang-flag { opacity: .45; transition: all .25s ease; display: inline-flex; align-items: center; padding: 2px; border-radius: 4px; text-decoration: none !important; }
+        .lang-flag:hover { opacity: 0.85; transform: translateY(-1px); }
+        .lang-flag.active { opacity: 1; border: 1.5px solid #28a745; box-shadow: 0 0 8px rgba(40,167,69,0.5); }
     </style>
 
     @livewireStyles
@@ -52,22 +52,21 @@
                         <div class="col-lg-12">
                             <div class="d-flex justify-content-between xs-hide">
                                 <div class="d-flex">
-                                    <div class="topbar-widget"><a href="#"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/bell.svg') }}" class="" alt="">{{ __('front.topbar_promo') }}</a></div>
                                 </div>
-                                <div class="d-flex">
+                                <div class="d-flex align-items-center">
                                     <div class="topbar-widget me-4 d-flex align-items-center gap-2">
                                         <a href="{{ route('language.switch', 'sq') }}" class="lang-flag {{ app()->getLocale() == 'sq' ? 'active' : '' }}" title="Shqip">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 700" class="size-20px"><path fill="#e41e20" d="M0 0h980v700H0z"/><path d="M490 148l24 48 43-26-8 49 50 4-33 38 31 39-49-7-14 49-14-49-49 7 31-39-33-38 50-4-8-49 43 26 24-48z"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 700" class="lang-flag-icon"><path fill="#e41e20" d="M0 0h980v700H0z"/><path fill="#000" d="M490 170c-9 20-30 35-51 30 15-8 27-22 28-39-16 8-35 9-52 3 13-10 28-15 44-15-18-5-35-15-47-28 17 3 35 1 51-6-15-12-25-29-28-48 16 10 33 16 52 16-11-15-16-33-14-52 14 13 26 29 37 46 11-17 23-33 37-46-2 19-7 37-14 52 19 0 36-6 52-16-3 19-13 36-28 48 16 7 34 9 51 6-12 13-29 23-47 28 16 0 31 5 44 15-17 6-36 5-52-3 1 17 13 31 28 39-21 5-42-10-51-30z"/></svg>
                                         </a>
                                         <a href="{{ route('language.switch', 'en') }}" class="lang-flag {{ app()->getLocale() == 'en' ? 'active' : '' }}" title="English">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" class="size-20px"><path fill="#012169" d="M0 0h60v30H0z"/><path stroke="#fff" stroke-width="6" d="M0 0l60 30M60 0L0 30"/><path stroke="#C8102E" stroke-width="4" d="M0 0l60 30M60 0L0 30"/><path stroke="#fff" stroke-width="10" d="M30 0v30M0 15h60"/><path stroke="#C8102E" stroke-width="6" d="M30 0v30M0 15h60"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 30" class="lang-flag-icon"><clipPath id="a"><path d="M0 0v30h60V0z"/></clipPath><clipPath id="b"><path d="M30 15h30v15H30zM0 0h30v15H0zM30 0h30v15H30zM0 15h30v15H0z"/></clipPath><g clip-path="url(#a)"><path fill="#012169" d="M0 0h60v30H0z"/><path stroke="#fff" stroke-width="6" d="M0 0l60 30M60 0L0 30"/><path stroke="#C8102E" stroke-width="4" d="M0 0l60 30M60 0L0 30" clip-path="url(#b)"/><path stroke="#fff" stroke-width="10" d="M30 0v30M0 15h60"/><path stroke="#C8102E" stroke-width="6" d="M30 0v30M0 15h60"/></g></svg>
                                         </a>
                                         <a href="{{ route('language.switch', 'it') }}" class="lang-flag {{ app()->getLocale() == 'it' ? 'active' : '' }}" title="Italiano">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" class="size-20px"><path fill="#009246" d="M0 0h1v2H0z"/><path fill="#fff" d="M1 0h1v2H1z"/><path fill="#ce2b37" d="M2 0h1v2H2z"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1000" class="lang-flag-icon"><path fill="#009246" d="M0 0h500v1000H0z"/><path fill="#fff" d="M500 0h500v1000H500z"/><path fill="#ce2b37" d="M1000 0h500v1000h-500z"/></svg>
                                         </a>
                                     </div>
-                                    <div class="topbar-widget me-5"><a href="#"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/phone.svg') }}" class="" alt="">{{ __('front.call_us') }}: +39 324 801 9211</a></div>
-                                    <div class="topbar-widget"><a href="#"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/envelope.svg') }}" class="" alt="">{{ __('front.message_us') }}: gemellicargarage@gmail.com</a></div>
+                                    <div class="topbar-widget me-5"><a href="tel:+393248019211"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/phone.svg') }}" class="" alt="">{{ __('front.call_us') }}: +39 324 801 9211</a></div>
+                                    <div class="topbar-widget"><a href="mailto:gemellicargarage@gmail.com"><img src="{{ asset('assets/front/gemelli-garage/images/svg-white/envelope.svg') }}" class="" alt="">{{ __('front.message_us') }}: gemellicargarage@gmail.com</a></div>
                                 </div>
                             </div>
                         </div>
