@@ -19,8 +19,8 @@ trait BelongsToGarage
 
         static::saving(function ($model) {
             foreach ($model->getAttributes() as $key => $value) {
-                if ($value === '' || $value === null) {
-                    if ($model->hasCast($key, ['int', 'integer', 'decimal', 'float', 'double'])) {
+                if ($value === '') {
+                    if ($model->hasCast($key, ['int', 'integer', 'decimal', 'float', 'double']) || str_ends_with($key, '_id')) {
                         $model->setAttribute($key, null);
                     } elseif ($model->hasCast($key, ['bool', 'boolean'])) {
                         $model->setAttribute($key, 0);
