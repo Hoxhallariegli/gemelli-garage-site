@@ -19,4 +19,5 @@ yarn-error.log
 /.vscode
 .htaccess
 /mobile-gateway/
+/whatsapp-gateway/
 /storage/app/firebase/*.json
