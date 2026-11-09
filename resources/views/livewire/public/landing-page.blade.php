@@ -381,7 +381,7 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="relative">
-                            <img src="{{ asset('assets/front/gemelli-garage/images/misc/c1.webp') }}" class="img-fluid rounded-1" alt="">
+                            <img src="{{ asset('assets/front/gemelli-garage/images/misc/c1.webp') }}" loading="lazy" decoding="async" class="img-fluid rounded-1" alt="">
                             <div class="abs p-4 bg-color text-light rounded-1 start-0 bottom-0 m-4 sm-hide">
                                 <h3 class="mb-0">10+</h3>
                                 <div class="text-sm uppercase tracking-widest">{{ __('front.years_experience') ?? 'Vite Eksperiencë' }}</div>
