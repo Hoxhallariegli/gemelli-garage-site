@@ -10,6 +10,11 @@
     <meta content="" name="keywords" >
     <meta content="" name="author" >
 
+    <!-- Google Fonts Preconnect for Fast LCP & Zero CLS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600;1,700;1,800&display=swap" rel="stylesheet">
+
     <!-- OpenGraph / Social Media Share Preview (WhatsApp, Facebook, Instagram, LinkedIn, Twitter) -->
     <meta property="og:site_name" content="Gemelli Car Garage">
     <meta property="og:type" content="website">
@@ -191,8 +196,8 @@
                                 <!-- logo begin -->
                                 <div id="logo">
                                     <a href="/">
-                                        <img class="logo-main" src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="" style="height: 60px;">
-                                        <img class="logo-mobile" src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="" style="height: 50px;">
+                                        <img class="logo-main" src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="Gemelli Car Garage" width="160" height="60" style="height: 60px; width: auto;">
+                                        <img class="logo-mobile" src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="Gemelli Car Garage" width="130" height="50" style="height: 50px; width: auto;">
                                     </a>
                                 </div>
                                 <!-- logo end -->
@@ -237,7 +242,7 @@
           <div class="container">
             <div class="row gx-5">
               <div class="col-lg-4 col-sm-6">
-                <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" class="logo-footer" alt="" style="height: 100px;">
+                <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" class="logo-footer" alt="Gemelli Car Garage" width="200" height="100" style="height: 100px; width: auto;" loading="lazy">
                 <div class="spacer-20"></div>
                 <p>{{ __('front.footer_about') }}</p>
 
