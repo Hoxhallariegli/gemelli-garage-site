@@ -341,8 +341,7 @@
     <div wire:ignore wire:key="landing-static-part">
         <div id="top"></div>
 
-        <section class="jarallax" style="min-height: 100vh;">
-            <img src="{{ asset('assets/front/gemelli-garage/images/background/4.webp') }}" class="jarallax-img" alt="">
+        <section style="background-image: url('{{ asset('assets/front/gemelli-garage/images/background/4.webp') }}'); background-position: center; background-size: cover; background-repeat: no-repeat; min-height: 100vh; position: relative;">
             <div class="sw-overlay"></div>
             <div class="gradient-edge-bottom"></div>
             <div class="container relative z-3">
