@@ -12,8 +12,8 @@ class WhatsAppService
 
     public function __construct()
     {
-        $this->gatewayUrl = config('services.whatsapp.gateway_url', 'https://whatsapp-gateway-k6vv.onrender.com/api/whatsapp/send');
-        $this->secretKey = config('services.whatsapp.secret', 'E4ProTech_Secret_Key_2026_Secure');
+        $this->gatewayUrl = (string) config('services.whatsapp.gateway_url');
+        $this->secretKey = (string) config('services.whatsapp.secret');
     }
 
     /**
@@ -21,7 +21,8 @@ class WhatsAppService
      */
     public function send(string $phone, string $message, int|string|null $tenantId = null, int|string|null $clientId = null, ?string $templateType = null): bool
     {
-        if (empty($phone) || empty($message)) {
+        if (empty($phone) || empty($message) || empty($this->gatewayUrl)) {
+            Log::warning("WhatsApp send aborted: missing phone, message or gatewayUrl.");
             return false;
         }
 
@@ -32,7 +33,6 @@ class WhatsAppService
                 'tenant_id' => (string) ($tenantId ?: '1'),
             ];
 
-            // Increased timeout and added 2 retries to handle Render free-tier cold-start delays
             $response = Http::withHeaders([
                 'X-API-KEY' => $this->secretKey,
             ])->retry(2, 500)->timeout(20)->post($this->gatewayUrl, $payload);
@@ -74,6 +74,8 @@ class WhatsAppService
      */
     public function isConnected(int|string|null $tenantId = null): bool
     {
+        if (empty($this->gatewayUrl)) return false;
+
         try {
             $key = "tenant_" . ($tenantId ?: '1');
             $statusUrl = str_replace('/send', '/status', $this->gatewayUrl) . '?session_key=' . $key;

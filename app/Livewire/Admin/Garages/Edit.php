@@ -46,11 +46,13 @@ class Edit extends Component
     {
         try {
             $garageId = $this->garage->id;
-            $gatewayUrl = config('services.whatsapp.gateway_url', 'https://whatsapp-gateway-k6vv.onrender.com/api/whatsapp/send');
+            $gatewayUrl = (string) config('services.whatsapp.gateway_url');
+            if (empty($gatewayUrl)) return;
+
             $baseUrl = str_replace('/send', '', $gatewayUrl);
 
             $res = \Illuminate\Support\Facades\Http::withHeaders([
-                'X-API-KEY' => config('services.whatsapp.secret', 'E4ProTech_Secret_Key_2026_Secure')
+                'X-API-KEY' => (string) config('services.whatsapp.secret')
             ])->timeout(5)->get("{$baseUrl}/status?session_key=tenant_{$garageId}");
 
             if ($res->successful()) {
@@ -69,12 +71,17 @@ class Edit extends Component
     {
         try {
             $garageId = $this->garage->id;
-            $gatewayUrl = config('services.whatsapp.gateway_url', 'https://whatsapp-gateway-k6vv.onrender.com/api/whatsapp/send');
+            $gatewayUrl = (string) config('services.whatsapp.gateway_url');
+            if (empty($gatewayUrl)) {
+                $this->dispatch('toast', message: 'Mungon WHATSAPP_GATEWAY_URL te .env', type: 'error');
+                return;
+            }
+
             $baseUrl = str_replace('/send', '', $gatewayUrl);
 
             for ($i = 0; $i < 3; $i++) {
                 $res = \Illuminate\Support\Facades\Http::withHeaders([
-                    'X-API-KEY' => config('services.whatsapp.secret', 'E4ProTech_Secret_Key_2026_Secure')
+                    'X-API-KEY' => (string) config('services.whatsapp.secret')
                 ])->timeout(10)->get("{$baseUrl}/qr?session_key=tenant_{$garageId}");
 
                 if ($res->successful()) {
