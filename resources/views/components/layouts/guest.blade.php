@@ -60,32 +60,48 @@
             height: 100vh;
             background: #0d0d0d !important;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 15px;
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .loader-logo {
+        #de-loader .lds-roller,
+        #de-loader .lds-roller div {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        .loader-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid rgba(40, 167, 69, 0.12);
+            border-top: 3px solid #28a745;
+            border-right: 3px solid #28a745;
+            animation: spinRing 0.9s linear infinite;
+            box-shadow: 0 0 15px rgba(40, 167, 69, 0.25);
+        }
+        .loader-logo-center {
             height: 75px;
             width: auto;
+            object-fit: contain;
+            z-index: 2;
             animation: pulseLogo 1.2s ease-in-out infinite alternate;
         }
-        .loader-spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid rgba(40, 167, 69, 0.15);
-            border-top: 3px solid #28a745;
-            border-radius: 50%;
-            animation: spinLoader 0.7s linear infinite;
-        }
-        @keyframes pulseLogo {
-            0% { transform: scale(0.96); opacity: 0.75; filter: drop-shadow(0 0 5px rgba(40, 167, 69, 0.2)); }
-            100% { transform: scale(1.04); opacity: 1; filter: drop-shadow(0 0 20px rgba(40, 167, 69, 0.7)); }
-        }
-        @keyframes spinLoader {
+        @keyframes spinRing {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        @keyframes pulseLogo {
+            0% { transform: scale(0.95); opacity: 0.8; filter: drop-shadow(0 0 4px rgba(40, 167, 69, 0.3)); }
+            100% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 18px rgba(40, 167, 69, 0.8)); }
         }
 
         #topbar a.lang-flag {
@@ -131,8 +147,10 @@
 
         <!-- preloader begin -->
         <div id="de-loader">
-            <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="Gemelli Car Garage" class="loader-logo">
-            <div class="loader-spinner"></div>
+            <div class="loader-wrapper">
+                <div class="loader-ring"></div>
+                <img src="{{ asset('assets/front/gemelli-garage/images/logo-gemelli.png') }}" alt="Gemelli Car Garage" class="loader-logo-center">
+            </div>
         </div>
         <!-- preloader end -->
 
