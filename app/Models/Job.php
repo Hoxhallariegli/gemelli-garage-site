@@ -146,9 +146,21 @@ class Job extends Model
 
         $garageName = mb_strtoupper($this->garage?->name ?? 'GEMELLI GARAGE');
         $docType = $this->status === 'pending' ? __('jobs.quote') : __('jobs.invoice');
+        $clientName = $client->name ?? __('workdesk.Client');
+
+        // Check if template exists in DB
+        $templateBody = \App\Models\SmsTemplate::getTemplate('job_view');
+
+        if ($templateBody) {
+            return str_replace(
+                ['{name}', '{link_view}', '{garage}', '{doc}'],
+                [$clientName, $url, $garageName, $docType],
+                $templateBody
+            );
+        }
 
         return "--- {$garageName} ---\n\n" .
-               __('jobs.whatsapp_greeting') . " *" . ($client->name ?? __('workdesk.Client')) . "*,\n\n" .
+               __('jobs.whatsapp_greeting') . " *" . $clientName . "*,\n\n" .
                __('jobs.Click the link below to view the :doc and your vehicle details:', ['doc' => $docType]) . "\n\n" .
                $url;
     }

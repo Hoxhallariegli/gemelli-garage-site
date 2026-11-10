@@ -20,9 +20,22 @@ class Row extends Component
             $whatsapp = app(\App\Services\WhatsAppService::class);
             $brandStr = $this->item->brand ?? '';
             $modelStr = $this->item->model ?? '';
-            $msg = "--- GEMELLI GARAGE ---\n\n" .
-                   "Përshëndetje *" . $this->item->name . "*,\n\n" .
-                   "Po ju kontaktojmë në lidhje me kërkesën tuaj për servis mjeti (" . trim("$brandStr $modelStr") . ").";
+            $vehicleStr = trim("$brandStr $modelStr");
+            $garageName = mb_strtoupper($this->item->garage?->name ?? 'GEMELLI GARAGE');
+
+            $templateBody = \App\Models\SmsTemplate::getTemplate('job_request_reply');
+
+            if ($templateBody) {
+                $msg = str_replace(
+                    ['{name}', '{vehicle}', '{garage}'],
+                    [$this->item->name, $vehicleStr, $garageName],
+                    $templateBody
+                );
+            } else {
+                $msg = "--- {$garageName} ---\n\n" .
+                       "Përshëndetje *" . $this->item->name . "*,\n\n" .
+                       "Po ju kontaktojmë në lidhje me kërkesën tuaj për servis mjeti (" . $vehicleStr . ").";
+            }
 
             $sent = $whatsapp->send(
                 phone: $this->item->phone,

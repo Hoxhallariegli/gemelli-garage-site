@@ -13,7 +13,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PermissionSeeder::class,
             BodyTypeSeeder::class,
-            SmsTemplateSeeder::class,
             AppDatabaseSeeder::class,
             RolesDatabaseSeeder::class,
             SettingsDatabaseSeeder::class,

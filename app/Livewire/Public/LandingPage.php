@@ -182,11 +182,24 @@ class LandingPage extends Component
                 $whatsapp = app(\App\Services\WhatsAppService::class);
                 $brandStr = $item->brand ?? '';
                 $modelStr = $item->model ?? '';
-                $msg = "--- GEMELLI GARAGE ---\n\n" .
-                       "Përshëndetje *" . $item->name . "*,\n\n" .
-                       "Aplikimi juaj për rezervim të mjetit (" . trim("$brandStr $modelStr") . ") u realizua me sukses!\n\n" .
-                       "Ekipi ynë po e shqyrton kërkesën dhe do t'ju kontaktojë së shpejti për konfirmimin përfundimtar.\n\n" .
-                       "Faleminderit!";
+                $vehicleStr = trim("$brandStr $modelStr");
+                $garageName = mb_strtoupper($item->garage?->name ?? 'GEMELLI GARAGE');
+
+                $templateBody = \App\Models\SmsTemplate::getTemplate('booking_confirmation');
+
+                if ($templateBody) {
+                    $msg = str_replace(
+                        ['{name}', '{vehicle}', '{garage}'],
+                        [$item->name, $vehicleStr, $garageName],
+                        $templateBody
+                    );
+                } else {
+                    $msg = "--- {$garageName} ---\n\n" .
+                           "Përshëndetje *" . $item->name . "*,\n\n" .
+                           "Aplikimi juaj për rezervim të mjetit (" . $vehicleStr . ") u realizua me sukses!\n\n" .
+                           "Ekipi ynë po e shqyrton kërkesën dhe do t'ju kontaktojë së shpejti për konfirmimin përfundimtar.\n\n" .
+                           "Faleminderit!";
+                }
 
                 $whatsapp->send(
                     phone: $item->phone,
