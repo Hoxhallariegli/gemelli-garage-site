@@ -12,8 +12,8 @@ class WhatsAppService
 
     public function __construct()
     {
-        $this->gatewayUrl = config('services.whatsapp.gateway_url', 'http://127.0.0.1:3000/api/whatsapp/send');
-        $this->secretKey = config('services.whatsapp.secret', 'Gemelli_Secret_Key_2026_Secure');
+        $this->gatewayUrl = config('services.whatsapp.gateway_url', 'https://whatsapp-gateway-k6vv.onrender.com/api/whatsapp/send');
+        $this->secretKey = config('services.whatsapp.secret', 'E4ProTech_Secret_Key_2026_Secure');
     }
 
     /**
@@ -32,9 +32,10 @@ class WhatsAppService
                 'tenant_id' => (string) ($tenantId ?: '1'),
             ];
 
+            // Increased timeout and added 2 retries to handle Render free-tier cold-start delays
             $response = Http::withHeaders([
                 'X-API-KEY' => $this->secretKey,
-            ])->timeout(8)->post($this->gatewayUrl, $payload);
+            ])->retry(2, 500)->timeout(20)->post($this->gatewayUrl, $payload);
 
             $isSuccess = $response->successful() && $response->json('success') === true;
 
@@ -78,7 +79,7 @@ class WhatsAppService
             $statusUrl = str_replace('/send', '/status', $this->gatewayUrl) . '?session_key=' . $key;
             $response = Http::withHeaders([
                 'X-API-KEY' => $this->secretKey,
-            ])->timeout(3)->get($statusUrl);
+            ])->retry(2, 300)->timeout(10)->get($statusUrl);
 
             return $response->successful() && $response->json('connected') === true;
         } catch (\Exception $e) {
