@@ -14,12 +14,19 @@ class SmsTemplates extends Component
     public ?int $templateId = null;
 
     public string $type = '';
-    public string $body = '';
+    public array $body = [
+        'sq' => '',
+        'it' => '',
+        'en' => '',
+    ];
+    public string $activeTab = 'sq';
     public bool $is_active = true;
 
     protected $rules = [
         'type' => 'required|string|max:255',
-        'body' => 'required|string',
+        'body.sq' => 'nullable|string',
+        'body.it' => 'nullable|string',
+        'body.en' => 'nullable|string',
         'is_active' => 'boolean',
     ];
 
@@ -27,12 +34,23 @@ class SmsTemplates extends Component
     {
         return view('livewire.admin.sms.sms-templates', [
             'templates' => SmsTemplate::all(),
+            'locales' => [
+                'sq' => 'Shqip 🇦🇱',
+                'it' => 'Italiano 🇮🇹',
+                'en' => 'English 🇬🇧',
+            ],
         ])->layout('components.layouts.app');
     }
 
     public function create(): void
     {
-        $this->reset(['type', 'body', 'is_active', 'templateId']);
+        $this->reset(['type', 'templateId', 'is_active']);
+        $this->body = [
+            'sq' => '',
+            'it' => '',
+            'en' => '',
+        ];
+        $this->activeTab = 'sq';
         $this->showingModal = true;
     }
 
@@ -41,7 +59,24 @@ class SmsTemplates extends Component
         $template = SmsTemplate::findOrFail($id);
         $this->templateId = $id;
         $this->type = $template->type;
-        $this->body = $template->body;
+
+        $decoded = is_array($template->body) ? $template->body : json_decode((string)$template->body, true);
+
+        if (is_array($decoded)) {
+            $this->body = [
+                'sq' => $decoded['sq'] ?? '',
+                'it' => $decoded['it'] ?? '',
+                'en' => $decoded['en'] ?? '',
+            ];
+        } else {
+            $this->body = [
+                'sq' => (string)$template->body,
+                'it' => (string)$template->body,
+                'en' => (string)$template->body,
+            ];
+        }
+
+        $this->activeTab = 'sq';
         $this->is_active = $template->is_active;
         $this->showingModal = true;
     }
@@ -50,22 +85,34 @@ class SmsTemplates extends Component
     {
         $this->validate();
 
-        SmsTemplate::updateOrCreate(
-            ['id' => $this->templateId],
-            [
+        $encodedBody = is_array($this->body)
+            ? json_encode($this->body, JSON_UNESCAPED_UNICODE)
+            : (string) $this->body;
+
+        if ($this->templateId) {
+            $template = SmsTemplate::find($this->templateId);
+            if ($template) {
+                $template->update([
+                    'type' => $this->type,
+                    'body' => $encodedBody,
+                    'is_active' => $this->is_active,
+                ]);
+            }
+        } else {
+            SmsTemplate::create([
                 'type' => $this->type,
-                'body' => $this->body,
+                'body' => $encodedBody,
                 'is_active' => $this->is_active,
-            ]
-        );
+            ]);
+        }
 
         $this->showingModal = false;
-        $this->dispatch('toast', ['message' => __('Template saved successfully!'), 'type' => 'success']);
+        $this->dispatch('toast', message: __('Template saved successfully!'), type: 'success');
     }
 
     public function delete(int $id): void
     {
         SmsTemplate::findOrFail($id)->delete();
-        $this->dispatch('toast', ['message' => __('Template deleted.'), 'type' => 'success']);
+        $this->dispatch('toast', message: __('Template deleted.'), type: 'success');
     }
 }
