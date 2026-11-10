@@ -63,7 +63,7 @@
                             <span>WhatsApp për këtë garazh është 100% i lidhur dhe aktiv! {{ $wa_phone ? '('.$wa_phone.')' : '' }}</span>
                         </div>
                     @elseif($wa_qr)
-                        <div class="flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 text-center space-y-3">
+                        <div wire:poll.3s="checkWhatsAppStatus" class="flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 text-center space-y-3">
                             <p class="text-xs font-bold text-gray-700 dark:text-gray-300">Skanoni këtë QR Code me aplikacionin WhatsApp në telefonin tuaj:</p>
                             <div class="p-3 bg-white rounded-2xl shadow-md inline-block">
                                 <img src="{{ $wa_qr }}" alt="WhatsApp QR Code" class="w-64 h-64 object-contain">
