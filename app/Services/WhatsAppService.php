@@ -26,11 +26,22 @@ class WhatsAppService
             return false;
         }
 
+        // Clean & format phone number to international format
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+        if (str_starts_with($phone, '06')) {
+            $phone = '355' . substr($phone, 1);
+        } elseif (strlen($phone) === 9 && str_starts_with($phone, '6')) {
+            $phone = '355' . $phone;
+        }
+
         try {
+            $sessionKey = "tenant_" . ($tenantId ?: '1');
+
             $payload = [
                 'phone' => $phone,
                 'message' => $message,
-                'tenant_id' => (string) ($tenantId ?: '1'),
+                'tenant_id' => $sessionKey,
+                'session_key' => $sessionKey,
             ];
 
             $response = Http::withHeaders([
