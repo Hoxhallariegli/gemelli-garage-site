@@ -4,6 +4,7 @@
 <head>
     <title>{{ __('front.meta_title') }}</title>
     <link rel="icon" href="{{ asset('assets/front/gemelli-garage/images/icon.webp') }}" type="image/gif" sizes="16x16">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="width=device-width, initial-scale=1.0" name="viewport" >
     <meta content="{{ __('front.meta_description') }}" name="description" >
