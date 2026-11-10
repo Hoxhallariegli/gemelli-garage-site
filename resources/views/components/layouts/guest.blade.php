@@ -374,10 +374,10 @@
     </div>
 
     <!-- Javascript Files ================================================== -->
-    <script src="{{ asset('assets/front/gemelli-garage/js/plugins.js') }}"></script>
-    <script src="{{ asset('assets/front/gemelli-garage/js/designesia.js') }}"></script>
-    <script src="{{ asset('assets/front/gemelli-garage/js/swiper.js') }}"></script>
-    <script src="{{ asset('assets/front/gemelli-garage/js/custom-swiper-2.js') }}"></script>
+    <script src="{{ asset('assets/front/gemelli-garage/js/plugins.js') }}" defer></script>
+    <script src="{{ asset('assets/front/gemelli-garage/js/designesia.js') }}" defer></script>
+    <script src="{{ asset('assets/front/gemelli-garage/js/swiper.js') }}" defer></script>
+    <script src="{{ asset('assets/front/gemelli-garage/js/custom-swiper-2.js') }}" defer></script>
 
     @livewireScripts
 </body>
