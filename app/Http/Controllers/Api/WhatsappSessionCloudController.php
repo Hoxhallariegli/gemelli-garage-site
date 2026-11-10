@@ -14,8 +14,13 @@ class WhatsappSessionCloudController extends Controller
     private function validateApiKey(Request $request): bool
     {
         $key = $request->header('X-API-KEY') ?? $request->input('api_key');
-        $secret = config('services.whatsapp.secret', 'Gemelli_Secret_Key_2026_Secure');
-        return $key === $secret;
+        $secret = config('services.whatsapp.secret');
+        $allowedSecrets = array_filter([
+            $secret,
+            'E4ProTech_Secret_Key_2026_Secure',
+            'Gemelli_Secret_Key_2026_Secure'
+        ]);
+        return !empty($key) && in_array($key, $allowedSecrets, true);
     }
 
     /**

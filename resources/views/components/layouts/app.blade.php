@@ -235,8 +235,8 @@
 
         // Intercept all navigations to login and force hard reload
         document.addEventListener('livewire:navigate', (event) => {
-            const url = event.detail.url;
-            if (url.includes('/login') || url.includes('/logout')) {
+            const url = event.detail?.url;
+            if (typeof url === 'string' && (url.includes('/login') || url.includes('/logout'))) {
                 event.preventDefault();
                 window.location.href = url;
             }
