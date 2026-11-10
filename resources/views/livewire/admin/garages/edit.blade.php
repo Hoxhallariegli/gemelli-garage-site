@@ -41,8 +41,8 @@
                                 <x-heroicon-o-chat-bubble-left-right class="size-6 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
-                                <h4 class="font-black text-sm text-gray-900 dark:text-white">Integrimi WhatsApp QR Code për {{ $name }}</h4>
-                                <p class="text-xs text-gray-500">Çiftimi me numrin e telefonit bëhet automatikisht me seancën <span class="font-mono font-bold text-emerald-600">tenant_{{ $garage->id }}</span></p>
+                                <h4 class="font-black text-sm text-gray-900 dark:text-white uppercase tracking-tight">Integrimi WhatsApp QR Code për {{ $name }}</h4>
+                                <p class="text-xs text-gray-500 font-bold">Çiftimi me numrin e telefonit bëhet automatikisht për garazhin: <span class="font-bold text-emerald-600">{{ $garage->name }}</span> ({{ $garage->slug }})</p>
                             </div>
                         </div>
 
