@@ -12,8 +12,12 @@ class SmsLog extends Model
 
     protected $fillable = [
         'tenant_id',
+        'client_id',
+        'phone',
         'phone_number',
+        'message',
         'body',
+        'type',
         'status',
         'template_type',
         'fcm_message_id',

@@ -46,9 +46,12 @@ class WhatsAppService
                         'tenant_id' => $tenantId ?: 1,
                         'client_id' => $clientId ?: null,
                         'phone' => $phone,
+                        'phone_number' => $phone,
                         'message' => $message,
+                        'body' => $message,
                         'status' => $isSuccess ? 'sent' : 'failed',
                         'type' => 'whatsapp',
+                        'template_type' => $templateType ?: 'whatsapp',
                         'sent_at' => now(),
                     ]);
                 }
