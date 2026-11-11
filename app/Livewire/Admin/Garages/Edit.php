@@ -50,10 +50,11 @@ class Edit extends Component
             if (empty($gatewayUrl)) return;
 
             $baseUrl = str_replace('/send', '', $gatewayUrl);
+            $appUrl = urlencode((string) config('app.url', 'https://www.gemellicargarage.com'));
 
             $res = \Illuminate\Support\Facades\Http::withHeaders([
                 'X-API-KEY' => (string) config('services.whatsapp.secret')
-            ])->timeout(5)->get("{$baseUrl}/status?session_key=tenant_{$garageId}");
+            ])->timeout(5)->get("{$baseUrl}/status?session_key=tenant_{$garageId}&app_url={$appUrl}&host_url={$appUrl}");
 
             if ($res->successful()) {
                 $this->wa_connected = (bool) $res->json('connected');
@@ -78,11 +79,12 @@ class Edit extends Component
             }
 
             $baseUrl = str_replace('/send', '', $gatewayUrl);
+            $appUrl = urlencode((string) config('app.url', 'https://www.gemellicargarage.com'));
 
             for ($i = 0; $i < 3; $i++) {
                 $res = \Illuminate\Support\Facades\Http::withHeaders([
                     'X-API-KEY' => (string) config('services.whatsapp.secret')
-                ])->timeout(10)->get("{$baseUrl}/qr?session_key=tenant_{$garageId}");
+                ])->timeout(10)->get("{$baseUrl}/qr?session_key=tenant_{$garageId}&app_url={$appUrl}&host_url={$appUrl}");
 
                 if ($res->successful()) {
                     $this->wa_connected = (bool) $res->json('connected');
