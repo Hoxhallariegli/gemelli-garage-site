@@ -12,9 +12,14 @@
     <div class="bg-white dark:bg-gray-800 p-8 sm:p-12 rounded-[2.5rem] shadow-sm border border-gray-50 dark:border-gray-700">
         <form wire:submit.prevent="update" class="space-y-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
-                <div class="space-y-8">
+                <div class="space-y-6">
                     <x-form.input name="name" type="text" wire:model="name" :label="__('body-types.Name')" class="dark:bg-gray-900" />
                     <x-form.input name="wrap_meters" type="number" step="0.1" wire:model="wrap_meters" :label="__('body-types.Wrap Meters')" class="dark:bg-gray-900" />
+
+                    <div class="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <x-form.input name="min_price" type="number" step="1" wire:model="min_price" label="Çmimi Min (€)" placeholder="1200" class="dark:bg-gray-900" />
+                        <x-form.input name="max_price" type="number" step="1" wire:model="max_price" label="Çmimi Max (€)" placeholder="1500" class="dark:bg-gray-900" />
+                    </div>
                 </div>
 
                 <div>
