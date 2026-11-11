@@ -621,7 +621,13 @@
                                     <div class="text-start flex-grow-1">
                                         <div class="d-flex align-items-center justify-content-between gap-1 mb-1">
                                             <h4 class="mb-0 text-white font-bold" style="font-size: 13px !important; color: #ffffff !important;">{{ $s->name }}</h4>
-                                            <span class="text-[#28a745] font-black" style="color: #28a745 !important; font-size: 12px !important;">€{{ number_format($s->base_price, 0) }}</span>
+                                            <span class="text-[#28a745] font-black" style="color: #28a745 !important; font-size: 11px !important;">
+                                                @if(str_contains(strtolower($s->name), 'wrap'))
+                                                    {{ $this->selectedBodyTypeData ? '€' . number_format($this->selectedBodyTypeData->min_wrap_price, 0) . ' - €' . number_format($this->selectedBodyTypeData->max_wrap_price, 0) : 'Da €1,200' }}
+                                                @else
+                                                    €{{ number_format($s->base_price, 0) }}
+                                                @endif
+                                            </span>
                                         </div>
                                         <p class="mb-0 line-clamp-2" style="font-size: 11px !important; line-height: 1.35 !important; color: #d1d5db !important; opacity: 1 !important; font-weight: 500 !important;">{{ $s->resolved_description }}</p>
                                     </div>
@@ -661,7 +667,7 @@
                         <div class="price-estimate-container border border-white/5 rounded-1 p-3 m-0">
                             <div>
                                 <span class="text-[9px] text-gray-500 uppercase tracking-widest">{{ __('front.estimated_total') }}</span>
-                                <div class="text-3xl font-black text-white">€{{ number_format($this->estimatedPrice, 0) }}</div>
+                                <div class="text-3xl font-black text-white">{{ $this->estimatedPriceDisplay }}</div>
                             </div>
                             <button wire:click="goToStep(3)" class="btn-main fx-slide px-8 py-2 {{ (empty($selected_services) && !$material_id) || !$body_type_id ? 'opacity-50 pointer-events-none' : '' }}"><span>{{ __('front.continue_to_contact') }} <i class="fa fa-arrow-right ms-2"></i></span></button>
                         </div>

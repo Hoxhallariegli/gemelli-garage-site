@@ -95,26 +95,73 @@ class LandingPage extends Component
         $this->dispatch('scroll-to-configurator');
     }
 
-    public function getEstimatedPriceProperty()
+    public function getEstimatedPriceRangeProperty(): array
     {
-        $total = 0;
+        $minTotal = 0;
+        $maxTotal = 0;
+        $hasRange = false;
 
         foreach ($this->selected_services as $sId) {
             $service = Service::find($sId);
             if ($service) {
-                $total += (float) $service->base_price;
+                if (str_contains(strtolower($service->name), 'wrap')) {
+                    $hasRange = true;
+                    if ($this->body_type_id) {
+                        $bt = \App\Models\BodyType::find($this->body_type_id);
+                        if ($bt) {
+                            $minTotal += $bt->min_wrap_price;
+                            $maxTotal += $bt->max_wrap_price;
+                        } else {
+                            $minTotal += (float) $service->base_price;
+                            $maxTotal += (float) $service->base_price * 1.3;
+                        }
+                    } else {
+                        $minTotal += (float) $service->base_price;
+                        $maxTotal += (float) $service->base_price * 1.3;
+                    }
+                } else {
+                    $minTotal += (float) $service->base_price;
+                    $maxTotal += (float) $service->base_price;
+                }
             }
         }
 
         if ($this->material_id && $this->body_type_id) {
-            $bodyType = \App\Models\BodyType::find($this->body_type_id);
+            $hasRange = true;
+            $bt = \App\Models\BodyType::find($this->body_type_id);
             $material = Material::find($this->material_id);
-            if ($bodyType && $material) {
-                $total += ($bodyType->wrap_meters * $material->sell_price);
+            if ($bt && $material) {
+                $matAdd = ($bt->wrap_meters * $material->sell_price);
+                if ($minTotal == 0) {
+                    $minTotal = $bt->min_wrap_price + $matAdd;
+                    $maxTotal = $bt->max_wrap_price + $matAdd;
+                } else {
+                    $minTotal += $matAdd;
+                    $maxTotal += $matAdd;
+                }
             }
         }
 
-        return $total;
+        return [
+            'min' => $minTotal,
+            'max' => $maxTotal,
+            'has_range' => $hasRange && ($maxTotal > $minTotal),
+        ];
+    }
+
+    public function getEstimatedPriceDisplayProperty(): string
+    {
+        $range = $this->estimatedPriceRange;
+        if ($range['has_range']) {
+            return '€' . number_format($range['min'], 0) . ' - €' . number_format($range['max'], 0);
+        }
+
+        return '€' . number_format($range['min'], 0);
+    }
+
+    public function getEstimatedPriceProperty()
+    {
+        return $this->estimatedPriceRange['min'];
     }
 
     public function getSelectedServicesDataProperty()
@@ -162,7 +209,7 @@ class LandingPage extends Component
             'body_type_id' => $this->body_type_id,
             'service_id' => $serviceIds,
             'material_id' => $this->material_id,
-            'estimated_price' => $this->estimatedPrice,
+            'estimated_price' => $this->estimatedPriceDisplay,
             'message' => __('front.chosen_services') . ": " . implode(', ', Service::whereIn('id', $this->selected_services)->pluck('name')->toArray()) . "\n\n" . $this->message,
             'status' => 'pending',
         ]);

@@ -9,11 +9,13 @@ class BodyType extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['tenant_id', 'name', 'wrap_meters', 'image'];
+    protected $fillable = ['tenant_id', 'name', 'wrap_meters', 'image', 'min_price', 'max_price'];
 
     protected function casts(): array {
         return [
             'wrap_meters' => 'decimal:2',
+            'min_price' => 'decimal:2',
+            'max_price' => 'decimal:2',
         ];
     }
 
@@ -22,11 +24,51 @@ class BodyType extends Model
             'name' => ['required', 'string', 'max:255'],
             'wrap_meters' => ['required', 'numeric'],
             'image' => ['nullable', 'string', 'max:255'],
+            'min_price' => ['nullable', 'numeric'],
+            'max_price' => ['nullable', 'numeric'],
         ];
     }
 
     public static function sortable(): array {
         return ['id', 'name', 'wrap_meters', 'image'];
+    }
+
+    public function getMinWrapPriceAttribute(): float
+    {
+        if (isset($this->attributes['min_price']) && (float)$this->attributes['min_price'] > 0) {
+            return (float) $this->attributes['min_price'];
+        }
+
+        $name = strtolower($this->name);
+
+        if (str_contains($name, 'micro') || str_contains($name, 'city')) return 1000.0;
+        if (str_contains($name, 'hatchback') || str_contains($name, 'convertible')) return 1200.0;
+        if (str_contains($name, 'coupe') || str_contains($name, 'sports')) return 1400.0;
+        if (str_contains($name, 'sedan') || str_contains($name, 'wagon')) return 1500.0;
+        if (str_contains($name, 'suv') || str_contains($name, 'crossover') || str_contains($name, 'pickup')) return 1800.0;
+        if (str_contains($name, 'mpv') || str_contains($name, 'small van')) return 2000.0;
+        if (str_contains($name, 'large van') || str_contains($name, 'truck')) return 2400.0;
+
+        return 1400.0;
+    }
+
+    public function getMaxWrapPriceAttribute(): float
+    {
+        if (isset($this->attributes['max_price']) && (float)$this->attributes['max_price'] > 0) {
+            return (float) $this->attributes['max_price'];
+        }
+
+        $name = strtolower($this->name);
+
+        if (str_contains($name, 'micro') || str_contains($name, 'city')) return 1300.0;
+        if (str_contains($name, 'hatchback') || str_contains($name, 'convertible')) return 1500.0;
+        if (str_contains($name, 'coupe') || str_contains($name, 'sports')) return 1800.0;
+        if (str_contains($name, 'sedan') || str_contains($name, 'wagon')) return 1900.0;
+        if (str_contains($name, 'suv') || str_contains($name, 'crossover') || str_contains($name, 'pickup')) return 2300.0;
+        if (str_contains($name, 'mpv') || str_contains($name, 'small van')) return 2500.0;
+        if (str_contains($name, 'large van') || str_contains($name, 'truck')) return 3000.0;
+
+        return 1800.0;
     }
 
     public function getResolvedImageAttribute(): string
